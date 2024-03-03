@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import Loading from './Loading.vue'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch, defineEmits } from 'vue'
 import { EnvStatus } from '../../../main/definition/env'
+
+const emit = defineEmits(['env-ready'])
 
 const envStatus = ref(EnvStatus.PythonNotInstalled)
 
@@ -28,9 +30,17 @@ window.electronAPI.onEnvCheckReply((result) => {
 })
 
 watch(envStatus, (newValue) => {
-  if (newValue === EnvStatus.PythonNotInstalled) {
+  const {PythonNotInstalled, RembgIsInstalling, RembgNotInstalled, RembgInstalled} = EnvStatus
+  if ([PythonNotInstalled, RembgNotInstalled, RembgInstalled].includes(newValue)) {
     loading.value = false
   }
+  if (newValue === RembgIsInstalling) {
+    loadingText.value = '应用部署中...'
+  } else if (newValue === RembgInstalled) {
+    emit('env-ready')
+  } else if (newValue === RembgNotInstalled) {
+    loadingText.value = '应用部署失败'
+   }
 }, { immediate: true })
 
 onMounted(() => {

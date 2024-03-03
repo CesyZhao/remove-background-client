@@ -40,10 +40,22 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
+  const installRembg = () => {
+    const installSupport = installRemBG('rembg[gpu,cli]')
+    mainWindow.webContents.send('env-check-reply', EnvStatus.RembgIsInstalling)
+    installSupport()
+      .then(() => {
+        mainWindow.webContents.send('env-check-reply', EnvStatus.RembgInstalled)
+      })
+      .catch(() => {
+        mainWindow.webContents.send('env-check-reply', EnvStatus.RembgNotInstalled)
+      })
+  }
+
   ipcMain.on('env-check', () => {
     checkPythonInstallStatus()
       .then((res) => {
-        mainWindow.webContents.send('env-check-reply', res)
+        installRembg()
       })
       .catch(err => {
         mainWindow.webContents.send('env-check-reply', err)
@@ -55,15 +67,7 @@ function createWindow(): void {
   })
 
   ipcMain.on('deploy-rembg', (event, args) => {
-    const installCpuSupport = installRemBG('rembg')
-    const installGpuSupport = installRemBG('rembg[gpu]')
-    Promise.all([installCpuSupport, installGpuSupport])
-      .then(() => {
-        mainWindow.webContents.send('env-check-reply', EnvStatus.RembgInstalled)
-      })
-      .catch(() => {
-        mainWindow.webContents.send('env-check-reply', EnvStatus.RembgNotInstalled)
-      })
+    installRembg()
   })
 }
 

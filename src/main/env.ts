@@ -5,7 +5,7 @@ const { exec } = childProcess
 
 export const checkPythonInstallStatus = () => {
   return new Promise((resolve, reject) => {
-    exec('python --version', (error, stdout, stderr) => {
+    exec('python3 --version', (error, stdout, stderr) => {
       const version = stdout?.replace('Python', '')?.trim()
       const versionArray = version?.split('.')
       const mainVersion = versionArray?.[0]
@@ -21,7 +21,8 @@ export const checkPythonInstallStatus = () => {
 
 export const installRemBG = (type: string) => {
   return new Promise((resolve, reject) => {
-    const command = exec(`pip install ${type}`, (error, stdout, stderr) => {
+    const command = exec(`pip3 install ${type}`, (error, stdout, stderr) => {
+      console.log(error)
       // if (!error) {
       //   resolve(true)
       // }
@@ -29,6 +30,12 @@ export const installRemBG = (type: string) => {
     })
     command.stdout.on('data', (data) => {
       console.log(data, '++++++')
+    })
+    command.on('error', (error) => {
+      console.log(error, 'error---------------')
+    })
+    command.on('close', (code) => {
+      console.log(code, 'close---------------')
     })
   })
 }
