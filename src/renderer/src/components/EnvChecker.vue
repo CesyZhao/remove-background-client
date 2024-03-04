@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Loading from './Loading.vue'
-import { onMounted, ref, watch, defineEmits } from 'vue'
+import { defineEmits, onMounted, ref, watch } from 'vue'
 import { EnvStatus } from '../../../main/definition/env'
 
 const emit = defineEmits(['env-ready'])
@@ -9,6 +9,7 @@ const envStatus = ref(EnvStatus.PythonNotInstalled)
 
 const loading = ref(true)
 const loadingText = ref("检测环境中...")
+const tip = ref(`检测到必要的运行环境 <div class="python">Python</div> 缺失`)
 
 const installPython = () => {
   console.log(window.electron)
@@ -37,9 +38,10 @@ watch(envStatus, (newValue) => {
   if (newValue === RembgIsInstalling) {
     loadingText.value = '应用部署中...'
   } else if (newValue === RembgInstalled) {
+    // tip.value = '应用成功'
     emit('env-ready')
   } else if (newValue === RembgNotInstalled) {
-    loadingText.value = '应用部署失败'
+    tip.value = '应用部署失败，请联系作者'
    }
 })
 
@@ -54,9 +56,9 @@ onMounted(() => {
 <template>
   <Loading v-if="loading" :loading-text="loadingText" />
   <div class="env-tips" v-else>
-    检测到必要的运行环境 <div class="python">Python</div> 缺失
+    <span v-html="tip"></span>
 
-    <div class="actions">
+    <div class="actions" v-if="envStatus === EnvStatus.PythonNotInstalled">
       <div class="action" @click="installPython">去安装</div>
       <div class="action" @click="deployRemBG">我已安装</div>
     </div>
@@ -97,7 +99,7 @@ onMounted(() => {
   background-color: var(--ev-button-alt-hover-bg);
 }
 
-.python {
+:deep(.python)  {
   display: inline;
   background: -webkit-linear-gradient(315deg, #3178c6 45%, #f0dc4e);
   background-clip: text;

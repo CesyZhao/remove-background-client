@@ -4,7 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { exec } from 'child_process'
 import { InstallationError } from './definition/error'
-import { checkPythonInstallStatus, installRemBG } from './env'
+import { checkPythonInstallStatus, installRemBG, startRemBGServer } from './env'
 import { EnvStatus } from './definition/env'
 
 function createWindow(): void {
@@ -27,7 +27,9 @@ function createWindow(): void {
     mainWindow.show()
   })
 
-  mainWindow.webContents.setWindowOpenHandler((details) => {
+  const { webContents } = mainWindow
+
+  webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
@@ -41,33 +43,31 @@ function createWindow(): void {
   }
 
   const installRembg = () => {
-    const installSupport = installRemBG('rembg[gpu,cli]')
-    mainWindow.webContents.send('env-check-reply', EnvStatus.RembgIsInstalling)
-    // installSupport()
-    //   .then(() => {
-    //     mainWindow.webContents.send('env-check-reply', EnvStatus.RembgInstalled)
-    //   })
-    //   .catch(() => {
-    //     mainWindow.webContents.send('env-check-reply', EnvStatus.RembgNotInstalled)
-    //   })
+    webContents.send('env-check-reply', EnvStatus.RembgIsInstalling)
+    return installRemBG('rembg[cli]')
   }
 
-  ipcMain.on('env-check', () => {
-    checkPythonInstallStatus()
-      .then((res) => {
-        installRembg()
-      })
-      .catch(err => {
-        mainWindow.webContents.send('env-check-reply', err)
-      })
+  ipcMain.on('env-check', async () => {
+    try {
+      await checkPythonInstallStatus()
+      const result = await installRembg()
+      webContents.send('env-check-reply', result)
+    } catch (e) {
+      webContents.send('env-check-reply', e)
+    }
   })
 
   ipcMain.on('download-python', (event, args) => {
     shell.openExternal(args)
   })
 
-  ipcMain.on('deploy-rembg', (event, args) => {
-    installRembg()
+  ipcMain.on('deploy-rembg', async (event, args) => {
+    try {
+      const result = await installRembg()
+      webContents.send('env-check-reply', result)
+    } catch (e) {
+      webContents.send('env-check-reply', e)
+    }
   })
 }
 

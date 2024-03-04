@@ -18,21 +18,40 @@ export const checkPythonInstallStatus = () => {
   })
 }
 
+export const checkRembgInstallStatus = () => {
+    return new Promise((resolve, reject) => {
+    exec('rembg --help', (error, stdout, stderr) => {
+      if (!error) {
+        resolve(EnvStatus.RembgInstalled)
+      }
+      reject(EnvStatus.RembgNotInstalled)
+    })
+  })
+}
+
 
 export const installRemBG = (type: string) => {
   return new Promise((resolve, reject) => {
-    const command = exec(`pip3 install ${type}`, (error, stdout, stderr) => {
-      console.log(error)
-      if (error) {
-        reject(false)
-      }
-    })
-    command.on('close', (code) => {
-      if (code === 0) {
-        resolve(true)
-      }
-      reject(false)
-    })
+    checkRembgInstallStatus()
+      .then((res) => {
+        resolve(res)
+      })
+      .catch(() => {
+        const command = exec(`pip3 install "${type}"`, (error, stdout, stderr) => {
+          if (error) {
+            reject(EnvStatus.RembgNotInstalled)
+          }
+        })
+        command.stdout.on('data', (data) => {
+          console.log(data)
+        })
+        command.on('close', (code) => {
+          if (code === 0) {
+            resolve(EnvStatus.RembgInstalled)
+          }
+          reject(EnvStatus.RembgNotInstalled)
+        })
+      })
   })
 }
 
