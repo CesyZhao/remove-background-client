@@ -41,16 +41,18 @@ watch(envStatus, (newValue) => {
   } else if (newValue === RembgNotInstalled) {
     loadingText.value = '应用部署失败'
    }
-}, { immediate: true })
+})
 
 onMounted(() => {
-  window.electron.ipcRenderer.send('env-check')
+ setTimeout(() => {
+   window.electron.ipcRenderer.send('env-check')
+ }, 1000)
 })
 
 </script>
 
 <template>
-  <Loading v-if="loading" loading-text="检测环境中..." />
+  <Loading v-if="loading" :loading-text="loadingText" />
   <div class="env-tips" v-else>
     检测到必要的运行环境 <div class="python">Python</div> 缺失
 

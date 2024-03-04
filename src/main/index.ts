@@ -43,13 +43,13 @@ function createWindow(): void {
   const installRembg = () => {
     const installSupport = installRemBG('rembg[gpu,cli]')
     mainWindow.webContents.send('env-check-reply', EnvStatus.RembgIsInstalling)
-    installSupport()
-      .then(() => {
-        mainWindow.webContents.send('env-check-reply', EnvStatus.RembgInstalled)
-      })
-      .catch(() => {
-        mainWindow.webContents.send('env-check-reply', EnvStatus.RembgNotInstalled)
-      })
+    // installSupport()
+    //   .then(() => {
+    //     mainWindow.webContents.send('env-check-reply', EnvStatus.RembgInstalled)
+    //   })
+    //   .catch(() => {
+    //     mainWindow.webContents.send('env-check-reply', EnvStatus.RembgNotInstalled)
+    //   })
   }
 
   ipcMain.on('env-check', () => {
