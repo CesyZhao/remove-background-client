@@ -4,7 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { exec } from 'child_process'
 import { InstallationError } from './definition/error'
-import { checkPythonInstallStatus, installRemBG, startRemBGServer } from './env'
+import { checkPythonInstallStatus, installRemBG } from './env'
 import { EnvStatus } from './definition/env'
 
 function createWindow(): void {

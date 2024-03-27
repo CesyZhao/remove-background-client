@@ -5,10 +5,10 @@ import { EnvStatus } from '../../../main/definition/env'
 
 const emit = defineEmits(['env-ready'])
 
-const envStatus = ref(EnvStatus.PythonNotInstalled)
+const envStatus = ref(EnvStatus.Checking)
 
 const loading = ref(true)
-const loadingText = ref("检测环境中...")
+const loadingText = ref('检测环境中...')
 const tip = ref(`检测到必要的运行环境 <div class="python">Python</div> 缺失`)
 
 const installPython = () => {
@@ -31,34 +31,33 @@ window.electronAPI.onEnvCheckReply((result) => {
 })
 
 watch(envStatus, (newValue) => {
-  const {PythonNotInstalled, RembgIsInstalling, RembgNotInstalled, RembgInstalled} = EnvStatus
+  const { PythonNotInstalled, RembgIsInstalling, RembgNotInstalled, RembgInstalled } = EnvStatus
   if ([PythonNotInstalled, RembgNotInstalled, RembgInstalled].includes(newValue)) {
     loading.value = false
   }
   if (newValue === RembgIsInstalling) {
+    loading.value = true
     loadingText.value = '应用部署中...'
   } else if (newValue === RembgInstalled) {
-    // tip.value = '应用成功'
     emit('env-ready')
   } else if (newValue === RembgNotInstalled) {
     tip.value = '应用部署失败，请联系作者'
-   }
+  }
 })
 
 onMounted(() => {
- setTimeout(() => {
-   window.electron.ipcRenderer.send('env-check')
- }, 1000)
+  setTimeout(() => {
+    window.electron.ipcRenderer.send('env-check')
+  }, 1000)
 })
-
 </script>
 
 <template>
   <Loading v-if="loading" :loading-text="loadingText" />
-  <div class="env-tips" v-else>
+  <div v-else class="env-tips">
     <span v-html="tip"></span>
 
-    <div class="actions" v-if="envStatus === EnvStatus.PythonNotInstalled">
+    <div v-if="envStatus === EnvStatus.PythonNotInstalled" class="actions">
       <div class="action" @click="installPython">去安装</div>
       <div class="action" @click="deployRemBG">我已安装</div>
     </div>
@@ -99,7 +98,7 @@ onMounted(() => {
   background-color: var(--ev-button-alt-hover-bg);
 }
 
-:deep(.python)  {
+:deep(.python) {
   display: inline;
   background: -webkit-linear-gradient(315deg, #3178c6 45%, #f0dc4e);
   background-clip: text;
@@ -107,5 +106,4 @@ onMounted(() => {
   -webkit-text-fill-color: transparent;
   font-weight: 700;
 }
-
 </style>

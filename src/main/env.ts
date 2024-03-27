@@ -37,7 +37,7 @@ export const installRemBG = (type: string) => {
         resolve(res)
       })
       .catch(() => {
-        const command = exec(`pip3 install "${type}"`, (error, stdout, stderr) => {
+        const command = exec(`pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple "${type}"`, (error, stdout, stderr) => {
           if (error) {
             reject(EnvStatus.RembgNotInstalled)
           }
