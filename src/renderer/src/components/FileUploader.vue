@@ -10,7 +10,7 @@ const handleFileUpload = () => {
 
 const handleFileChange = (e) => {
   const { files } = e.target
-  const 
+  console.log(files, '==========')
 }
 </script>
 

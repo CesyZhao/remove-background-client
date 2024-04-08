@@ -12,7 +12,6 @@ const loadingText = ref('检测环境中...')
 const tip = ref(`检测到必要的运行环境 <div class="python">Python</div> 缺失`)
 
 const installPython = () => {
-  console.log(window.electron)
   const { process } = window.electron
   const { platform } = process
   const isMac = platform === 'darwin'

@@ -36,9 +36,7 @@ const rotateBg = () => {
 }
 
 onMounted(() => {
-  console.log(dom, '===========')
   if (dom.value) {
-    console.log('++++++--------')
     frameId.value = requestAnimationFrame(rotateBg);
   }
 })
