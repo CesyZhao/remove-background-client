@@ -5,6 +5,8 @@ import { ref } from 'vue'
 import Settings from './components/Settings.vue'
 
 const envReady = ref(false)
+
+document.body.setAttribute('arco-theme', 'dark')
 </script>
 
 <template>

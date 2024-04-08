@@ -10,9 +10,7 @@ const popperVisible = ref(false)
   <span class="iconfont icon-setting" @click="popperVisible = !popperVisible"></span>
   <Transition>
     <div class="setting-popper" v-show="popperVisible">
-      <div class="setting-item">
-
-      </div>
+      <a-radio></a-radio>
     </div>
   </Transition>
 </template>
