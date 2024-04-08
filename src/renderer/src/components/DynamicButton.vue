@@ -61,9 +61,9 @@ onBeforeUnmount(() => {
   cursor: pointer;
   background-image: radial-gradient(
     closest-side,
-    hsl(331, 70%, 46%) 6%,
-    hsl(331, 90%, 56%) 50%,
-    hsl(206, 75%, 49%) 100%
+    var(--theme-color-1) 6%,
+    var(--theme-color-2) 50%,
+    var(--theme-color-3) 100%
   );
   background-position: 0% 50%;
   color: #ffffff;

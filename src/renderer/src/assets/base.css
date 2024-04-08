@@ -21,6 +21,10 @@
   --ev-button-alt-hover-border: transparent;
   --ev-button-alt-hover-text: var(--ev-c-text-1);
   --ev-button-alt-hover-bg: var(--ev-c-gray-2);
+
+  --theme-color-1: hsl(331, 70%, 46%);
+  --theme-color-2: hsl(331, 90%, 56%);
+  --theme-color-3: hsl(206, 75%, 49%);
 }
 
 :root {

@@ -1,12 +1,20 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
+const popperVisible = ref(false)
+
 
 </script>
 
 <template>
-  <span class="iconfont icon-setting"></span>
-  <div class="popper">
+  <span class="iconfont icon-setting" @click="popperVisible = !popperVisible"></span>
+  <Transition>
+    <div class="setting-popper" v-show="popperVisible">
+      <div class="setting-item">
 
-  </div>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <style scoped lang="less">
@@ -17,16 +25,26 @@
   right: 60px;
   cursor: pointer;
 }
-.popper {
+.setting-popper {
   width: 600px;
   height: 400px;
   background-color: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  padding: 10px;
+  padding: 20px;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  border-radius: 4px;
+  border-radius: 8px;
+  background: var(--color-background);
+  box-shadow: 0 0 2px 0 var(--theme-color-3);
+}
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
