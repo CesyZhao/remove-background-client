@@ -2,6 +2,7 @@
 import EnvChecker from './components/EnvChecker.vue'
 import FileUploader from './components/FileUploader.vue'
 import { ref } from 'vue'
+import Settings from './components/Settings.vue'
 
 const envReady = ref(false)
 </script>
@@ -9,4 +10,5 @@ const envReady = ref(false)
 <template>
   <EnvChecker v-if="!envReady" @env-ready="envReady = true" />
   <FileUploader v-else />
+  <Settings />
 </template>
