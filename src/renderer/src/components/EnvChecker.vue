@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Loading from './Loading.vue'
 import { defineEmits, onMounted, ref, watch } from 'vue'
-import { EnvStatus } from '../../../main/definition/env'
+import { EnvStatus } from '../../../main/definitions/env'
 
 const emit = defineEmits(['env-ready'])
 

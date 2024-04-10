@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
+import setting from '../models/Setting'
+import { ISetting } from '../definitions/setting'
 
 const popperVisible = ref(false)
 
-const targetPathChooser = ref()
+const appSetting: ISetting = ref({})
 
-const chooseTargetPath = () => {
-  window.showDirectoryPicker()
+const chooseTargetPath = async () => {
+  window.electron.ipcRenderer.send('choose-target-path')
 }
 
-const settings = [
-  {
-    name: 'targetPath',
-    title: '存储路径',
-  }
-]
+onMounted(() => {
+  const currentSetting = setting.restoreSetting()
+  appSetting.value = currentSetting
+
+  window.electronAPI.onTargetPathChosen((result) => {
+    console.log(result, '-------')
+    appSetting.targetPath = result
+  })
+})
+
 
 </script>
 
@@ -25,9 +31,9 @@ const settings = [
       <div class="setting-item">
         <div class="setting-item-label">存储路径</div>
         <div class="setting-item-content">
-          <a-input>
+          <a-input v-model="appSetting.targetPath">
             <template #append>
-              <span @click="chooseTargetPath">选择</span>
+              <span class="clickable" @click="chooseTargetPath">选择</span>
             </template>
           </a-input>
         </div>

@@ -1,4 +1,4 @@
-import { EnvStatus } from './definition/env'
+import { EnvStatus } from './definitions/env'
 
 const childProcess = require('child_process')
 const { exec } = childProcess
