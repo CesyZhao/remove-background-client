@@ -5,7 +5,7 @@ import { ISetting } from '../definitions/setting'
 
 const popperVisible = ref(false)
 
-const appSetting: ISetting = ref({})
+let appSetting: ISetting = ref({})
 
 const chooseTargetPath = async () => {
   window.electron.ipcRenderer.send('choose-target-path')
@@ -13,11 +13,10 @@ const chooseTargetPath = async () => {
 
 onMounted(() => {
   const currentSetting = setting.restoreSetting()
-  appSetting.value = currentSetting
+  appSetting = ref(currentSetting)
 
   window.electronAPI.onTargetPathChosen((result) => {
-    console.log(result, '-------')
-    appSetting.targetPath = result
+    appSetting.value.targetPath = result
   })
 })
 
