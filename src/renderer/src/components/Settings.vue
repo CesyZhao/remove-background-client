@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import setting from '../models/Setting'
 import { ISetting } from '../definitions/setting'
 
 const popperVisible = ref(false)
 
-let appSetting: ISetting = ref({})
+let appSetting: ISetting = ref(setting.restoreSetting())
 
 const chooseTargetPath = async () => {
   window.electron.ipcRenderer.send('choose-target-path')
 }
 
-onMounted(() => {
-  const currentSetting = setting.restoreSetting()
-  appSetting = ref(currentSetting)
+watch(appSetting, (newValue) => {
+  setting.saveSetting(newValue)
+}, { deep: true })
 
+onMounted(() => {
   window.electronAPI.onTargetPathChosen((result) => {
     appSetting.value.targetPath = result
   })
