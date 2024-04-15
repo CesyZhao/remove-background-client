@@ -5,7 +5,7 @@ import settingJson from '../config/setting.json'
 class Setting {
   setting!: ISetting
 
-  restoreSetting(): void {
+  restoreSetting(): ISetting {
     const key = AppStorageKeys.setting
     const json = localStorage.getItem(key)
     const setting = json ? JSON.parse(json) : settingJson

@@ -25,7 +25,7 @@ const deployRemBG = () => {
   window.electron.ipcRenderer.send('deploy-rembg')
 }
 
-window.electronAPI.onEnvCheckReply((result) => {
+window.electron.onEnvCheckReply((result: EnvStatus) => {
   envStatus.value = result
 })
 

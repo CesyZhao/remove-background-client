@@ -1,33 +1,35 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue'
+import { Ref, onMounted, reactive, ref, watch } from 'vue'
 import setting from '../models/Setting'
 import { ISetting } from '../definitions/setting'
 
 const popperVisible = ref(false)
 
-let appSetting: ISetting = ref(setting.restoreSetting())
+const appSetting: Ref<ISetting> = ref(setting.restoreSetting())
 
 const chooseTargetPath = async () => {
   window.electron.ipcRenderer.send('choose-target-path')
 }
 
-watch(appSetting, (newValue) => {
-  setting.saveSetting(newValue)
-}, { deep: true })
+watch(
+  appSetting,
+  (newValue) => {
+    setting.saveSetting(newValue)
+  },
+  { deep: true }
+)
 
 onMounted(() => {
   window.electronAPI.onTargetPathChosen((result) => {
     appSetting.value.targetPath = result
   })
 })
-
-
 </script>
 
 <template>
   <span class="iconfont icon-setting" @click="popperVisible = !popperVisible"></span>
   <Transition>
-    <div class="setting-popper" v-show="popperVisible">
+    <div v-show="popperVisible" class="setting-popper">
       <div class="setting-item">
         <div class="setting-item-label">存储路径</div>
         <div class="setting-item-content">
