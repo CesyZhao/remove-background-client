@@ -20,7 +20,7 @@ watch(
 )
 
 onMounted(() => {
-  window.electronAPI.onTargetPathChosen((result) => {
+  window.electron.onTargetPathChosen((result) => {
     appSetting.value.targetPath = result
   })
 })
