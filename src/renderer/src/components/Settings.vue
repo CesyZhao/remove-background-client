@@ -2,13 +2,15 @@
 import { Ref, onMounted, ref, watch } from 'vue'
 import setting from '../models/Setting'
 import { ISetting } from '../definitions/setting'
+import bridge from '../models/Bridge'
 
 const popperVisible = ref(false)
 
 const appSetting: Ref<ISetting> = ref(setting.restoreSetting())
 
 const chooseTargetPath = async () => {
-  window.electron.ipcRenderer.send('choose-target-path')
+  const result = await bridge.chooseDirectory()
+  appSetting.value.targetPath = result
 }
 
 watch(
@@ -18,12 +20,6 @@ watch(
   },
   { deep: true }
 )
-
-onMounted(() => {
-  window.electron.onTargetPathChosen((result) => {
-    appSetting.value.targetPath = result
-  })
-})
 </script>
 
 <template>
