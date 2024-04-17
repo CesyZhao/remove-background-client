@@ -2,8 +2,6 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { exec } from 'child_process'
-import { InstallationError } from './definitions/error'
 import { checkPythonInstallStatus, installRemBG } from './env'
 import { EnvStatus } from './definitions/env'
 
@@ -49,7 +47,8 @@ function createWindow(): void {
 
   ipcMain.on('env-check', async () => {
     try {
-      await checkPythonInstallStatus()
+      const pythonInstalled = await checkPythonInstallStatus()
+      webContents.send('env-check-reply', pythonInstalled)
       const result = await installRembg()
       webContents.send('env-check-reply', result)
     } catch (e) {
@@ -61,26 +60,6 @@ function createWindow(): void {
     shell.openExternal(args)
   })
 
-  ipcMain.on('deploy-rembg', async (event, args) => {
-    try {
-      const result = await installRembg()
-      webContents.send('env-check-reply', result)
-    } catch (e) {
-      webContents.send('env-check-reply', e)
-    }
-  })
-
-  ipcMain.on('choose-target-path', (event, args) => {
-    dialog.showOpenDialog({
-      properties: ['openDirectory']
-    }).then(result => {
-      if (!result.canceled) {
-        webContents.send('target-path-chosen', result.filePaths[0])
-      }
-    }).catch(err => {
-      console.error(err);
-    });
-  })
 }
 
 // This method will be called when Electron has finished

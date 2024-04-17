@@ -1,6 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 
-
 export type apiCallback<T> = (value: T) => void
 
 

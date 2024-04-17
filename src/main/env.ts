@@ -9,8 +9,8 @@ export const checkPythonInstallStatus = () => {
       const version = stdout?.replace('Python', '')?.trim()
       const versionArray = version?.split('.')
       const mainVersion = versionArray?.[0]
-      const subVersion =versionArray?.[1]
-      if (!error && mainVersion === '3' && subVersion > 7 && subVersion < 12){
+      const subVersion = versionArray?.[1]
+      if (!error && mainVersion === '3' && subVersion > 7 && subVersion < 12) {
         resolve(EnvStatus.PythonInstalled)
       }
       reject(EnvStatus.PythonNotInstalled)
@@ -19,7 +19,7 @@ export const checkPythonInstallStatus = () => {
 }
 
 export const checkRembgInstallStatus = () => {
-    return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     exec('rembg --help', (error, stdout, stderr) => {
       if (!error) {
         resolve(EnvStatus.RembgInstalled)
@@ -29,7 +29,6 @@ export const checkRembgInstallStatus = () => {
   })
 }
 
-
 export const installRemBG = (type: string) => {
   return new Promise((resolve, reject) => {
     checkRembgInstallStatus()
@@ -37,11 +36,14 @@ export const installRemBG = (type: string) => {
         resolve(res)
       })
       .catch(() => {
-        const command = exec(`pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple "${type}"`, (error, stdout, stderr) => {
-          if (error) {
-            reject(EnvStatus.RembgNotInstalled)
+        const command = exec(
+          `pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple "${type}"`,
+          (error, stdout, stderr) => {
+            if (error) {
+              reject(EnvStatus.RembgNotInstalled)
+            }
           }
-        })
+        )
         command.stdout.on('data', (data) => {
           console.log(data)
         })
@@ -54,4 +56,3 @@ export const installRemBG = (type: string) => {
       })
   })
 }
-

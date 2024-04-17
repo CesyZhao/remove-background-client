@@ -2,6 +2,7 @@
 import Loading from './Loading.vue'
 import { defineEmits, onMounted, ref, watch } from 'vue'
 import { EnvStatus } from '../definitions/env'
+import bridge from '@renderer/models/Bridge'
 
 const emit = defineEmits(['env-ready'])
 
@@ -21,13 +22,7 @@ const installPython = () => {
   window.electron.ipcRenderer.send('download-python', isMac ? macDownloadUrl : windowsDownloadUrl)
 }
 
-const deployRemBG = () => {
-  window.electron.ipcRenderer.send('deploy-rembg')
-}
-
-window.electron.onEnvCheckReply((result: EnvStatus) => {
-  envStatus.value = result
-})
+const deployRemBG = () => bridge.deployRemBG()
 
 watch(envStatus, (newValue) => {
   const { PythonNotInstalled, RembgIsInstalling, RembgNotInstalled, RembgInstalled } = EnvStatus
@@ -45,9 +40,7 @@ watch(envStatus, (newValue) => {
 })
 
 onMounted(() => {
-  setTimeout(() => {
-    window.electron.ipcRenderer.send('env-check')
-  }, 1000)
+  bridge.setupEnvStatusChecker((result) => (envStatus.value = result))
 })
 </script>
 

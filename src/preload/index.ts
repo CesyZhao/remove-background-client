@@ -9,7 +9,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', {
       ...electronAPI,
       onEnvCheckReply: (callback) =>
-        ipcRenderer.once('env-check-reply', (_event, value) => callback(value)),
+        ipcRenderer.on('env-check-reply', (_event, value) => callback(value)),
       onTargetPathChosen: (callback) =>
         ipcRenderer.once('target-path-chosen', (_event, value) => callback(value))
     })
