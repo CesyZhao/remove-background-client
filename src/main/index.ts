@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { checkPythonInstallStatus, installRemBG } from './env'
 import { EnvStatus } from './definitions/env'
+import Bridge from './Bridge'
 
 function createWindow(): void {
   // Create the browser window.
@@ -40,25 +41,8 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  const installRembg = () => {
-    webContents.send('env-check-reply', EnvStatus.RembgIsInstalling)
-    return installRemBG('rembg[cli]')
-  }
-
-  ipcMain.on('env-check', async () => {
-    try {
-      const pythonInstalled = await checkPythonInstallStatus()
-      webContents.send('env-check-reply', pythonInstalled)
-      const result = await installRembg()
-      webContents.send('env-check-reply', result)
-    } catch (e) {
-      webContents.send('env-check-reply', e)
-    }
-  })
-
-  ipcMain.on('download-python', (event, args) => {
-    shell.openExternal(args)
-  })
+  const bridge = new Bridge(webContents)
+  bridge.init()
 
 }
 
