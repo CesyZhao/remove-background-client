@@ -22,9 +22,9 @@ const installPython = () => {
   window.electron.ipcRenderer.send('download-python', isMac ? macDownloadUrl : windowsDownloadUrl)
 }
 
-const deployRemBG = () => bridge.deployRemBG()
+const deployRemBG = () => bridge.recheckEnv()
 
-watch(envStatus, (newValue) => {
+watch(envStatus, ({ status: newValue }) => {
   const { PythonNotInstalled, RembgIsInstalling, RembgNotInstalled, RembgInstalled } = EnvStatus
   if ([PythonNotInstalled, RembgNotInstalled, RembgInstalled].includes(newValue)) {
     loading.value = false

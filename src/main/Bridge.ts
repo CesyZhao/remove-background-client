@@ -22,13 +22,13 @@ class Bridge {
   setupEnvChecker() {
     ipcMain.on('env-check', async () => {
       try {
-        const pythonInsalled = await checkPythonInstallStatus()
-        this.webContents.send('env-check-reply', pythonInsalled)
-        this.webContents.send('env-check-reply', EnvStatus.RembgIsInstalling)
+        const pythonInstalled = await checkPythonInstallStatus()
+        this.webContents.send('env-check-reply', { status: pythonInstalled })
+        this.webContents.send('env-check-reply',{ status: EnvStatus.RembgIsInstalling })
         const result = await installRemBG('rembg[cli]')
-        this.webContents.send('env-check-reply', result)
+        this.webContents.send('env-check-reply', { status: result })
       } catch (e) {
-        this.webContents.send('env-check-reply', e)
+        this.webContents.send('env-check-reply', { status: e })
       }
     })
   }
