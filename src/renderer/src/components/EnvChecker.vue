@@ -2,7 +2,7 @@
 import Loading from './Loading.vue'
 import { defineEmits, onMounted, ref, watch } from 'vue'
 import { EnvStatus } from '../definitions/env'
-import bridge from '@renderer/models/Bridge'
+import bridge from '../models/Bridge'
 
 const emit = defineEmits(['env-ready'])
 
@@ -13,13 +13,7 @@ const loadingText = ref('检测环境中...')
 const tip = ref(`检测到必要的运行环境 <div class="python">Python</div> 缺失`)
 
 const installPython = () => {
-  const { process } = window.electron
-  const { platform } = process
-  const isMac = platform === 'darwin'
-  const macDownloadUrl = 'https://www.python.org/ftp/python/3.10.10/python-3.10.10-macos11.pkg'
-  const windowsDownloadUrl = 'https://www.python.org/ftp/python/3.10.10/python-3.10.10-amd64.exe'
-
-  window.electron.ipcRenderer.send('download-python', isMac ? macDownloadUrl : windowsDownloadUrl)
+  bridge.installPython()
 }
 
 const deployRemBG = () => bridge.recheckEnv()
@@ -46,10 +40,10 @@ onMounted(() => {
 
 <template>
   <Loading v-if="loading" :loading-text="loadingText" />
-  <div v-else class="env-tips">
+  <div v-if="envStatus.status === EnvStatus.PythonNotInstalled" class="env-tips">
     <span v-html="tip"></span>
 
-    <div v-if="envStatus === EnvStatus.PythonNotInstalled" class="actions">
+    <div class="actions">
       <div class="action" @click="installPython">去安装</div>
       <div class="action" @click="deployRemBG">我已安装</div>
     </div>

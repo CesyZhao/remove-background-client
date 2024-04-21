@@ -19,6 +19,10 @@ class Bridge {
   recheckEnv() {
     window.electron.ipcRenderer.send('env-check')
   }
+
+  installPython() {
+    window.electron.ipcRenderer.send('install-python')
+  }
 }
 
 const bridge = new Bridge()

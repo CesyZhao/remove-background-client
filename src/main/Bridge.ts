@@ -51,7 +51,7 @@ class Bridge {
   setupPythonDownload() {
     const isMac = process.platform === 'darwin'
     const baseURL = 'https://www.python.org/ftp/python/3.10.10'
-    ipcMain.on('choose-target-path', async () => {
+    ipcMain.on('install-python', async () => {
       http.get(
         `${baseURL}/${isMac ? 'python-3.10.10-macos11.pkg' : 'python-3.10.10-amd64.exe'}`,
         (res) => {
@@ -60,19 +60,21 @@ class Bridge {
               path.join(__dirname) +
                 `${res.req.path.split('/')[res.req.path.split('/').length - 1]}`
             )
+
+            this.webContents.send('env-check-reply', EnvStatus.PythonDownloading)
             // 进度
-            const len = parseInt(res.headers['content-length']) // 文件总长度
-            console.log(len)
-            let cur = 0
-            res.on('data', function (chunk) {
-              cur += chunk.length
-              const progress = ((100.0 * cur) / len).toFixed(2) // 当前进度
-              // const currProgress = (cur / 1048576).toFixed(2) // 当前了多少
-              this.webContents.send('env-check-reply', progress)
-              //这里开启新的线程启动子窗子 将进度条数据传送至子窗口 显示下载进度。
-              // console.log(progress);
-              // console.log(currProgress + "M");
-            })
+            // const len = parseInt(res.headers['content-length']) // 文件总长度
+            // console.log(len)
+            // let cur = 0
+            // res.on('data', function (chunk) {
+            //   cur += chunk.length
+            //   const progress = ((100.0 * cur) / len).toFixed(2) // 当前进度
+            //   // const currProgress = (cur / 1048576).toFixed(2) // 当前了多少
+            //   this.webContents.send('env-check-reply', progress)
+            //   //这里开启新的线程启动子窗子 将进度条数据传送至子窗口 显示下载进度。
+            //   // console.log(progress);
+            //   // console.log(currProgress + "M");
+            // })
             res.on('end', () => {
               console.log('下载结束')
               //下载完成执行exe文件
