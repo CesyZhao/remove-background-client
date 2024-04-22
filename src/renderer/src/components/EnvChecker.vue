@@ -19,12 +19,18 @@ const installPython = () => {
 const deployRemBG = () => bridge.recheckEnv()
 
 watch(envStatus, ({ status: newValue }) => {
-  const { PythonNotInstalled, RembgIsInstalling, RembgNotInstalled, RembgInstalled } = EnvStatus
-  if ([PythonNotInstalled, RembgNotInstalled, RembgInstalled].includes(newValue)) {
-    loading.value = false
-  }
-  if (newValue === RembgIsInstalling) {
-    loading.value = true
+  const {
+    PythonNotInstalled,
+    PythonDownloading,
+    RembgIsInstalling,
+    RembgNotInstalled,
+    RembgInstalled
+  } = EnvStatus
+  loading.value = ![PythonNotInstalled, RembgNotInstalled, RembgInstalled].includes(newValue)
+  console.log(newValue, '=======')
+  if (newValue === PythonDownloading) {
+    loadingText.value = '依赖下载中...'
+  } else if (newValue === RembgIsInstalling) {
     loadingText.value = '应用部署中...'
   } else if (newValue === RembgInstalled) {
     emit('env-ready')

@@ -1,5 +1,5 @@
 import { ipcMain, dialog } from 'electron'
-import http from 'http'
+import https from 'https'
 import os from 'os'
 import fs from 'fs'
 import path from 'path'
@@ -14,7 +14,7 @@ class Bridge {
   }
 
   init() {
-    this.setupDictoryPicker()
+    this.setupDirectoryPicker()
     this.setupEnvChecker()
     this.setupPythonDownload()
   }
@@ -33,7 +33,7 @@ class Bridge {
     })
   }
 
-  setupDictoryPicker() {
+  setupDirectoryPicker() {
     ipcMain.on('choose-target-path', async () => {
       try {
         const result = await dialog.showOpenDialog({
@@ -52,16 +52,16 @@ class Bridge {
     const isMac = process.platform === 'darwin'
     const baseURL = 'https://www.python.org/ftp/python/3.10.10'
     ipcMain.on('install-python', async () => {
-      http.get(
+      this.webContents.send('env-check-reply', { status: EnvStatus.PythonDownloading })
+      https.get(
         `${baseURL}/${isMac ? 'python-3.10.10-macos11.pkg' : 'python-3.10.10-amd64.exe'}`,
         (res) => {
+          console.log(res.statusCode, '++++++')
           if (res.statusCode !== '200') {
             const file = fs.createWriteStream(
               path.join(__dirname) +
                 `${res.req.path.split('/')[res.req.path.split('/').length - 1]}`
             )
-
-            this.webContents.send('env-check-reply', EnvStatus.PythonDownloading)
             // 进度
             // const len = parseInt(res.headers['content-length']) // 文件总长度
             // console.log(len)
@@ -75,13 +75,13 @@ class Bridge {
             //   // console.log(progress);
             //   // console.log(currProgress + "M");
             // })
-            res.on('end', () => {
+            res.on('end', (e) => {
               console.log('下载结束')
               //下载完成执行exe文件
-              ToolsUpgrade(
-                path.join(__dirname) +
-                  `${res.req.path.split('/')[res.req.path.split('/').length - 1]}`
-              )
+              // ToolsUpgrade(
+              //   path.join(__dirname) +
+              //     `${res.req.path.split('/')[res.req.path.split('/').length - 1]}`
+              // )
             })
             file
               .on('finish', () => {
