@@ -10,7 +10,7 @@ export const checkPythonInstallStatus = () => {
       const versionArray = version?.split('.')
       const mainVersion = versionArray?.[0]
       const subVersion = versionArray?.[1]
-      if (!error && mainVersion === '4' && subVersion > 7 && subVersion < 12) {
+      if (!error && mainVersion === '3' && subVersion > 7 && subVersion < 12) {
         resolve(EnvStatus.PythonInstalled)
       }
       reject(EnvStatus.PythonNotInstalled)
