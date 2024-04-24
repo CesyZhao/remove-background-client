@@ -5,6 +5,8 @@ import settings from '../models/Settings'
 import { Message } from '@arco-design/web-vue'
 import '@arco-design/web-vue/es/message/style/css.js'
 
+const emit = defineEmits(['showSetting'])
+
 const input = ref()
 
 const handleFileUpload = () => {
@@ -21,7 +23,13 @@ const handleFileChange = (e) => {
 const handleFilesChange = () => {
   const targetPath = settings.getSetting('targetPath')
   if (targetPath === '') {
-    Message.error({ content: '请先在设置中选择存储路径', duration: 0 })
+    Message.error({
+      content: '请先在设置中选择存储路径',
+      duration: 3000,
+      onClose() {
+        emit('showSetting')
+      }
+    })
   }
 }
 </script>
@@ -30,7 +38,7 @@ const handleFilesChange = () => {
   <div class="file-uploader">
     上传一张图片以消除背景
     <dynamic-button class="file-uploader-button" @click="handleFileUpload">上传图片</dynamic-button>
-    <input ref="input" type="file" class="file-uploader-trigger" @change="handleFileChange"/>
+    <input ref="input" type="file" class="file-uploader-trigger" @change="handleFileChange" />
     <div class="file-uploader-tip">或者拖放一个文件、粘贴图片或 URL。</div>
   </div>
 </template>

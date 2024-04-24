@@ -4,13 +4,18 @@ import settings from '../models/Settings'
 import { ISetting } from '../definitions/setting'
 import bridge from '../models/Bridge'
 
-const popperVisible = ref(false)
+const visible = defineModel()
+
 
 const appSetting: Ref<ISetting> = ref(settings.settings)
 
 const chooseTargetPath = async () => {
   const result = await bridge.chooseDirectory()
   appSetting.value.targetPath = result
+}
+
+const handleVisibleChange = () => {
+  visible.value = !visible.value
 }
 
 watch(
@@ -23,9 +28,9 @@ watch(
 </script>
 
 <template>
-  <span class="iconfont icon-setting" @click="popperVisible = !popperVisible"></span>
+  <span class="iconfont icon-setting" @click="handleVisibleChange"></span>
   <Transition>
-    <div v-show="popperVisible" class="setting-popper">
+    <div v-show="visible" class="setting-popper">
       <div class="setting-item">
         <div class="setting-item-label">存储路径</div>
         <div class="setting-item-content">

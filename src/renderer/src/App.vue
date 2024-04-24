@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import EnvChecker from './components/EnvChecker.vue'
-import FileUploader from './components/FileUploader.vue'
+import Content from './components/Content.vue'
 import { ref } from 'vue'
-import Settings from './components/Settings.vue'
 
 const envReady = ref(false)
 
@@ -11,6 +10,5 @@ document.body.setAttribute('arco-theme', 'dark')
 
 <template>
   <EnvChecker v-if="!envReady" @env-ready="envReady = true" />
-  <FileUploader v-else />
-  <Settings />
+  <Content v-else />
 </template>
