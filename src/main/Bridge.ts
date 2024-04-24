@@ -1,10 +1,10 @@
-import { ipcMain, dialog } from 'electron'
+import { ipcMain, dialog, shell } from 'electron'
 import https from 'https'
-import os from 'os'
 import fs from 'fs'
 import path from 'path'
 import { checkPythonInstallStatus, installRemBG } from './env'
 import { EnvStatus } from './definitions/env'
+import cluster from 'child_process'
 
 class Bridge {
   webContents!: Electron.WebContents
@@ -55,11 +55,11 @@ class Bridge {
     ipcMain.on('install-python', async () => {
       this.webContents.send('env-check-reply', { status: EnvStatus.PythonDownloading })
       https.get(requestPath, (res) => {
-        console.log(res.statusCode, '++++++')
+        const filePaths = requestPath.split('/')
+        const targetPath = path.join(__dirname) + `${filePaths[filePaths.length - 1]}`
         if (res.statusCode === 200) {
-          const filePaths = requestPath.split('/')
           const file = fs.createWriteStream(
-            path.join(__dirname) + `${filePaths[filePaths.length - 1]}`
+            targetPath
           )
           // 进度
           // const len = parseInt(res.headers['content-length']) // 文件总长度
@@ -75,19 +75,17 @@ class Bridge {
           //   // console.log(currProgress + "M");
           // })
           res.on('end', (e) => {
-            console.log('下载结束')
-            //下载完成执行exe文件
-            // ToolsUpgrade(
-            //   path.join(__dirname) +
-            //     `${res.req.path.split('/')[res.req.path.split('/').length - 1]}`
-            // )
+            isMac
+              ? shell.openPath(targetPath)
+              : cluster.exec('"' + targetPath + '"', (err, res) => {
+            })
           })
           file
             .on('finish', () => {
               file.close()
             })
             .on('error', (err) => {
-              fs.unlink(path.join(__dirname) + `${filePaths[filePaths.length - 1]}`, () => {})
+              fs.unlink(targetPath, () => {})
               if (err) {
                 console.log(err)
               }
