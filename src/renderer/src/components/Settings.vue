@@ -7,6 +7,8 @@ import bridge from '../models/Bridge'
 const visible = defineModel()
 
 
+// https://blog.csdn.net/super_ying123/article/details/124285101
+
 const appSetting: Ref<ISetting> = ref(settings.settings)
 
 const chooseTargetPath = async () => {
