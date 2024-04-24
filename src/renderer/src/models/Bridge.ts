@@ -1,5 +1,5 @@
 class Bridge {
-  async chooseDirectory() {
+  async chooseDirectory(): Promise<string | undefined> {
     return new Promise((resolve) => {
       window.electron.onTargetPathChosen((result) => {
         resolve(result)

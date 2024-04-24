@@ -1,16 +1,28 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import DynamicButton from './DynamicButton.vue'
+import settings from '../models/Settings'
+import { Message } from '@arco-design/web-vue'
+import '@arco-design/web-vue/es/message/style/css.js'
 
 const input = ref()
 
 const handleFileUpload = () => {
-  input.value.click()
+  handleFilesChange()
+
+  // input.value.click()
 }
 
 const handleFileChange = (e) => {
   const { files } = e.target
   console.log(files, '==========')
+}
+
+const handleFilesChange = () => {
+  const targetPath = settings.getSetting('targetPath')
+  if (targetPath === '') {
+    Message.error({ content: '请先在设置中选择存储路径', duration: 0 })
+  }
 }
 </script>
 

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from 'vue'
-import setting from '../models/Setting'
+import settings from '../models/Settings'
 import { ISetting } from '../definitions/setting'
 import bridge from '../models/Bridge'
 
 const popperVisible = ref(false)
 
-const appSetting: Ref<ISetting> = ref(setting.restoreSetting())
+const appSetting: Ref<ISetting> = ref(settings.settings)
 
 const chooseTargetPath = async () => {
   const result = await bridge.chooseDirectory()
@@ -16,7 +16,7 @@ const chooseTargetPath = async () => {
 watch(
   appSetting,
   (newValue) => {
-    setting.saveSetting(newValue)
+    settings.saveSettings(newValue)
   },
   { deep: true }
 )
@@ -82,3 +82,4 @@ watch(
   opacity: 0;
 }
 </style>
+../models/Settings

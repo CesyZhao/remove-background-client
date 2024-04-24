@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@arco-design/web-vue": "^2.55.1",
+    "@arco-plugins/vite-vue": "^1.4.5",
     "@electron-toolkit/eslint-config": "^1.0.2",
     "@electron-toolkit/eslint-config-ts": "^1.0.1",
     "@electron-toolkit/tsconfig": "^1.0.1",
