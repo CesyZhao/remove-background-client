@@ -9,6 +9,8 @@ const emit = defineEmits(['showSetting'])
 
 const input = ref()
 
+const dragover = ref(false)
+
 const handleFileUpload = () => {
   handleFilesChange()
 
@@ -35,7 +37,7 @@ const handleFilesChange = () => {
 </script>
 
 <template>
-  <div class="file-uploader">
+  <div class="file-uploader" :class="{ 'dragover': dragover }" @dragenter="dragover = true" @dragleave="dragover = false" @drop="handleFilesChange">
     上传一张图片以消除背景
     <dynamic-button class="file-uploader-button" @click="handleFileUpload">上传图片</dynamic-button>
     <input ref="input" type="file" class="file-uploader-trigger" @change="handleFileChange" />
@@ -48,7 +50,13 @@ const handleFilesChange = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   font-size: 20px;
+  width: 800px;
+  height: 420px;
+  &.dragover {
+    border: 1px solid red;
+  }
   &-trigger {
     display: none;
   }
