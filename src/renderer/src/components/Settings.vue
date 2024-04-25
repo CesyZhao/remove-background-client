@@ -3,11 +3,10 @@ import { Ref, onMounted, ref, watch } from 'vue'
 import settings from '../models/Settings'
 import { ISetting } from '../definitions/setting'
 import bridge from '../models/Bridge'
+import vClickOutside from '../directives/click-outside'
 
 const visible = defineModel()
 
-
-// https://blog.csdn.net/super_ying123/article/details/124285101
 
 const appSetting: Ref<ISetting> = ref(settings.settings)
 
@@ -16,9 +15,14 @@ const chooseTargetPath = async () => {
   appSetting.value.targetPath = result
 }
 
-const handleVisibleChange = () => {
+const handlePopoverVisibleChange = () => {
   visible.value = !visible.value
 }
+
+const closePopover = () => {
+  visible.value = false
+}
+
 
 watch(
   appSetting,
@@ -30,21 +34,23 @@ watch(
 </script>
 
 <template>
-  <span class="iconfont icon-setting" @click="handleVisibleChange"></span>
-  <Transition>
-    <div v-show="visible" class="setting-popper">
-      <div class="setting-item">
-        <div class="setting-item-label">存储路径</div>
-        <div class="setting-item-content">
-          <a-input v-model="appSetting.targetPath">
-            <template #append>
-              <span class="clickable" @click="chooseTargetPath">选择</span>
-            </template>
-          </a-input>
+  <div v-click-outside="closePopover">
+    <span class="iconfont icon-setting" @click="handlePopoverVisibleChange"></span>
+    <Transition>
+      <div v-show="visible" class="setting-popper" >
+        <div class="setting-item">
+          <div class="setting-item-label">存储路径</div>
+          <div class="setting-item-content">
+            <a-input v-model="appSetting.targetPath">
+              <template #append>
+                <span class="clickable" @click="chooseTargetPath">选择</span>
+              </template>
+            </a-input>
+          </div>
         </div>
       </div>
-    </div>
-  </Transition>
+    </Transition>
+  </div>
 </template>
 
 <style scoped lang="less">
