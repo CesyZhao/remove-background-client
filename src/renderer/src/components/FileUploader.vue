@@ -61,7 +61,10 @@ const handleFilesChange = () => {
   width: 800px;
   height: 420px;
   &.dragover {
-    border: 1px solid red;
+    border-radius: 4px;
+    border: 2px solid;
+    border-image: linear-gradient(var(--theme-color-1), var(--theme-color-2), var(--theme-color-3))30 30;
+    animation: light 3s linear infinite;
   }
   &-trigger {
     display: none;
@@ -77,4 +80,16 @@ const handleFilesChange = () => {
     font-size: 12px;
   }
 }
+@keyframes light {
+
+  0% {filter: hue-rotate(0deg);/*色调旋转*/}
+
+  20% {filter: hue-rotate(100deg);/*色调旋转*/}
+
+  40% {filter: hue-rotate(200deg);/*色调旋转*/}
+
+  100% {filter: hue-rotate(360deg);/*色调旋转*/}
+
+}
+
 </style>
