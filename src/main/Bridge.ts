@@ -48,6 +48,21 @@ class Bridge {
     })
   }
 
+  setupFilesPicker() {
+    ipcMain.on('choose-files', async () => {
+      try {
+        const result = await dialog.showOpenDialog({
+          properties: ['openDirectory', 'openFile', 'multiSelections']
+        })
+        if (!result.canceled) {
+          this.webContents.send('target-path-chosen', result.filePaths[0])
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    })
+  }
+
   setupPythonDownload() {
     const isMac = process.platform === 'darwin'
     const baseURL = 'https://www.python.org/ftp/python/3.10.10'
