@@ -37,7 +37,13 @@ const handleFilesChange = () => {
 </script>
 
 <template>
-  <div class="file-uploader" :class="{ 'dragover': dragover }" @dragenter="dragover = true" @dragleave="dragover = false" @drop="handleFilesChange">
+  <div
+    class="file-uploader"
+    :class="{ dragover: dragover }"
+    @dragenter="dragover = true"
+    @dragleave="dragover = false"
+    @drop="handleFilesChange"
+  >
     上传一张图片以消除背景
     <dynamic-button class="file-uploader-button" @click="handleFileUpload">上传图片</dynamic-button>
     <input ref="input" type="file" class="file-uploader-trigger" @change="handleFileChange" />
