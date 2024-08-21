@@ -1,9 +1,16 @@
-export enum EnvStatus {
-  Checking = 'Checking',
-  PythonNotInstalled = 'Python is not installed',
-  PythonDownloading = 'Python is downloading',
-  PythonInstalled = 'Python is installed',
-  RembgIsInstalling = 'Rembg is installing',
-  RembgNotInstalled = 'Rembg is not installed',
-  RembgInstalled = 'Rembg is installed'
+export const PythonMainVersion = 3
+
+export const MinPythonSubVersion = 8
+
+export const MaxPythonSubVersion = 12
+
+export enum PythonStatus {
+  NotInstalled = 'NotInstalled',
+  Installed = 'Installed'
+}
+
+export enum RembgStatus {
+  NotInstalled = 'NotInstalled',
+  Installing = 'Installing',
+  Installed = 'Installed'
 }

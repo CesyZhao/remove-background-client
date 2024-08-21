@@ -5,6 +5,7 @@ import path from 'path'
 import { checkPythonInstallStatus, installRemBG } from './env'
 import { EnvStatus } from './definitions/env'
 import cluster from 'child_process'
+import { BridgeEvent } from './definitions/bridge'
 
 class Bridge {
   webContents!: Electron.WebContents
@@ -19,11 +20,32 @@ class Bridge {
     this.setupPythonDownload()
   }
 
+  installPython() {
+    ipcMain.on(BridgeEvent.InstallPython, async () => {
+      try {
+        const result = await installPython()
+        this.webContents.send('env-check-reply', { status: result })
+      } catch (e) {
+        this.webContents.send('env-check-reply', { status: e })
+      }
+    })
+  }
+
+  installRembg() {
+    ipcMain.on(BridgeEvent.InstallPython, async () => {
+      try {
+        const result = await installRemBG('rembg[cli]')
+        this.webContents.send('env-check-reply', { status: result })
+      } catch (e) {
+        this.webContents.send('env-check-reply', { status: e })
+      }
+    })
+  }
+
   setupEnvChecker() {
     ipcMain.on('env-check', async () => {
       try {
-        const pythonInstalled = await checkPythonInstallStatus()
-        this.webContents.send('env-check-reply', { status: pythonInstalled })
+        await checkPythonInstallStatus()
         this.webContents.send('env-check-reply', { status: EnvStatus.RembgIsInstalling })
         const result = await installRemBG('rembg[cli]')
         this.webContents.send('env-check-reply', { status: result })
@@ -73,9 +95,7 @@ class Bridge {
         const filePaths = requestPath.split('/')
         const targetPath = path.join(__dirname) + `${filePaths[filePaths.length - 1]}`
         if (res.statusCode === 200) {
-          const file = fs.createWriteStream(
-            targetPath
-          )
+          const file = fs.createWriteStream(targetPath)
           // 进度
           // const len = parseInt(res.headers['content-length']) // 文件总长度
           // console.log(len)
@@ -92,8 +112,7 @@ class Bridge {
           res.on('end', (e) => {
             isMac
               ? shell.openPath(targetPath)
-              : cluster.exec('"' + targetPath + '"', (err, res) => {
-            })
+              : cluster.exec('"' + targetPath + '"', (err, res) => {})
           })
           file
             .on('finish', () => {

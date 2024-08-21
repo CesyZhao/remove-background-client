@@ -1,30 +1,58 @@
-import { EnvStatus } from './definitions/env'
+import {
+  EnvStatus,
+  MaxPythonSubVersion,
+  MinPythonSubVersion,
+  PythonMainVersion
+} from './definitions/env'
+import childProcess from 'child_process'
+import { shell } from 'electron'
+import { inRange } from 'lodash'
+import path from 'path'
 
-const childProcess = require('child_process')
 const { exec } = childProcess
 
 export const checkPythonInstallStatus = () => {
   return new Promise((resolve, reject) => {
-    exec('python3 --version', (error, stdout, stderr) => {
+    exec('python3 --version', (error, stdout) => {
       const version = stdout?.replace('Python', '')?.trim()
       const versionArray = version?.split('.')
-      const mainVersion = versionArray?.[0]
-      const subVersion = versionArray?.[1]
-      if (!error && mainVersion === '3' && subVersion > 7 && subVersion < 12) {
-        resolve(EnvStatus.PythonInstalled)
-      }
-      reject(EnvStatus.PythonNotInstalled)
+      const [mainVersion, subVersion] = versionArray
+      !error &&
+      Number(mainVersion) === PythonMainVersion &&
+      inRange(Number(subVersion), MinPythonSubVersion, MaxPythonSubVersion)
+        ? resolve(EnvStatus.PythonInstalled)
+        : reject(EnvStatus.PythonNotInstalled)
     })
+  })
+}
+
+export const installPython = () => {
+  return new Promise((resolve, reject) => {
+    checkPythonInstallStatus()
+      .then((res) => {
+        resolve(res)
+      })
+      .catch(() => {
+        const isMac = process.platform === 'darwin'
+        const pkgName = isMac ? 'python-3.10.10-macos11.pkg' : 'python-3.10.10-amd64.exe'
+        const targetPath = path.join(__dirname) + `../../resource/${pkgName}`
+        isMac
+          ? shell.openPath(targetPath).catch((_) => {
+              reject(EnvStatus.PythonNotInstalled)
+            })
+          : exec('"' + targetPath + '"', (err) => {
+              if (err) {
+                reject(EnvStatus.PythonNotInstalled)
+              }
+            })
+      })
   })
 }
 
 export const checkRembgInstallStatus = () => {
   return new Promise((resolve, reject) => {
-    exec('rembg --help', (error, stdout, stderr) => {
-      if (!error) {
-        resolve(EnvStatus.RembgInstalled)
-      }
-      reject(EnvStatus.RembgNotInstalled)
+    exec('rembg --help', (error) => {
+      error ? reject(EnvStatus.RembgNotInstalled) : resolve(EnvStatus.RembgInstalled)
     })
   })
 }
@@ -38,20 +66,14 @@ export const installRemBG = (type: string) => {
       .catch(() => {
         const command = exec(
           `pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple "${type}"`,
-          (error, stdout, stderr) => {
+          (error) => {
             if (error) {
               reject(EnvStatus.RembgNotInstalled)
             }
           }
         )
-        command.stdout.on('data', (data) => {
-          console.log(data)
-        })
         command.on('close', (code) => {
-          if (code === 0) {
-            resolve(EnvStatus.RembgInstalled)
-          }
-          reject(EnvStatus.RembgNotInstalled)
+          code === 0 ? resolve(EnvStatus.RembgInstalled) : reject(EnvStatus.RembgNotInstalled)
         })
       })
   })
