@@ -22,13 +22,15 @@ class Bridge {
 
   installPython() {
     ipcMain.on(BridgeEvent.InstallPython, async () => {
-      try {
-        const result = await installPython()
-        this.webContents.send('env-check-reply', { status: result })
-      } catch (e) {
-        this.webContents.send('env-check-reply', { status: e })
-      }
+
     })
+
+    try {
+      const result = await installPython()
+      this.webContents.send(BridgeEvent.InstallPythonReply, { status: result })
+    } catch (e) {
+      this.webContents.send(BridgeEvent.InstallPythonReply, { status: e })
+    }
   }
 
   installRembg() {

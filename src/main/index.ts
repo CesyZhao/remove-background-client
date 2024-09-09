@@ -1,9 +1,7 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { checkPythonInstallStatus, installRemBG } from './env'
-import { EnvStatus } from './definitions/env'
 import Bridge from './Bridge'
 
 function createWindow(): void {
