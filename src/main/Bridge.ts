@@ -12,6 +12,14 @@ class Bridge {
 
   constructor(webContents) {
     this.webContents = webContents
+
+    const eventHandlerMap = new Map([
+      [BridgeEvent.InstallPython, this.installPython.bind(this)],
+    ])
+
+    for (const [event, handler] of eventHandlerMap) {
+      ipcMain.on(event, handler)
+    }
   }
 
   init() {
@@ -21,16 +29,13 @@ class Bridge {
   }
 
   installPython() {
-    ipcMain.on(BridgeEvent.InstallPython, async () => {
-
-    })
-
+    let result
     try {
-      const result = await installPython()
-      this.webContents.send(BridgeEvent.InstallPythonReply, { status: result })
+      result = await installPython()
     } catch (e) {
-      this.webContents.send(BridgeEvent.InstallPythonReply, { status: e })
+      result = e
     }
+    this.webContents.send(BridgeEvent.InstallPythonReply, { status: result })
   }
 
   installRembg() {
