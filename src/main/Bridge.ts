@@ -15,6 +15,7 @@ class Bridge {
 
     const eventHandlerMap = new Map([
       [BridgeEvent.InstallPython, this.installPython.bind(this)],
+      [BridgeEvent.InstallRembg, this.installRembg.bind(this)],
     ])
 
     for (const [event, handler] of eventHandlerMap) {
@@ -39,14 +40,17 @@ class Bridge {
   }
 
   installRembg() {
-    ipcMain.on(BridgeEvent.InstallPython, async () => {
-      try {
-        const result = await installRemBG('rembg[cli]')
-        this.webContents.send('env-check-reply', { status: result })
-      } catch (e) {
-        this.webContents.send('env-check-reply', { status: e })
-      }
-    })
+    let result
+    try {
+      result =  await installRemBG('rembg[cli]')
+    } catch (e) {
+      result = e
+    }
+    this.webContents.send(BridgeEvent.InstallRembgReply, { status: result })
+  }
+
+  pickFileOrDirectory(type = 'file') {
+    const type =
   }
 
   setupEnvChecker() {

@@ -5,3 +5,10 @@ export enum BridgeEvent {
   InstallPythonReply = 'InstallPythonReply',
   ChooseFileOrFolder = 'ChooseFileOrFolder'
 }
+
+export enum FileSelectorType {
+  SingleFile = 'SingleFile',
+  MultipleFiles = 'MultipleFiles',
+  Folder = 'Folder',
+  All = 'All'
+}
