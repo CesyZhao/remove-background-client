@@ -5,7 +5,7 @@ import path from 'path'
 import { checkPythonInstallStatus, installRemBG } from './env'
 import { EnvStatus } from './definitions/env'
 import cluster from 'child_process'
-import { BridgeEvent } from './definitions/bridge'
+import { BridgeEvent, fileSelectorCommandMap, FileSelectorType } from './definitions/bridge'
 
 class Bridge {
   webContents!: Electron.WebContents
@@ -16,6 +16,7 @@ class Bridge {
     const eventHandlerMap = new Map([
       [BridgeEvent.InstallPython, this.installPython.bind(this)],
       [BridgeEvent.InstallRembg, this.installRembg.bind(this)],
+      [BridgeEvent.ChooseFileOrFolder, this.pickFileOrDirectory.bind(this)]
     ])
 
     for (const [event, handler] of eventHandlerMap) {
@@ -49,8 +50,22 @@ class Bridge {
     this.webContents.send(BridgeEvent.InstallRembgReply, { status: result })
   }
 
-  pickFileOrDirectory(type = 'file') {
-    const type =
+  pickFileOrDirectory(commands = Array<FileSelectorType>) {
+    const commands = commands.map((command) => {
+      return fileSelectorCommandMap.get(command)
+    })
+    let target
+    try {
+      const result = await dialog.showOpenDialog({
+        properties: commands
+      })
+      if (!result.canceled) {
+        target = files.filePaths[0]
+      }
+    } catch (e) {
+      target = e
+    }
+    this.webContents.send(BridgeEvent.ChooseFileOrFolderReply, target)
   }
 
   setupEnvChecker() {

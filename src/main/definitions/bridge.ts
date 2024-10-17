@@ -3,12 +3,18 @@ export enum BridgeEvent {
   InstallRembgReply = 'InstallRembgReply',
   InstallPython = 'InstallPython',
   InstallPythonReply = 'InstallPythonReply',
-  ChooseFileOrFolder = 'ChooseFileOrFolder'
+  ChooseFileOrFolder = 'ChooseFileOrFolder',
+  ChooseFileOrFolderReply = 'ChooseFileOrFolderReply'
 }
 
 export enum FileSelectorType {
   SingleFile = 'SingleFile',
-  MultipleFiles = 'MultipleFiles',
-  Folder = 'Folder',
-  All = 'All'
+  Multiple = 'Multiple',
+  Folder = 'Folder'
 }
+
+export const fileSelectorCommandMap = new Map([
+  [FileSelectorType.SingleFile, 'openFile'],
+  [FileSelectorType.Multiple, 'multiSelections'],
+  [FileSelectorType.Folder, 'openDirectory']
+])
