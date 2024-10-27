@@ -1,6 +1,7 @@
 import { ipcMain, dialog } from 'electron'
 import { installRemBG } from './env'
-import { BridgeEvent, fileSelectorCommandMap, FileSelectorType } from './definitions/bridge'
+import { BridgeEvent, FileSelectorType } from '../common/definitions/bridge'
+import { fileSelectorCommandMap } from './definitions/bridge'
 
 class Bridge {
   webContents!: Electron.WebContents
