@@ -1,5 +1,5 @@
 import { ipcMain, dialog } from 'electron'
-import { installRemBG } from './env'
+import { installPython, installRemBG } from './env'
 import { BridgeEvent, FileSelectorType } from '../common/definitions/bridge'
 import { fileSelectorCommandMap } from './definitions/bridge'
 
