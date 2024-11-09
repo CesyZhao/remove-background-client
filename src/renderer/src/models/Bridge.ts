@@ -1,27 +1,44 @@
+import { BridgeEvent, FileSelectorType } from '../../../common/definitions/bridge'
+
+const { electron } = window
+const { ipcRenderer } = electron
+
 class Bridge {
-  async chooseDirectory(): Promise<string | undefined> {
+  async pickFileOrDirectory(types: FileSelectorType[]): Promise<string | undefined> {
     return new Promise((resolve) => {
-      window.electron.onTargetPathChosen((result) => {
+      const func = electron[`on${BridgeEvent.PickFileOrDirectoryReply}`]
+
+      func((result) => {
         resolve(result)
       })
-      window.electron.ipcRenderer.send('choose-target-path')
+
+      ipcRenderer.send(BridgeEvent.pickFileOrDirectory, types)
     })
   }
 
-  setupEnvStatusChecker(callback) {
-    window.electron.onEnvCheckReply((result) => {
-      callback(result)
+  installRembg() {
+    const func = electron[`on${BridgeEvent.InstallRembgReply}`]
+
+    return new Promise((resolve) => {
+      func((result) => {
+        resolve(result)
+      })
+
+      ipcRenderer.send(BridgeEvent.InstallRembg)
     })
-
-    window.electron.ipcRenderer.send('env-check')
   }
 
-  recheckEnv() {
-    window.electron.ipcRenderer.send('env-check')
-  }
 
   installPython() {
-    window.electron.ipcRenderer.send('install-python')
+    const func = electron[`on${BridgeEvent.InstallPythonReply}`]
+
+    return new Promise((resolve) => {
+      func((result) => {
+        resolve(result)
+      })
+
+      ipcRenderer.send(BridgeEvent.InstallPython)
+    })
   }
 }
 

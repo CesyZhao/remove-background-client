@@ -12,18 +12,12 @@ class Bridge {
     const eventHandlerMap = new Map([
       [BridgeEvent.InstallPython, this.installPython.bind(this)],
       [BridgeEvent.InstallRembg, this.installRembg.bind(this)],
-      [BridgeEvent.ChooseFileOrFolder, this.pickFileOrDirectory.bind(this)]
+      [BridgeEvent.pickFileOrDirectory, this.pickFileOrDirectory.bind(this)]
     ])
 
     for (const [event, handler] of eventHandlerMap) {
       ipcMain.on(event, handler)
     }
-  }
-
-  init() {
-    this.setupDirectoryPicker()
-    this.setupEnvChecker()
-    this.setupPythonDownload()
   }
 
   installPython() {
@@ -61,7 +55,7 @@ class Bridge {
     } catch (e) {
       target = e
     }
-    this.webContents.send(BridgeEvent.ChooseFileOrFolderReply, target)
+    this.webContents.send(BridgeEvent.pickFileOrDirectoryReply, target)
   }
 }
 
