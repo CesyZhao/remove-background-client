@@ -39,8 +39,9 @@ watch(envStatus, ({ status: newValue }) => {
   }
 })
 
-onMounted(() => {
-  bridge.setupEnvStatusChecker((result) => (envStatus.value = result))
+onMounted(async () => {
+  await bridge.installPython()
+  bridge.installRembg()
 })
 </script>
 
