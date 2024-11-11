@@ -12,3 +12,10 @@ export enum FileSelectorType {
   Multiple = 'Multiple',
   Folder = 'Folder'
 }
+
+export enum EnvStatus {
+  PythonNotInstalled = 'PythonNotInstalled',
+  RembgNotInstalled = 'RembgNotInstalled',
+  PythonInstalled = 'PythonInstalled',
+  RembgInstalled = 'RembgInstalled'
+}
