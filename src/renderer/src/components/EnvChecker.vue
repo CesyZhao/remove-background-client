@@ -2,6 +2,7 @@
 import Loading from './Loading.vue'
 import { defineEmits, onMounted, ref, watch } from 'vue'
 import bridge from '../models/Bridge'
+import { EnvStatus } from '../../../common/definitions/bridge'
 
 const emit = defineEmits(['env-ready'])
 
@@ -20,17 +21,11 @@ const deployRemBG = () => bridge.recheckEnv()
 watch(envStatus, ({ status: newValue }) => {
   const {
     PythonNotInstalled,
-    PythonDownloading,
-    RembgIsInstalling,
     RembgNotInstalled,
     RembgInstalled
   } = EnvStatus
   loading.value = ![PythonNotInstalled, RembgNotInstalled, RembgInstalled].includes(newValue)
-  if (newValue === PythonDownloading) {
-    loadingText.value = '依赖下载中...'
-  } else if (newValue === RembgIsInstalling) {
-    loadingText.value = '应用部署中...'
-  } else if (newValue === RembgInstalled) {
+  if (newValue === RembgInstalled) {
     emit('env-ready')
   } else if (newValue === RembgNotInstalled) {
     tip.value = '应用部署失败，请联系作者'
@@ -40,9 +35,11 @@ watch(envStatus, ({ status: newValue }) => {
 onMounted(async () => {
   try {
     await bridge.installPython()
-    await bridge.installRembg()
+    tip.value = '应用部署中...'
+    const status = await bridge.installRembg()
+    envStatus.value = status
   } catch (e) {
-
+    envStatus.value = e
   }
 })
 </script>

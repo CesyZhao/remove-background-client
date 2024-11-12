@@ -20,7 +20,7 @@ class Bridge {
     }
   }
 
-  installPython() {
+  async installPython() {
     let result
     try {
       result = await installPython()
@@ -30,7 +30,7 @@ class Bridge {
     this.webContents.send(BridgeEvent.InstallPythonReply, { status: result })
   }
 
-  installRembg() {
+  async installRembg() {
     let result
     try {
       result =  await installRemBG('rembg[cli]')
@@ -40,14 +40,14 @@ class Bridge {
     this.webContents.send(BridgeEvent.InstallRembgReply, { status: result })
   }
 
-  pickFileOrDirectory(commands = Array<FileSelectorType>) {
-    const commands = commands.map((command) => {
+  async pickFileOrDirectory(commands = Array<FileSelectorType>) {
+    const commandList = commands.map((command) => {
       return fileSelectorCommandMap.get(command)
     })
     let target
     try {
       const result = await dialog.showOpenDialog({
-        properties: commands
+        properties: commandList
       })
       if (!result.canceled) {
         target = files.filePaths[0]

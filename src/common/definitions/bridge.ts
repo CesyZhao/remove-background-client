@@ -17,5 +17,6 @@ export enum EnvStatus {
   PythonNotInstalled = 'PythonNotInstalled',
   RembgNotInstalled = 'RembgNotInstalled',
   PythonInstalled = 'PythonInstalled',
-  RembgInstalled = 'RembgInstalled'
+  RembgInstalled = 'RembgInstalled',
+  Checking = 'Checking'
 }
