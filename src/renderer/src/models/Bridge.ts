@@ -1,4 +1,4 @@
-import { BridgeEvent, FileSelectorType } from '../../../common/definitions/bridge'
+import { BridgeEvent, EnvStatus, FileSelectorType } from '../../../common/definitions/bridge'
 
 const { electron } = window
 const { ipcRenderer } = electron
@@ -16,7 +16,7 @@ class Bridge {
     })
   }
 
-  installRembg() {
+  installRembg(): Promise<EnvStatus> {
     const func = electron[`on${BridgeEvent.InstallRembgReply}`]
 
     return new Promise((resolve) => {
@@ -28,8 +28,7 @@ class Bridge {
     })
   }
 
-
-  installPython() {
+  installPython(checkStatusOnly = true): Promise<EnvStatus> {
     const func = electron[`on${BridgeEvent.InstallPythonReply}`]
 
     return new Promise((resolve) => {
@@ -37,7 +36,7 @@ class Bridge {
         resolve(result)
       })
 
-      ipcRenderer.send(BridgeEvent.InstallPython)
+      ipcRenderer.send(BridgeEvent.InstallPython, checkStatusOnly)
     })
   }
 }

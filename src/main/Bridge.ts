@@ -20,10 +20,10 @@ class Bridge {
     }
   }
 
-  async installPython() {
+  async installPython(checkStatusOnly = true) {
     let result
     try {
-      result = await installPython()
+      result = await installPython(checkStatusOnly)
     } catch (e) {
       result = e
     }

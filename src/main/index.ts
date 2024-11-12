@@ -39,8 +39,7 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  const bridge = new Bridge(webContents)
-  bridge.init()
+  new Bridge(webContents)
 
 }
 

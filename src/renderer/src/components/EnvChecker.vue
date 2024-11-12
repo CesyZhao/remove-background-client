@@ -19,11 +19,7 @@ const installPython = () => {
 const deployRemBG = () => bridge.recheckEnv()
 
 watch(envStatus, ({ status: newValue }) => {
-  const {
-    PythonNotInstalled,
-    RembgNotInstalled,
-    RembgInstalled
-  } = EnvStatus
+  const { PythonNotInstalled, RembgNotInstalled, RembgInstalled } = EnvStatus
   loading.value = ![PythonNotInstalled, RembgNotInstalled, RembgInstalled].includes(newValue)
   if (newValue === RembgInstalled) {
     emit('env-ready')
@@ -34,7 +30,8 @@ watch(envStatus, ({ status: newValue }) => {
 
 onMounted(async () => {
   try {
-    await bridge.installPython()
+    const pythonStatus = await bridge.installPython()
+    envStatus.value = pythonStatus
     tip.value = '应用部署中...'
     const status = await bridge.installRembg()
     envStatus.value = status
