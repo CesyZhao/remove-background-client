@@ -38,6 +38,7 @@ export const installPython = () => {
         const targetPath = path.join(__dirname) + `../../resource/${pkgName}`
         isMac
           ? shell.openPath(targetPath).catch((_) => {
+              console.log(isMac)
               reject(EnvStatus.PythonNotInstalled)
             })
           : exec('"' + targetPath + '"', (err) => {

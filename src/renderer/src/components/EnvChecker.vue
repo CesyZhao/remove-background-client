@@ -39,6 +39,7 @@ onMounted(async () => {
     const status = await bridge.installRembg()
     envStatus.value = status
   } catch (e) {
+    console.log(e, '----------')
     envStatus.value = e
   }
 })
