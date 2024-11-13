@@ -12,11 +12,6 @@ const loading = ref(true)
 const loadingText = ref('检测环境中...')
 const tip = ref(`检测到必要的运行环境 <div class="python">Python</div> 缺失`)
 
-const installPython = () => {
-  bridge.installPython(false)
-}
-
-const deployRemBG = () => bridge.recheckEnv()
 
 watch(envStatus, (newValue) => {
   const { PythonNotInstalled, RembgNotInstalled, RembgInstalled } = EnvStatus
@@ -28,7 +23,7 @@ watch(envStatus, (newValue) => {
   }
 })
 
-onMounted(async () => {
+const checkEnv = async () => {
   try {
     const pythonStatus = await bridge.installPython()
     envStatus.value = pythonStatus
@@ -38,6 +33,14 @@ onMounted(async () => {
   } catch (e) {
     envStatus.value = e
   }
+}
+
+const installPython = () => {
+  bridge.installPython(false)
+}
+
+onMounted(() => {
+  checkEnv()
 })
 </script>
 
@@ -48,7 +51,7 @@ onMounted(async () => {
 
     <div class="actions">
       <div class="action" @click="installPython">去安装</div>
-      <div class="action" @click="deployRemBG">我已安装</div>
+      <div class="action" @click="checkEnv">我已安装</div>
     </div>
   </div>
 </template>

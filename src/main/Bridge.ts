@@ -8,7 +8,7 @@ class Bridge {
     const eventHandlerMap = new Map([
       [BridgeEvent.InstallPython, this.installPython.bind(this)],
       [BridgeEvent.InstallRembg, this.installRembg.bind(this)],
-      [BridgeEvent.pickFileOrDirectory, this.pickFileOrDirectory.bind(this)]
+      [BridgeEvent.PickFileOrDirectory, this.PickFileOrDirectory.bind(this)]
     ])
 
     for (const [event, handler] of eventHandlerMap) {
@@ -40,10 +40,11 @@ class Bridge {
     event.reply(BridgeEvent.InstallRembgReply, { status: result, code })
   }
 
-  async pickFileOrDirectory(event, commands = Array<FileSelectorType>) {
+  async PickFileOrDirectory(event, commands: Array<FileSelectorType>) {
     const commandList = commands.map((command) => {
       return fileSelectorCommandMap.get(command)
     })
+    console.log(commandList, '---------')
     let target
     let code = EventCode.Success
     try {
@@ -54,10 +55,11 @@ class Bridge {
         target = files.filePaths[0]
       }
     } catch (e) {
+      console.log(e, '+++++++++')
       target = e
       code = EventCode.Error
     }
-    event.reply(BridgeEvent.pickFileOrDirectoryReply, { result: target, code })
+    event.reply(BridgeEvent.PickFileOrDirectoryReply, { result: target, code })
   }
 }
 

@@ -1,4 +1,4 @@
-export const PythonMainVersion = 4
+export const PythonMainVersion = 3
 
 export const MinPythonSubVersion = 8
 

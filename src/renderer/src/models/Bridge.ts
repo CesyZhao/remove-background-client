@@ -1,4 +1,9 @@
-import { BridgeEvent, EnvStatus, EventCode, FileSelectorType } from '../../../common/definitions/bridge'
+import {
+  BridgeEvent,
+  EnvStatus,
+  EventCode,
+  FileSelectorType
+} from '../../../common/definitions/bridge'
 
 const { electron } = window
 const { ipcRenderer } = electron
@@ -12,7 +17,7 @@ class Bridge {
         resolve(result)
       })
 
-      ipcRenderer.send(BridgeEvent.pickFileOrDirectory, types)
+      ipcRenderer.send(BridgeEvent.PickFileOrDirectory, types)
     })
   }
 

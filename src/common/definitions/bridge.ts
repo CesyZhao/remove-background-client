@@ -3,8 +3,8 @@ export enum BridgeEvent {
   InstallRembgReply = 'InstallRembgReply',
   InstallPython = 'InstallPython',
   InstallPythonReply = 'InstallPythonReply',
-  pickFileOrDirectory = 'pickFileOrDirectory',
-  pickFileOrDirectoryReply = 'pickFileOrDirectoryReply'
+  PickFileOrDirectory = 'PickFileOrDirectory',
+  PickFileOrDirectoryReply = 'PickFileOrDirectoryReply'
 }
 
 export enum FileSelectorType {

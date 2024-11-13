@@ -4,14 +4,14 @@ import settings from '../models/Settings'
 import { ISetting } from '../definitions/setting'
 import bridge from '../models/Bridge'
 import vClickOutside from '../directives/click-outside'
+import { FileSelectorType } from '../../../common/definitions/bridge'
 
 const visible = defineModel()
-
 
 const appSetting: Ref<ISetting> = ref(settings.settings)
 
 const chooseTargetPath = async () => {
-  const result = await bridge.chooseDirectory()
+  const result = await bridge.pickFileOrDirectory([FileSelectorType.Folder])
   appSetting.value.targetPath = result
 }
 
@@ -22,7 +22,6 @@ const handlePopoverVisibleChange = () => {
 const closePopover = () => {
   visible.value = false
 }
-
 
 watch(
   appSetting,
