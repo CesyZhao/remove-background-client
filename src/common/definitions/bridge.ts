@@ -20,3 +20,8 @@ export enum EnvStatus {
   RembgInstalled = 'RembgInstalled',
   Checking = 'Checking'
 }
+
+export enum EventCode {
+  Success = 'Success',
+  Error = 'Error'
+}

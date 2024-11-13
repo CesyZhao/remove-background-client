@@ -13,18 +13,18 @@ const loadingText = ref('检测环境中...')
 const tip = ref(`检测到必要的运行环境 <div class="python">Python</div> 缺失`)
 
 const installPython = () => {
-  bridge.installPython()
+  bridge.installPython(false)
 }
 
 const deployRemBG = () => bridge.recheckEnv()
 
-watch(envStatus, ({ status: newValue }) => {
+watch(envStatus, (newValue) => {
   const { PythonNotInstalled, RembgNotInstalled, RembgInstalled } = EnvStatus
   loading.value = ![PythonNotInstalled, RembgNotInstalled, RembgInstalled].includes(newValue)
   if (newValue === RembgInstalled) {
     emit('env-ready')
   } else if (newValue === RembgNotInstalled) {
-    tip.value = '应用部署失败，请联系作者'
+    tip.value = '应用部署失败'
   }
 })
 
@@ -36,7 +36,6 @@ onMounted(async () => {
     const status = await bridge.installRembg()
     envStatus.value = status
   } catch (e) {
-    console.log(e, '----------')
     envStatus.value = e
   }
 })
@@ -44,7 +43,7 @@ onMounted(async () => {
 
 <template>
   <Loading v-if="loading" :loading-text="loadingText" />
-  <div v-if="envStatus.status === EnvStatus.PythonNotInstalled" class="env-tips">
+  <div v-if="envStatus === EnvStatus.PythonNotInstalled" class="env-tips">
     <span v-html="tip"></span>
 
     <div class="actions">

@@ -1,14 +1,10 @@
 import { ipcMain, dialog } from 'electron'
 import { installPython, installRemBG } from './env'
-import { BridgeEvent, FileSelectorType } from '../common/definitions/bridge'
+import { BridgeEvent, EventCode, FileSelectorType } from '../common/definitions/bridge'
 import { fileSelectorCommandMap } from './definitions/bridge'
 
 class Bridge {
-  webContents!: Electron.WebContents
-
-  constructor(webContents) {
-    this.webContents = webContents
-
+  constructor() {
     const eventHandlerMap = new Map([
       [BridgeEvent.InstallPython, this.installPython.bind(this)],
       [BridgeEvent.InstallRembg, this.installRembg.bind(this)],
@@ -20,31 +16,36 @@ class Bridge {
     }
   }
 
-  async installPython(checkStatusOnly = true) {
+  async installPython(event, checkStatusOnly) {
     let result
+    let code = EventCode.Success
     try {
       result = await installPython(checkStatusOnly)
     } catch (e) {
       result = e
+      code = EventCode.Error
     }
-    this.webContents.send(BridgeEvent.InstallPythonReply, { status: result })
+    event.reply(BridgeEvent.InstallPythonReply, { status: result, code })
   }
 
-  async installRembg() {
+  async installRembg(event) {
     let result
+    let code = EventCode.Success
     try {
       result =  await installRemBG('rembg[cli]')
     } catch (e) {
       result = e
+      code = EventCode.Error
     }
-    this.webContents.send(BridgeEvent.InstallRembgReply, { status: result })
+    event.reply(BridgeEvent.InstallRembgReply, { status: result, code })
   }
 
-  async pickFileOrDirectory(commands = Array<FileSelectorType>) {
+  async pickFileOrDirectory(event, commands = Array<FileSelectorType>) {
     const commandList = commands.map((command) => {
       return fileSelectorCommandMap.get(command)
     })
     let target
+    let code = EventCode.Success
     try {
       const result = await dialog.showOpenDialog({
         properties: commandList
@@ -54,8 +55,9 @@ class Bridge {
       }
     } catch (e) {
       target = e
+      code = EventCode.Error
     }
-    this.webContents.send(BridgeEvent.pickFileOrDirectoryReply, target)
+    event.reply(BridgeEvent.pickFileOrDirectoryReply, { result: target, code })
   }
 }
 

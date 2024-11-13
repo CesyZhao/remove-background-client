@@ -29,7 +29,10 @@ export const installPython = (checkStatusOnly = true) => {
         resolve(res)
       })
       .catch(() => {
-        if (checkStatusOnly) reject(EnvStatus.PythonNotInstalled)
+        if (checkStatusOnly) {
+          reject(EnvStatus.PythonNotInstalled)
+          return
+        }
         const isMac = process.platform === 'darwin'
         const pkgName = isMac ? 'python-3.10.10-macos11.pkg' : 'python-3.10.10-amd64.exe'
         const targetPath = path.join(__dirname, `../../resources/${pkgName}`)
