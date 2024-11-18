@@ -44,7 +44,6 @@ class Bridge {
     const commandList = commands.map((command) => {
       return fileSelectorCommandMap.get(command)
     })
-    console.log(commandList, '---------')
     let target
     let code = EventCode.Success
     try {
@@ -52,10 +51,9 @@ class Bridge {
         properties: commandList
       })
       if (!result.canceled) {
-        target = files.filePaths[0]
+        target = result.filePaths[0]
       }
     } catch (e) {
-      console.log(e, '+++++++++')
       target = e
       code = EventCode.Error
     }

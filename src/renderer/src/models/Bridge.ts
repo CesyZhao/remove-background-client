@@ -10,11 +10,11 @@ const { ipcRenderer } = electron
 
 class Bridge {
   async pickFileOrDirectory(types: FileSelectorType[]): Promise<string | undefined> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const func = electron[`on${BridgeEvent.PickFileOrDirectoryReply}`]
 
-      func((result) => {
-        resolve(result)
+      func(({ result, code }) => {
+        code === EventCode.Success ? resolve(result) : reject(code)
       })
 
       ipcRenderer.send(BridgeEvent.PickFileOrDirectory, types)
