@@ -56,8 +56,8 @@ watch(
 .icon-setting {
   font-size: 24px;
   position: fixed;
-  top: 40px;
-  right: 60px;
+  top: 16px;
+  right: 16px;
   cursor: pointer;
 }
 .setting-popper {

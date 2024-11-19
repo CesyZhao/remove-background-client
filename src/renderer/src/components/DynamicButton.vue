@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
-const speedDeg = 0.01
+const speedDeg = 0.005
 const r = 0.5
 
 const dom = ref()

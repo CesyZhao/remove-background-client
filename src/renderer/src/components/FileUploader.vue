@@ -61,8 +61,8 @@ const handleFilesChange = () => {
   width: 800px;
   height: 420px;
   &.dragover {
-    border-radius: 4px;
-    border: 2px solid;
+    border-radius: 8px;
+    border: 1px solid;
     border-image: linear-gradient(var(--theme-color-1), var(--theme-color-2), var(--theme-color-3))30 30;
     animation: light 3s linear infinite;
   }
