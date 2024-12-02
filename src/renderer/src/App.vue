@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import EnvChecker from './components/EnvChecker.vue'
-import Content from './components/Content.vue'
+import Entry from './components/Entry.vue'
 import { ref } from 'vue'
 
 const envReady = ref(false)
@@ -10,5 +10,5 @@ document.body.setAttribute('arco-theme', 'dark')
 
 <template>
   <EnvChecker v-if="!envReady" @env-ready="envReady = true" />
-  <Content v-else />
+  <Entry v-else />
 </template>
