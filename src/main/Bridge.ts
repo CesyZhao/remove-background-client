@@ -1,6 +1,6 @@
 import { ipcMain, dialog } from 'electron'
 import { installPython, installRemBG } from './env'
-import { BridgeEvent, EventCode, FileSelectorType } from '../common/definitions/bridge'
+import { BridgeEvent, EventCode, FileSelectorCommand, FileSelectorType } from '../common/definitions/bridge'
 import { fileSelectorCommandMap } from './definitions/bridge'
 
 class Bridge {
@@ -41,8 +41,8 @@ class Bridge {
   }
 
   async PickFileOrDirectory(event, commands: Array<FileSelectorType>) {
-    const commandList = commands.map((command) => {
-      return fileSelectorCommandMap.get(command)
+    const commandList: FileSelectorCommand[] = commands.map((command) => {
+      return fileSelectorCommandMap.get(command) || FileSelectorCommand.openFile
     })
     let target
     let code = EventCode.Success

@@ -13,6 +13,12 @@ export enum FileSelectorType {
   Folder = 'Folder'
 }
 
+export enum FileSelectorCommand {
+  openFile = 'openFile',
+  multiSelections = 'multiSelections',
+  openDirectory = 'openDirectory'
+}
+
 export enum EnvStatus {
   PythonNotInstalled = 'PythonNotInstalled',
   RembgNotInstalled = 'RembgNotInstalled',
