@@ -6,7 +6,8 @@
     "src/renderer/src/**/*.ts",
     "src/renderer/src/**/*.vue",
     "src/preload/*.d.ts",
-    "src//*.d.ts"
+    "src//*.d.ts",
+    "src/common/**/*"
   ],
   "compilerOptions": {
     "composite": true,
