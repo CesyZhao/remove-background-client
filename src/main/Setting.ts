@@ -1,4 +1,5 @@
 import path from "path"
+import { readJson } from '@main/util/file'
 
 class Setting {
 	settingPath!: string
