@@ -1,5 +1,5 @@
 import path from "path"
-import { readJson } from '@main/util/file'
+import { readJson } from './util/file'
 
 class Setting {
 	settingPath!: string
