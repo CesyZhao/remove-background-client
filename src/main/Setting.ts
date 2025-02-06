@@ -1,14 +1,29 @@
-import path from "path"
-import { readJson } from './util/file'
+import path from 'path'
+import { readJson } from '@main/util/file'
+import { ISetting } from '@common/definitions/setting'
 
 class Setting {
-	settingPath!: string
+  settingPath!: string
+  setting!: ISetting[]
 
-	constructor () {
-		this.settingPath = path.join(__dirname, '/config/setting.json')
-	}
+  constructor() {
+    this.settingPath = path.join(__dirname, '/config/setting.json')
+  }
 
-	getSetting () {
-		return readJson(this.settingPath)
-	}
+  async getSetting() {
+    let setting
+    try {
+      setting = await readJson(this.settingPath)
+    } catch (e) {
+      setting = {}
+    }
+    this.setting = setting
+    return this.setting
+  }
+
+  writeSetting(setting: ISetting[]) {
+    this.setting = setting
+  }
 }
+
+export default Setting
