@@ -1,20 +1,21 @@
 [
   {
     "category": "basic setting",
-    "label": "基础设置",
+    "title": "基础设置",
     "settings": [
       {
-        "name": "output diractory",
-        "label": "输出目录"
+        "key": "output directory",
+        "title": "输出目录"
       }
     ]
   },
   {
     "category": "module setting",
-    "label": "模型设置",
+    "title": "模型设置",
     "setting": [
       {
-        "name": "current module",
+        "key": "current module",
+        "title": "当前模型"
       }
     ]
   }

@@ -3,7 +3,7 @@ import childProcess from 'child_process'
 import { shell } from 'electron'
 import { inRange } from 'lodash'
 import path from 'path'
-import { EnvStatus } from '../common/definitions/bridge'
+import { EnvStatus } from '@common/definitions/bridge'
 
 const { exec } = childProcess
 

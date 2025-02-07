@@ -1,5 +1,5 @@
 import path from 'path'
-import { readJson } from '@main/util/file'
+import { readJson, writeJson } from '@main/util/file'
 import { ISetting } from '@common/definitions/setting'
 
 class Setting {
@@ -21,8 +21,15 @@ class Setting {
     return this.setting
   }
 
-  writeSetting(setting: ISetting[]) {
-    this.setting = setting
+  async writeSetting(key: string, value: never) {
+    this.setting.forEach((category) => {
+      category.settings.forEach((setting) => {
+        if (setting.key === key) {
+          setting.value = value
+        }
+      })
+    })
+    await writeJson(this.settingPath, JSON.stringify(this.setting))
   }
 }
 

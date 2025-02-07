@@ -1,7 +1,12 @@
 import { ipcMain, dialog } from 'electron'
-import { installPython, installRemBG } from './env'
-import { BridgeEvent, EventCode, FileSelectorCommand, FileSelectorType } from '../common/definitions/bridge'
-import { fileSelectorCommandMap } from './definitions/bridge'
+import { installPython, installRemBG } from '../env'
+import {
+  BridgeEvent,
+  EventCode,
+  FileSelectorCommand,
+  FileSelectorType
+} from '@common/definitions/bridge'
+import { fileSelectorCommandMap } from '../definitions/bridge'
 
 class Bridge {
   constructor() {
@@ -32,7 +37,7 @@ class Bridge {
     let result
     let code = EventCode.Success
     try {
-      result =  await installRemBG('rembg[cli]')
+      result = await installRemBG('rembg[cli]')
     } catch (e) {
       result = e
       code = EventCode.Error

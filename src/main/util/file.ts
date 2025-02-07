@@ -22,3 +22,15 @@ export const readJson = (filePath: string) => {
     })
   })
 }
+
+export const writeJson = (filePath: string, data: string) => {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filePath, data, 'utf-8', (err) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve(void 0)
+    })
+  })
+}
