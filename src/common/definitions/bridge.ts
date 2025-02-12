@@ -4,7 +4,11 @@ export enum BridgeEvent {
   InstallPython = 'InstallPython',
   InstallPythonReply = 'InstallPythonReply',
   PickFileOrDirectory = 'PickFileOrDirectory',
-  PickFileOrDirectoryReply = 'PickFileOrDirectoryReply'
+  PickFileOrDirectoryReply = 'PickFileOrDirectoryReply',
+  GetSetting = 'GetSetting',
+  GetSettingReply = 'GetSettingReply',
+  WriteSetting = 'WriteSetting',
+  WriteSettingReply = 'WriteSettingReply'
 }
 
 export enum FileSelectorType {
