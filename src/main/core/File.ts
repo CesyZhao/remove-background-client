@@ -1,15 +1,11 @@
 import { IpcMainEvent, dialog } from 'electron'
 import { BridgeEvent, EventCode, FileSelectorCommand, FileSelectorType } from '@common/definitions/bridge'
-import { ipcMain } from 'electron'
 import { fileSelectorCommandMap } from '../definitions/bridge'
+import BaseModule from './Base'
 
-class FileModule {
-  constructor() {
-    this.registerEvents()
-  }
-
-  private registerEvents(): void {
-    ipcMain.on(BridgeEvent.PickFileOrDirectory, this.handlePickFileOrDirectory.bind(this))
+class FileModule extends BaseModule {
+  protected registerEvents(): void {
+    this.registerHandler(BridgeEvent.PickFileOrDirectory, this.handlePickFileOrDirectory)
   }
 
   private async handlePickFileOrDirectory(event: IpcMainEvent, commands: Array<FileSelectorType>): Promise<void> {
@@ -34,10 +30,6 @@ class FileModule {
 
     event.reply(BridgeEvent.PickFileOrDirectoryReply, { result: target, code })
   }
-
-  public destroy(): void {
-    ipcMain.removeListener(BridgeEvent.PickFileOrDirectory, this.handlePickFileOrDirectory)
-  }
-} 
+}
 
 export default FileModule

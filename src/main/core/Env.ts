@@ -1,16 +1,12 @@
 import { IpcMainEvent } from 'electron'
 import { BridgeEvent, EnvStatus, EventCode } from '@common/definitions/bridge'
-import { ipcMain } from 'electron'
 import { installPython, installRemBG } from '../env'
+import BaseModule from './Base'
 
-class EnvModule {
-  constructor() {
-    this.registerEvents()
-  }
-
-  private registerEvents(): void {
-    ipcMain.on(BridgeEvent.InstallPython, this.handleInstallPython.bind(this))
-    ipcMain.on(BridgeEvent.InstallRembg, this.handleInstallRembg.bind(this))
+class EnvModule extends BaseModule {
+  protected registerEvents(): void {
+    this.registerHandler(BridgeEvent.InstallPython, this.handleInstallPython)
+    this.registerHandler(BridgeEvent.InstallRembg, this.handleInstallRembg)
   }
 
   private async handleInstallPython(event: IpcMainEvent, checkStatusOnly: boolean): Promise<void> {
@@ -36,11 +32,6 @@ class EnvModule {
     }
     event.reply(BridgeEvent.InstallRembgReply, { status: result, code })
   }
-
-  public destroy(): void {
-    ipcMain.removeListener(BridgeEvent.InstallPython, this.handleInstallPython)
-    ipcMain.removeListener(BridgeEvent.InstallRembg, this.handleInstallRembg)
-  }
-} 
+}
 
 export default EnvModule
