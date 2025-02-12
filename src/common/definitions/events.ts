@@ -1,5 +1,3 @@
-import { IpcMainEvent } from 'electron'
-
 export enum BridgeEvent {
   InstallRembg = 'InstallRembg',
   InstallRembgReply = 'InstallRembgReply',
@@ -32,22 +30,4 @@ export enum EnvStatus {
 export enum EventCode {
   Success = 'Success',
   Error = 'Error'
-}
-
-export interface BridgeResponse<T = unknown> {
-  code: EventCode
-  result?: T
-  error?: Error
-}
-
-export interface InstallResponse {
-  status: string
-  code: EventCode
-}
-
-export interface FilePickerResponse {
-  result: string | null
-  code: EventCode
-}
-
-export type BridgeEventHandler = (event: IpcMainEvent, ...args: unknown[]) => void | Promise<void>
+} 

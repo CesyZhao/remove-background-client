@@ -1,68 +1,32 @@
-import { ipcMain, dialog } from 'electron'
-import { installPython, installRemBG } from '../env'
-import {
-  BridgeEvent,
-  EventCode,
-  FileSelectorCommand,
-  FileSelectorType
-} from '@common/definitions/bridge'
-import { fileSelectorCommandMap } from '../definitions/bridge'
+import { EnvModule } from './modules/EnvModule'
+import { FileModule } from './modules/FileModule'
+import { BridgeModuleMap } from '../definitions/bridge'
 
 class Bridge {
+  private modules: BridgeModuleMap
+
   constructor() {
-    const eventHandlerMap = new Map([
-      [BridgeEvent.InstallPython, this.installPython.bind(this)],
-      [BridgeEvent.InstallRembg, this.installRembg.bind(this)],
-      [BridgeEvent.PickFileOrDirectory, this.PickFileOrDirectory.bind(this)]
-    ])
-
-    for (const [event, handler] of eventHandlerMap) {
-      ipcMain.on(event, handler)
+    this.modules = {
+      env: new EnvModule(),
+      file: new FileModule()
     }
+    this.initializeModules()
   }
 
-  async installPython(event, checkStatusOnly) {
-    let result
-    let code = EventCode.Success
-    try {
-      result = await installPython(checkStatusOnly)
-    } catch (e) {
-      result = e
-      code = EventCode.Error
-    }
-    event.reply(BridgeEvent.InstallPythonReply, { status: result, code })
-  }
-
-  async installRembg(event) {
-    let result
-    let code = EventCode.Success
-    try {
-      result = await installRemBG('rembg[cli]')
-    } catch (e) {
-      result = e
-      code = EventCode.Error
-    }
-    event.reply(BridgeEvent.InstallRembgReply, { status: result, code })
-  }
-
-  async PickFileOrDirectory(event, commands: Array<FileSelectorType>) {
-    const commandList: FileSelectorCommand[] = commands.map((command) => {
-      return fileSelectorCommandMap.get(command) || FileSelectorCommand.openFile
+  private initializeModules(): void {
+    Object.values(this.modules).forEach((module) => {
+      module.initialize()
     })
-    let target
-    let code = EventCode.Success
-    try {
-      const result = await dialog.showOpenDialog({
-        properties: commandList
-      })
-      if (!result.canceled) {
-        target = result.filePaths[0]
-      }
-    } catch (e) {
-      target = e
-      code = EventCode.Error
-    }
-    event.reply(BridgeEvent.PickFileOrDirectoryReply, { result: target, code })
+  }
+
+  public destroy(): void {
+    Object.values(this.modules).forEach((module) => {
+      module.destroy()
+    })
+  }
+
+  public getModule<K extends keyof BridgeModuleMap>(name: K): BridgeModuleMap[K] {
+    return this.modules[name]
   }
 }
 
