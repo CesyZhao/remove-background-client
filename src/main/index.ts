@@ -4,8 +4,6 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import Bridge from './model/Bridge'
 
-let bridge: Bridge | null = null
-
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -41,7 +39,8 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  bridge = new Bridge()
+  new Bridge()
+
 }
 
 // This method will be called when Electron has finished
@@ -73,13 +72,6 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
-  }
-})
-
-app.on('before-quit', () => {
-  if (bridge) {
-    bridge.destroy()
-    bridge = null
   }
 })
 

@@ -3,12 +3,11 @@ import childProcess from 'child_process'
 import { shell } from 'electron'
 import { inRange } from 'lodash'
 import path from 'path'
-import { EnvStatus } from '@common/definitions/events'
-import { AsyncResult } from '@common/definitions/types'
+import { EnvStatus } from '@common/definitions/bridge'
 
 const { exec } = childProcess
 
-export const checkPythonInstallStatus = (): AsyncResult<EnvStatus> => {
+export const checkPythonInstallStatus = () => {
   return new Promise((resolve, reject) => {
     exec('python3 --version', (error, stdout) => {
       const version = stdout?.replace('Python', '')?.trim()
@@ -23,7 +22,7 @@ export const checkPythonInstallStatus = (): AsyncResult<EnvStatus> => {
   })
 }
 
-export const installPython = (checkStatusOnly = true): AsyncResult<string> => {
+export const installPython = (checkStatusOnly = true) => {
   return new Promise((resolve, reject) => {
     checkPythonInstallStatus()
       .then((res) => {
@@ -40,13 +39,13 @@ export const installPython = (checkStatusOnly = true): AsyncResult<string> => {
         if (isMac) {
           shell.openPath(targetPath).then((error) => {
             if (error) {
-              reject(error)
+              reject(EnvStatus.PythonNotInstalled)
             }
           })
         } else {
           exec('"' + targetPath + '"', (err) => {
             if (err) {
-              reject(err)
+              reject(EnvStatus.PythonNotInstalled)
             }
           })
         }
@@ -54,7 +53,7 @@ export const installPython = (checkStatusOnly = true): AsyncResult<string> => {
   })
 }
 
-export const checkRembgInstallStatus = (): AsyncResult<EnvStatus> => {
+export const checkRembgInstallStatus = () => {
   return new Promise((resolve, reject) => {
     exec('rembg --help', (error) => {
       error ? reject(EnvStatus.RembgNotInstalled) : resolve(EnvStatus.RembgInstalled)
@@ -62,7 +61,7 @@ export const checkRembgInstallStatus = (): AsyncResult<EnvStatus> => {
   })
 }
 
-export const installRemBG = (type: string): AsyncResult<string> => {
+export const installRemBG = (type: string) => {
   return new Promise((resolve, reject) => {
     checkRembgInstallStatus()
       .then((res) => {
@@ -73,7 +72,7 @@ export const installRemBG = (type: string): AsyncResult<string> => {
           `pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple "${type}"`,
           (error) => {
             if (error) {
-              reject(error)
+              reject(EnvStatus.RembgNotInstalled)
             }
           }
         )
