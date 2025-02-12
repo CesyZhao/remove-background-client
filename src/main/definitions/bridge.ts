@@ -1,4 +1,4 @@
-import { FileSelectorType, FileSelectorCommand } from '../../common/definitions/bridge'
+import { FileSelectorType, FileSelectorCommand } from '@common/definitions/bridge'
 
 export const fileSelectorCommandMap: Map<FileSelectorType, FileSelectorCommand> = new Map([
   [FileSelectorType.SingleFile, FileSelectorCommand.openFile],
