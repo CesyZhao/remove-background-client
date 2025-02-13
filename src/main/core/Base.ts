@@ -4,10 +4,10 @@ import { BridgeEvent, EventCode } from '@common/definitions/bridge'
 
 export interface BridgeResponse {
   code: EventCode
-  [key: string]: any
+  [key: string]: unknown
 }
 
-export type EventHandler<T extends any[] = any[]> = (
+export type EventHandler<T extends unknown[] = unknown[]> = (
   event: IpcMainEvent,
   ...args: T
 ) => Promise<void>
@@ -36,7 +36,7 @@ abstract class BaseModule {
     this.eventHandlers.clear()
   }
 
-  protected registerHandler<T extends any[]>(
+  protected registerHandler<T extends unknown[]>(
     event: BridgeEvent,
     handler: EventHandler<T>
   ): void {
