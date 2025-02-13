@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+import { ISetting } from '@common/definitions/setting'
 
 export const getFilePath = (pathBasedOnDiractory: string) => {
   const targetPath = path.join(__dirname, pathBasedOnDiractory)
@@ -33,4 +34,15 @@ export const writeJson = (filePath: string, data: string) => {
       resolve(void 0)
     })
   })
+}
+
+// 添加一个辅助函数来验证设置类别
+export const isSettingCategory = (obj: unknown): obj is ISetting => {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'settings' in obj &&
+    Array.isArray((obj as ISetting).settings) &&
+    (obj as ISetting).settings.every((setting) => setting.value !== undefined)
+  )
 }

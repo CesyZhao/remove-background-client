@@ -1,6 +1,6 @@
 import path from 'path'
 import { IpcMainEvent } from 'electron'
-import { readJson, writeJson } from '@main/util/file'
+import { isSettingCategory, readJson, writeJson } from '@main/util/file'
 import { ISetting } from '@common/definitions/setting'
 import { BridgeEvent, EventCode } from '@common/definitions/bridge'
 import BaseModule from './Base'
@@ -26,7 +26,12 @@ class SettingModule extends BaseModule {
 
   private async loadSettings() {
     try {
-      this.setting = await readJson(this.settingPath)
+      const data = await readJson(this.settingPath)
+      if (Array.isArray(data) && data.every((item) => isSettingCategory(item))) {
+        this.setting = data as ISetting[]
+      } else {
+        this.setting = []
+      }
     } catch (e) {
       this.setting = []
     }
@@ -35,14 +40,14 @@ class SettingModule extends BaseModule {
   private async handleGetSetting(event: IpcMainEvent): Promise<void> {
     try {
       const settings = await this.getSetting()
-      event.reply(BridgeEvent.GetSettingReply, { 
-        data: settings, 
-        code: EventCode.Success 
+      event.reply(BridgeEvent.GetSettingReply, {
+        data: settings,
+        code: EventCode.Success
       })
     } catch (e) {
-      event.reply(BridgeEvent.GetSettingReply, { 
+      event.reply(BridgeEvent.GetSettingReply, {
         code: EventCode.Error,
-        error: e 
+        error: e
       })
     }
   }
@@ -50,13 +55,13 @@ class SettingModule extends BaseModule {
   private async handleWriteSetting(event: IpcMainEvent, key: string, value: never): Promise<void> {
     try {
       await this.writeSetting(key, value)
-      event.reply(BridgeEvent.WriteSettingReply, { 
-        code: EventCode.Success 
+      event.reply(BridgeEvent.WriteSettingReply, {
+        code: EventCode.Success
       })
     } catch (e) {
-      event.reply(BridgeEvent.WriteSettingReply, { 
+      event.reply(BridgeEvent.WriteSettingReply, {
         code: EventCode.Error,
-        error: e 
+        error: e
       })
     }
   }

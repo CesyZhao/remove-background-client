@@ -1,8 +1,16 @@
 import { IpcMainEvent } from 'electron'
 import { ipcMain } from 'electron'
-import { BridgeEvent } from '@common/definitions/bridge'
+import { BridgeEvent, EventCode } from '@common/definitions/bridge'
 
-type EventHandler = (event: IpcMainEvent, ...args: any[]) => Promise<void>
+export interface BridgeResponse {
+  code: EventCode
+  [key: string]: any
+}
+
+export type EventHandler<T extends any[] = any[]> = (
+  event: IpcMainEvent,
+  ...args: T
+) => Promise<void>
 
 abstract class BaseModule {
   protected eventHandlers: Map<BridgeEvent, EventHandler>
@@ -28,9 +36,16 @@ abstract class BaseModule {
     this.eventHandlers.clear()
   }
 
-  protected registerHandler(event: BridgeEvent, handler: EventHandler): void {
+  protected registerHandler<T extends any[]>(
+    event: BridgeEvent,
+    handler: EventHandler<T>
+  ): void {
     this.eventHandlers.set(event, handler)
   }
-} 
+
+  protected sendReply(event: IpcMainEvent, replyEvent: BridgeEvent, response: BridgeResponse): void {
+    event.reply(replyEvent, response)
+  }
+}
 
 export default BaseModule

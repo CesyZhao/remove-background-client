@@ -5,7 +5,10 @@ import BaseModule from './Base'
 
 class FileModule extends BaseModule {
   protected registerEvents(): void {
-    this.registerHandler(BridgeEvent.PickFileOrDirectory, this.handlePickFileOrDirectory)
+    this.registerHandler<[Array<FileSelectorType>]>(
+      BridgeEvent.PickFileOrDirectory,
+      this.handlePickFileOrDirectory
+    )
   }
 
   private async handlePickFileOrDirectory(event: IpcMainEvent, commands: Array<FileSelectorType>): Promise<void> {
@@ -13,22 +16,21 @@ class FileModule extends BaseModule {
       return fileSelectorCommandMap.get(command) || FileSelectorCommand.openFile
     })
 
-    let target: string | undefined
-    let code = EventCode.Success
-
     try {
       const result = await dialog.showOpenDialog({
         properties: commandList
       })
-      if (!result.canceled) {
-        target = result.filePaths[0]
-      }
-    } catch (e) {
-      target = undefined
-      code = EventCode.Error
-    }
 
-    event.reply(BridgeEvent.PickFileOrDirectoryReply, { result: target, code })
+      this.sendReply(event, BridgeEvent.PickFileOrDirectoryReply, {
+        result: result.canceled ? undefined : result.filePaths[0],
+        code: EventCode.Success
+      })
+    } catch (e) {
+      this.sendReply(event, BridgeEvent.PickFileOrDirectoryReply, {
+        result: undefined,
+        code: EventCode.Error
+      })
+    }
   }
 }
 
