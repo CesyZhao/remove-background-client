@@ -1,9 +1,4 @@
-import {
-  BridgeEvent,
-  EnvStatus,
-  EventCode,
-  FileSelectorType
-} from '../../../common/definitions/bridge'
+import { BridgeEvent, EnvStatus, EventCode, FileSelectorType } from '@common/definitions/bridge'
 
 const { electron } = window
 const { ipcRenderer } = electron

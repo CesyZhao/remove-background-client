@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from 'vue'
-import settings from '../models/Settings'
+import settings from '../ipc/Settings'
 import { ISetting } from '../definitions/setting'
-import bridge from '../models/Bridge'
+import bridge from '../ipc/Bridge'
 import vClickOutside from '../directives/click-outside'
 import { FileSelectorType } from '../../../common/definitions/bridge'
 

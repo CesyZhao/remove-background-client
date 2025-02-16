@@ -26,7 +26,7 @@ export default defineConfig({
         '@components': resolve('src/renderer/src/components'),
         '@definitions': resolve('src/renderer/src/definitions'),
         '@directives': resolve('src/renderer/src/directives'),
-        '@models': resolve('src/renderer/src/models'),
+        '@ipc': resolve('src/renderer/src/ipc'),
         '@utils': resolve('src/renderer/src/utils')
       }
     },

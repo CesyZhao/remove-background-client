@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Loading from './Loading.vue'
 import { defineEmits, onMounted, ref, watch } from 'vue'
-import bridge from '../models/Bridge'
+import bridge from '../ipc/Bridge'
 import { EnvStatus } from '../../../common/definitions/bridge'
 
 const emit = defineEmits(['env-ready'])

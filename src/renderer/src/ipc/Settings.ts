@@ -1,5 +1,5 @@
-import { ISetting } from '../definitions/setting'
-import { AppStorageKeys } from '../definitions/app'
+import { ISetting } from '@definitions/setting'
+import { AppStorageKeys } from '@definitions/app'
 import settingJson from '../config/setting.json'
 
 class Settings {
