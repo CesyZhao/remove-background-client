@@ -1,6 +1,6 @@
 import { IpcMainEvent, dialog } from 'electron'
 import { BridgeEvent, EventCode, FileSelectorCommand, FileSelectorType } from '@common/definitions/bridge'
-import { fileSelectorCommandMap } from '../definitions/bridge'
+import { fileSelectorCommandMap } from '@definitions/bridge'
 import BaseModule from './Base'
 
 class FileModule extends BaseModule {

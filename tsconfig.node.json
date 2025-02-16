@@ -14,8 +14,14 @@
       "@common/*": [
         "src/common/*"
       ],
-      "@main/*": [
-        "src/main/*"
+      "@core/*": [
+        "src/main/core/*"
+      ],
+      "@definitions/*": [
+        "src/main/definitions/*"
+      ],
+      "@util/*": [
+        "src/main/util/*"
       ]
     }
   }

@@ -1,6 +1,6 @@
-import EnvModule from './Env'
-import FileModule from './File'
-import SettingModule from './Setting'
+import EnvModule from '@core/Env'
+import FileModule from '@core/File'
+import SettingModule from '@core/Setting'
 
 export interface ModuleMap {
   env: EnvModule

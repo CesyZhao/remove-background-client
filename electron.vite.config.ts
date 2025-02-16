@@ -5,6 +5,14 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   main: {
+    resolve: {
+      alias: {
+        '@common': resolve('src/common'),
+        '@core': resolve('src/main/core'),
+        '@definitions': resolve('src/main/definitions'),
+        '@util': resolve('src/main/util')
+      }
+    },
     plugins: [externalizeDepsPlugin()]
   },
   preload: {
@@ -13,7 +21,13 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
-        '@renderer': resolve('src/renderer/src')
+        '@common': resolve('src/common'),
+        '@assets': resolve('src/renderer/src/assets'),
+        '@components': resolve('src/renderer/src/components'),
+        '@definitions': resolve('src/renderer/src/definitions'),
+        '@directives': resolve('src/renderer/src/directives'),
+        '@models': resolve('src/renderer/src/models'),
+        '@utils': resolve('src/renderer/src/utils')
       }
     },
     plugins: [

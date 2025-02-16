@@ -2,9 +2,8 @@ import path from 'path'
 import fs from 'fs'
 import { ISetting } from '@common/definitions/setting'
 
-export const getFilePath = (pathBasedOnDiractory: string) => {
-  const targetPath = path.join(__dirname, pathBasedOnDiractory)
-  return targetPath
+export const getFileByPath = (pathBasedOnDiractory: string) => {
+  return path.join(__dirname, pathBasedOnDiractory)
 }
 
 export const readJson = (filePath: string) => {

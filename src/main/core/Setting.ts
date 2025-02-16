@@ -1,6 +1,5 @@
-import path from 'path'
 import { IpcMainEvent } from 'electron'
-import { isSettingCategory, readJson, writeJson } from '@main/util/file'
+import { getFileByPath, isSettingCategory, readJson, writeJson } from '@util/file'
 import { ISetting } from '@common/definitions/setting'
 import { BridgeEvent, EventCode } from '@common/definitions/bridge'
 import BaseModule from './Base'
@@ -11,7 +10,7 @@ class SettingModule extends BaseModule {
 
   constructor() {
     super()
-    this.settingPath = path.join(__dirname, '/config/setting.json')
+    this.settingPath = getFileByPath('/setting.json')
     this.init()
   }
 
