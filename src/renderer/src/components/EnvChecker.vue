@@ -14,11 +14,11 @@ const tip = ref(`检测到必要的运行环境 <div class="python">Python</div>
 
 
 watch(envStatus, (newValue) => {
-  const { PythonNotInstalled, RembgNotInstalled, RembgInstalled } = EnvStatus
-  loading.value = ![PythonNotInstalled, RembgNotInstalled, RembgInstalled].includes(newValue)
+  const { PythonNotInstalled, RemBGNotInstalled, RembgInstalled } = EnvStatus
+  loading.value = ![PythonNotInstalled, RemBGNotInstalled, RembgInstalled].includes(newValue)
   if (newValue === RembgInstalled) {
     emit('env-ready')
-  } else if (newValue === RembgNotInstalled) {
+  } else if (newValue === RemBGNotInstalled) {
     tip.value = '应用部署失败'
   }
 })
@@ -28,7 +28,7 @@ const checkEnv = async () => {
     const pythonStatus = await bridge.installPython()
     envStatus.value = pythonStatus
     tip.value = '应用部署中...'
-    const status = await bridge.installRembg()
+    const status = await bridge.installRemBG()
     envStatus.value = status
   } catch (e) {
     envStatus.value = e

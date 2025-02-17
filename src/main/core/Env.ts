@@ -6,7 +6,7 @@ import BaseModule from './Base'
 class EnvModule extends BaseModule {
   protected registerEvents(): void {
     this.registerHandler<[boolean]>(BridgeEvent.InstallPython, this.handleInstallPython)
-    this.registerHandler<[]>(BridgeEvent.InstallRembg, this.handleInstallRembg)
+    this.registerHandler<[]>(BridgeEvent.installRemBG, this.handleinstallRemBG)
   }
 
   private async handleInstallPython(event: IpcMainEvent, checkStatusOnly: boolean): Promise<void> {
@@ -24,15 +24,15 @@ class EnvModule extends BaseModule {
     }
   }
 
-  private async handleInstallRembg(event: IpcMainEvent): Promise<void> {
+  private async handleinstallRemBG(event: IpcMainEvent): Promise<void> {
     try {
       const status = await installRemBG('rembg[cli]')
-      this.sendReply(event, BridgeEvent.InstallRembgReply, {
+      this.sendReply(event, BridgeEvent.installRemBGReply, {
         status,
         code: EventCode.Success
       })
     } catch (e) {
-      this.sendReply(event, BridgeEvent.InstallRembgReply, {
+      this.sendReply(event, BridgeEvent.installRemBGReply, {
         status: e as EnvStatus,
         code: EventCode.Error
       })

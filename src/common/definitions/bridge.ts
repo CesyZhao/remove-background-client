@@ -1,6 +1,6 @@
 export enum BridgeEvent {
-  InstallRembg = 'InstallRembg',
-  InstallRembgReply = 'InstallRembgReply',
+  installRemBG = 'installRemBG',
+  installRemBGReply = 'installRemBGReply',
   InstallPython = 'InstallPython',
   InstallPythonReply = 'InstallPythonReply',
   PickFileOrDirectory = 'PickFileOrDirectory',
@@ -25,7 +25,7 @@ export enum FileSelectorCommand {
 
 export enum EnvStatus {
   PythonNotInstalled = 'PythonNotInstalled',
-  RembgNotInstalled = 'RembgNotInstalled',
+  RemBGNotInstalled = 'RemBGNotInstalled',
   PythonInstalled = 'PythonInstalled',
   RembgInstalled = 'RembgInstalled',
   Checking = 'Checking'

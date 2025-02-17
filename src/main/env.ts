@@ -56,7 +56,7 @@ export const installPython = (checkStatusOnly = true) => {
 export const checkRembgInstallStatus = () => {
   return new Promise((resolve, reject) => {
     exec('rembg --help', (error) => {
-      error ? reject(EnvStatus.RembgNotInstalled) : resolve(EnvStatus.RembgInstalled)
+      error ? reject(EnvStatus.RemBGNotInstalled) : resolve(EnvStatus.RembgInstalled)
     })
   })
 }
@@ -72,12 +72,12 @@ export const installRemBG = (type: string) => {
           `pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple "${type}"`,
           (error) => {
             if (error) {
-              reject(EnvStatus.RembgNotInstalled)
+              reject(EnvStatus.RemBGNotInstalled)
             }
           }
         )
         command.on('close', (code) => {
-          code === 0 ? resolve(EnvStatus.RembgInstalled) : reject(EnvStatus.RembgNotInstalled)
+          code === 0 ? resolve(EnvStatus.RembgInstalled) : reject(EnvStatus.RemBGNotInstalled)
         })
       })
   })

@@ -1,44 +1,20 @@
-import { BridgeEvent, EnvStatus, EventCode, FileSelectorType } from '@common/definitions/bridge'
+import Env from '@ipc/Env'
+import File from '@ipc/File'
 
-const { electron } = window
-const { ipcRenderer } = electron
+export interface ModuleMap {
+  env: Env
+  file: File
+}
 
 class Bridge {
-  async pickFileOrDirectory(types: FileSelectorType[]): Promise<string | undefined> {
-    return new Promise((resolve, reject) => {
-      const func = electron[`on${BridgeEvent.PickFileOrDirectoryReply}`]
-
-      func(({ result, code }) => {
-        code === EventCode.Success ? resolve(result) : reject(code)
-      })
-
-      ipcRenderer.send(BridgeEvent.PickFileOrDirectory, types)
-    })
+  private modules: ModuleMap
+  constructor() {
+    this.modules = {
+      env: new Env(),
+      file: new File()
+    }
   }
 
-  installRembg(): Promise<EnvStatus> {
-    const func = electron[`on${BridgeEvent.InstallRembgReply}`]
-
-    return new Promise((resolve, reject) => {
-      func(({ status, code }) => {
-        code === EventCode.Success ? resolve(status) : reject(status)
-      })
-
-      ipcRenderer.send(BridgeEvent.InstallRembg)
-    })
-  }
-
-  installPython(checkStatusOnly = true): Promise<EnvStatus> {
-    const func = electron[`on${BridgeEvent.InstallPythonReply}`]
-
-    return new Promise((resolve, reject) => {
-      func(({ status, code }) => {
-        code === EventCode.Success ? resolve(status) : reject(status)
-      })
-
-      ipcRenderer.send(BridgeEvent.InstallPython, checkStatusOnly)
-    })
-  }
 }
 
 const bridge = new Bridge()

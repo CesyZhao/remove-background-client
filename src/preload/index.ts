@@ -13,7 +13,7 @@ const api = {
 
 const additionalAPIKeys = [
   BridgeEvent.InstallPythonReply,
-  BridgeEvent.InstallRembgReply,
+  BridgeEvent.installRemBGReply,
   BridgeEvent.PickFileOrDirectoryReply
 ]
 
