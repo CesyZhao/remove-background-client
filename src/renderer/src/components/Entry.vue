@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Settings from './Settings.vue'
+import Settings from '@components/Setting.vue'
 import { ref } from 'vue'
-import Content from './Content.vue'
+import Content from '@components/Content.vue'
 
 const settingVisible = ref(false)
 

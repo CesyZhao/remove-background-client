@@ -9,7 +9,8 @@ export interface ModuleMap {
 }
 
 class Bridge {
-  private modules: ModuleMap
+  modules: ModuleMap
+
   constructor() {
     this.modules = {
       env: new Env(),

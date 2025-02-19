@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import { Ref, ref, watch } from 'vue'
 
-import { ISetting } from '@definitions/setting'
-import Bridge from '@ipc/Bridge'
+import bridge from '@ipc/Bridge'
 import vClickOutside from '@directives/click-outside'
 import { FileSelectorType } from '@common/definitions/bridge'
+import { ISetting } from '@common/definitions/setting';
 
 
 const visible = defineModel()
 
+const { setting, file } = bridge.modules
+
+const settingModule = setting
+
+console.log(settingModule, '---------------------')
+
 const appSetting: Ref<ISetting> = ref(settings.settings)
 
 const chooseTargetPath = async () => {
-  const result = await bridge.pickFileOrDirectory([FileSelectorType.Folder])
+  const result = await file.pickFileOrDirectory([FileSelectorType.Folder])
   appSetting.value.targetPath = result
 }
 
