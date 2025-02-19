@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { BridgeEvent } from '../common/definitions/bridge'
+import { BridgeEvent } from '@common/definitions/bridge'
 import { upperFirst } from 'lodash'
 
 // Use `contextBridge` APIs to expose Electron APIs to
@@ -13,7 +13,7 @@ const api = {
 
 const additionalAPIKeys = [
   BridgeEvent.InstallPythonReply,
-  BridgeEvent.installRemBGReply,
+  BridgeEvent.InstallRemBGReply,
   BridgeEvent.PickFileOrDirectoryReply,
   BridgeEvent.GetSettingReply
 ]

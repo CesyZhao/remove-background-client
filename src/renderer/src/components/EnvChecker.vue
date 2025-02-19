@@ -2,7 +2,7 @@
 import Loading from './Loading.vue'
 import { defineEmits, onMounted, ref, watch } from 'vue'
 import bridge from '../ipc/Bridge'
-import { EnvStatus } from '../../../common/definitions/bridge'
+import { EnvStatus } from '@common/definitions/bridge'
 
 const { env } = bridge.modules
 
@@ -15,9 +15,9 @@ const loadingText = ref('检测环境中...')
 const tip = ref(`检测到必要的运行环境 <div class="python">Python</div> 缺失`)
 
 watch(envStatus, (newValue) => {
-  const { PythonNotInstalled, RemBGNotInstalled, RembgInstalled } = EnvStatus
-  loading.value = ![PythonNotInstalled, RemBGNotInstalled, RembgInstalled].includes(newValue)
-  if (newValue === RembgInstalled) {
+  const { PythonNotInstalled, RemBGNotInstalled, RemBGInstalled } = EnvStatus
+  loading.value = ![PythonNotInstalled, RemBGNotInstalled, RemBGInstalled].includes(newValue)
+  if (newValue === RemBGInstalled) {
     emit('env-ready')
   } else if (newValue === RemBGNotInstalled) {
     tip.value = '应用部署失败'
@@ -28,10 +28,13 @@ const checkEnv = async () => {
   try {
     const pythonStatus = await env.installPython()
     envStatus.value = pythonStatus
+    console.log(pythonStatus, 'aaaaaaaaaa')
     tip.value = '应用部署中...'
     const status = await env.installRemBG()
     envStatus.value = status
+    console.log(status, 'ssssss')
   } catch (e) {
+    console.log(e)
     envStatus.value = e
   }
 }

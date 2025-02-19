@@ -4,14 +4,16 @@ const { ipcRenderer } = electron
 
 class Env {
   installRemBG(): Promise<EnvStatus> {
-    const func = electron[`on${BridgeEvent.installRemBGReply}`]
+    console.log(electron, '----------------')
+    console.log(`on${BridgeEvent.InstallRemBGReply}`)
+    const func = electron[`on${BridgeEvent.InstallRemBGReply}`]
 
     return new Promise((resolve, reject) => {
       func(({ status, code }) => {
         code === EventCode.Success ? resolve(status) : reject(status)
       })
 
-      ipcRenderer.send(BridgeEvent.installRemBG)
+      ipcRenderer.send(BridgeEvent.InstallRemBG)
     })
   }
 

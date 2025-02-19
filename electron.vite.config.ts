@@ -16,6 +16,11 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()]
   },
   preload: {
+    resolve: {
+      alias: {
+        '@common': resolve('src/common')
+      }
+    },
     plugins: [externalizeDepsPlugin()]
   },
   renderer: {

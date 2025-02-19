@@ -56,7 +56,7 @@ export const installPython = (checkStatusOnly = true) => {
 export const checkRembgInstallStatus = () => {
   return new Promise((resolve, reject) => {
     exec('rembg --help', (error) => {
-      error ? reject(EnvStatus.RemBGNotInstalled) : resolve(EnvStatus.RembgInstalled)
+      error ? reject(EnvStatus.RemBGNotInstalled) : resolve(EnvStatus.RemBGInstalled)
     })
   })
 }
@@ -77,7 +77,7 @@ export const installRemBG = (type: string) => {
           }
         )
         command.on('close', (code) => {
-          code === 0 ? resolve(EnvStatus.RembgInstalled) : reject(EnvStatus.RemBGNotInstalled)
+          code === 0 ? resolve(EnvStatus.RemBGInstalled) : reject(EnvStatus.RemBGNotInstalled)
         })
       })
   })
