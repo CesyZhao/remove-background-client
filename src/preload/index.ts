@@ -14,7 +14,8 @@ const api = {
 const additionalAPIKeys = [
   BridgeEvent.InstallPythonReply,
   BridgeEvent.installRemBGReply,
-  BridgeEvent.PickFileOrDirectoryReply
+  BridgeEvent.PickFileOrDirectoryReply,
+  BridgeEvent.GetSettingReply
 ]
 
 additionalAPIKeys.forEach(k => {

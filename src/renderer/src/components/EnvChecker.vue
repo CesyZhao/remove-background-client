@@ -14,7 +14,6 @@ const loading = ref(true)
 const loadingText = ref('检测环境中...')
 const tip = ref(`检测到必要的运行环境 <div class="python">Python</div> 缺失`)
 
-
 watch(envStatus, (newValue) => {
   const { PythonNotInstalled, RemBGNotInstalled, RembgInstalled } = EnvStatus
   loading.value = ![PythonNotInstalled, RemBGNotInstalled, RembgInstalled].includes(newValue)

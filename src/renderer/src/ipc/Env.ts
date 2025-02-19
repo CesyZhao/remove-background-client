@@ -2,7 +2,6 @@ import { BridgeEvent, EnvStatus, EventCode } from '@common/definitions/bridge'
 const { electron } = window
 const { ipcRenderer } = electron
 
-
 class Env {
   installRemBG(): Promise<EnvStatus> {
     const func = electron[`on${BridgeEvent.installRemBGReply}`]

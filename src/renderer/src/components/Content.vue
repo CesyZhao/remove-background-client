@@ -64,7 +64,8 @@ const handleFilesChange = () => {
   &.dragover {
     border-radius: 8px;
     border: 1px solid;
-    border-image: linear-gradient(var(--theme-color-1), var(--theme-color-2), var(--theme-color-3))30 30;
+    border-image: linear-gradient(var(--theme-color-1), var(--theme-color-2), var(--theme-color-3))
+      30 30;
     animation: light 3s linear infinite;
   }
   &-trigger {
@@ -82,16 +83,21 @@ const handleFilesChange = () => {
   }
 }
 @keyframes light {
+  0% {
+    filter: hue-rotate(0deg); /*色调旋转*/
+  }
 
-  0% {filter: hue-rotate(0deg);/*色调旋转*/}
+  20% {
+    filter: hue-rotate(100deg); /*色调旋转*/
+  }
 
-  20% {filter: hue-rotate(100deg);/*色调旋转*/}
+  40% {
+    filter: hue-rotate(200deg); /*色调旋转*/
+  }
 
-  40% {filter: hue-rotate(200deg);/*色调旋转*/}
-
-  100% {filter: hue-rotate(360deg);/*色调旋转*/}
-
+  100% {
+    filter: hue-rotate(360deg); /*色调旋转*/
+  }
 }
-
 </style>
 ../ipc/Setting
