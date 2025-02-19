@@ -4,6 +4,8 @@ import { defineEmits, onMounted, ref, watch } from 'vue'
 import bridge from '../ipc/Bridge'
 import { EnvStatus } from '../../../common/definitions/bridge'
 
+const { env } = bridge.modules
+
 const emit = defineEmits(['env-ready'])
 
 const envStatus = ref(EnvStatus.Checking)
@@ -25,10 +27,10 @@ watch(envStatus, (newValue) => {
 
 const checkEnv = async () => {
   try {
-    const pythonStatus = await bridge.installPython()
+    const pythonStatus = await env.installPython()
     envStatus.value = pythonStatus
     tip.value = '应用部署中...'
-    const status = await bridge.installRemBG()
+    const status = await env.installRemBG()
     envStatus.value = status
   } catch (e) {
     envStatus.value = e
@@ -36,7 +38,7 @@ const checkEnv = async () => {
 }
 
 const installPython = () => {
-  bridge.installPython(false)
+  env.installPython(false)
 }
 
 onMounted(() => {

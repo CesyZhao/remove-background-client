@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import DynamicButton from '@components/DynamicButton.vue'
 import { Message } from '@arco-design/web-vue'
 import '@arco-design/web-vue/es/message/style/css.js'
+import bridge from '@ipc/Bridge'
 
 const emit = defineEmits(['showSetting'])
 
@@ -22,7 +23,8 @@ const handleFileChange = (e) => {
 }
 
 const handleFilesChange = () => {
-  const targetPath = settings.getSetting('targetPath')
+  const { setting } = bridge.modules
+  const targetPath = setting.getSettingValue('targetPath')
   if (targetPath === '') {
     Message.error({
       content: '请先在设置中选择存储路径',

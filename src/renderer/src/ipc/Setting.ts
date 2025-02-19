@@ -5,7 +5,7 @@ const { electron } = window
 const { ipcRenderer } = electron
 
 class Setting {
-  private settings: ISetting[] = []
+  private setting: ISetting[] = []
 
   constructor() {
     this.initSettings()
@@ -13,14 +13,14 @@ class Setting {
 
   private async initSettings(): Promise<void> {
     try {
-      const settings = await this.getSetting()
-      this.settings = settings as ISetting[]
+      const setting = await this.getSettingFromMain()
+      this.setting = setting as ISetting[]
     } catch (error) {
       console.error('Failed to initialize settings:', error)
     }
   }
 
-  async getSetting(): Promise<ISetting[]> {
+  async getSettingFromMain(): Promise<ISetting[]> {
     return new Promise((resolve, reject) => {
       const func = electron[`on${BridgeEvent.GetSettingReply}`]
 
@@ -44,9 +44,13 @@ class Setting {
     })
   }
 
+  getSetting() {
+    return this.setting
+  }
+
   getSettingValue(key: string): string | number | boolean | undefined {
-    for (const category of this.settings) {
-      const setting = category.settings.find(item => item.key === key)
+    for (const category of this.setting) {
+      const setting = category.settings.find((item) => item.key === key)
       if (setting) {
         return setting.value
       }
@@ -55,7 +59,7 @@ class Setting {
   }
 
   getSettingsByCategory(category: string): ISettingItem[] {
-    const categoryData = this.settings.find(item => item.category === category)
+    const categoryData = this.setting.find((item) => item.category === category)
     return categoryData?.settings || []
   }
 }

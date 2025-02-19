@@ -9,13 +9,13 @@ import { ISetting } from '@common/definitions/setting';
 
 const visible = defineModel()
 
-const { setting, file } = bridge.modules
+const { setting: settingModule, file } = bridge.modules
 
-const settingModule = setting
+const setting = settingModule.getSetting()
 
 console.log(settingModule, '---------------------')
 
-const appSetting: Ref<ISetting> = ref(settings.settings)
+const appSetting: Ref<ISetting> = ref(setting)
 
 const chooseTargetPath = async () => {
   const result = await file.pickFileOrDirectory([FileSelectorType.Folder])
