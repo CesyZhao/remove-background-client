@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import DynamicButton from './DynamicButton.vue'
+import DynamicButton from '@components/DynamicButton.vue'
 import settings from '../ipc/Settings'
 import { Message } from '@arco-design/web-vue'
 import '@arco-design/web-vue/es/message/style/css.js'
@@ -93,3 +93,4 @@ const handleFilesChange = () => {
 }
 
 </style>
+../ipc/Setting

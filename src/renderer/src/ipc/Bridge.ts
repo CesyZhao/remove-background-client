@@ -1,9 +1,11 @@
 import Env from '@ipc/Env'
 import File from '@ipc/File'
+import Setting from '@ipc/Setting'
 
 export interface ModuleMap {
   env: Env
   file: File
+  setting: Setting
 }
 
 class Bridge {
@@ -11,10 +13,10 @@ class Bridge {
   constructor() {
     this.modules = {
       env: new Env(),
-      file: new File()
+      file: new File(),
+      setting: new Setting()
     }
   }
-
 }
 
 const bridge = new Bridge()

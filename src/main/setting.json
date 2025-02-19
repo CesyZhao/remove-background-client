@@ -1,21 +1,64 @@
 [
   {
-    "category": "basic setting",
+    "category": "basic_setting",
     "title": "基础设置",
     "settings": [
       {
-        "key": "output directory",
-        "title": "输出目录"
+        "key": "output_directory",
+        "title": "输出目录",
+        "value": ""
+      },
+      {
+        "key": "output_format",
+        "title": "输出格式",
+        "value": "png"
       }
     ]
   },
   {
-    "category": "module setting",
+    "category": "model_setting",
     "title": "模型设置",
-    "setting": [
+    "settings": [
       {
-        "key": "current module",
-        "title": "当前模型"
+        "key": "model_name",
+        "title": "模型名称",
+        "value": "u2net"
+      },
+      {
+        "key": "alpha_matting",
+        "title": "Alpha 抠图",
+        "value": false
+      },
+      {
+        "key": "alpha_matting_foreground_threshold",
+        "title": "前景阈值",
+        "value": 240
+      },
+      {
+        "key": "alpha_matting_background_threshold",
+        "title": "背景阈值",
+        "value": 10
+      },
+      {
+        "key": "alpha_matting_erode_size",
+        "title": "边缘侵蚀大小",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "category": "post_process_setting",
+    "title": "后处理设置",
+    "settings": [
+      {
+        "key": "post_process_mask",
+        "title": "蒙版后处理",
+        "value": false
+      },
+      {
+        "key": "background_color",
+        "title": "背景颜色",
+        "value": "#ffffff"
       }
     ]
   }

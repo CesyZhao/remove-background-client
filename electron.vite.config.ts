@@ -30,9 +30,6 @@ export default defineConfig({
         '@utils': resolve('src/renderer/src/utils')
       }
     },
-    plugins: [
-      vue(),
-      vitePluginForArco()
-    ]
+    plugins: [vue(), vitePluginForArco()]
   }
 })

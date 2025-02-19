@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import EnvChecker from './components/EnvChecker.vue'
-import Entry from './components/Entry.vue'
+import EnvChecker from '@components/EnvChecker.vue'
+import Entry from '@components/Entry.vue'
 import { ref } from 'vue'
 
 const envReady = ref(false)

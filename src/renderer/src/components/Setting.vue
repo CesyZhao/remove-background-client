@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { Ref, onMounted, ref, watch } from 'vue'
-import settings from '../ipc/Settings'
-import { ISetting } from '../definitions/setting'
-import bridge from '../ipc/Bridge'
-import vClickOutside from '../directives/click-outside'
-import { FileSelectorType } from '../../../common/definitions/bridge'
+import { Ref, ref, watch } from 'vue'
+
+import { ISetting } from '@definitions/setting'
+import Bridge from '@ipc/Bridge'
+import vClickOutside from '@directives/click-outside'
+import { FileSelectorType } from '@common/definitions/bridge'
+
 
 const visible = defineModel()
 
@@ -95,3 +96,4 @@ watch(
 }
 </style>
 ../models/Settings
+../ipc/Setting
