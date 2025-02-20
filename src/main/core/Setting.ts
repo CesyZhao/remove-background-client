@@ -3,6 +3,8 @@ import { getFileByPath, isSettingCategory, readJson, writeJson } from '@util/fil
 import { ISetting } from '@common/definitions/setting'
 import { BridgeEvent, EventCode } from '@common/definitions/bridge'
 import BaseModule from './Base'
+import { app } from 'electron'
+import path from 'path'
 
 class SettingModule extends BaseModule {
   private settingPath: string
@@ -10,8 +12,23 @@ class SettingModule extends BaseModule {
 
   constructor() {
     super()
-    this.settingPath = getFileByPath('/setting.json')
+    // 修改路径获取方式
+    this.settingPath = path.join(app.getAppPath(), 'src', 'main', 'setting.json')
     this.init()
+  }
+
+  private async loadSettings() {
+    try {
+      const data = await readJson(this.settingPath)
+      if (Array.isArray(data) && data.every((item) => isSettingCategory(item))) {
+        this.setting = data as ISetting[]
+      } else {
+        this.setting = []
+      }
+    } catch (e) {
+      console.error('Failed to load settings:', e)
+      this.setting = []
+    }
   }
 
   protected registerEvents(): void {
@@ -21,21 +38,6 @@ class SettingModule extends BaseModule {
 
   private async init() {
     await this.loadSettings()
-  }
-
-  private async loadSettings() {
-    try {
-      const data = await readJson(this.settingPath)
-      console.log(data, 'data--------------')
-      if (Array.isArray(data) && data.every((item) => isSettingCategory(item))) {
-        this.setting = data as ISetting[]
-      } else {
-        this.setting = []
-      }
-    } catch (e) {
-      console.log(e)
-      this.setting = []
-    }
   }
 
   private async handleGetSetting(event: IpcMainEvent): Promise<void> {
