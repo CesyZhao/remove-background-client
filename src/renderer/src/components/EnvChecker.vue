@@ -28,13 +28,10 @@ const checkEnv = async () => {
   try {
     const pythonStatus = await env.installPython()
     envStatus.value = pythonStatus
-    console.log(pythonStatus, 'aaaaaaaaaa')
     tip.value = '应用部署中...'
     const status = await env.installRemBG()
     envStatus.value = status
-    console.log(status, 'ssssss')
   } catch (e) {
-    console.log(e)
     envStatus.value = e
   }
 }

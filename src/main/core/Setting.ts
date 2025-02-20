@@ -26,12 +26,14 @@ class SettingModule extends BaseModule {
   private async loadSettings() {
     try {
       const data = await readJson(this.settingPath)
+      console.log(data, 'data--------------')
       if (Array.isArray(data) && data.every((item) => isSettingCategory(item))) {
         this.setting = data as ISetting[]
       } else {
         this.setting = []
       }
     } catch (e) {
+      console.log(e)
       this.setting = []
     }
   }
@@ -39,6 +41,7 @@ class SettingModule extends BaseModule {
   private async handleGetSetting(event: IpcMainEvent): Promise<void> {
     try {
       const settings = await this.getSetting()
+      console.log(settings, '================')
       event.reply(BridgeEvent.GetSettingReply, {
         data: settings,
         code: EventCode.Success

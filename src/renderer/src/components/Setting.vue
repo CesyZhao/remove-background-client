@@ -13,8 +13,6 @@ const { setting: settingModule, file } = bridge.modules
 
 const setting = settingModule.getSetting()
 
-console.log(settingModule, '---------------------')
-
 const appSetting: Ref<ISetting> = ref(setting)
 
 const chooseTargetPath = async () => {

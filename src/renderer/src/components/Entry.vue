@@ -8,7 +8,7 @@ const settingVisible = ref(false)
 </script>
 
 <template>
-  <!-- <Settings v-model="settingVisible" /> -->
+  <Settings v-model="settingVisible" />
   <Content @show-setting="settingVisible = true" />
 </template>
 

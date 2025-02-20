@@ -14,6 +14,7 @@ class Setting {
   private async initSettings(): Promise<void> {
     try {
       const setting = await this.getSettingFromMain()
+      console.log(setting, '+++++++++++++++++++++')
       this.setting = setting as ISetting[]
     } catch (error) {
       console.error('Failed to initialize settings:', error)
