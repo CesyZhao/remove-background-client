@@ -43,9 +43,9 @@ const handleSelectFile = async () => {
       }
       imageList.value.push(newImage)
       currentImage.value = newImage
-      
+
       const processed = await fileModule.removeBackground(imagePath)
-      const index = imageList.value.findIndex(item => item.id === newImage.id)
+      const index = imageList.value.findIndex((item) => item.id === newImage.id)
       if (index !== -1) {
         imageList.value[index].processedUrl = processed
         setTimeout(() => {
@@ -61,7 +61,7 @@ const handleSelectFile = async () => {
 }
 
 const removeImage = (id: string) => {
-  const index = imageList.value.findIndex(item => item.id === id)
+  const index = imageList.value.findIndex((item) => item.id === id)
   if (index !== -1) {
     imageList.value.splice(index, 1)
   }
@@ -71,6 +71,23 @@ const resetImage = () => {
   previewUrl.value = ''
   processedUrl.value = ''
   processing.value = false
+}
+
+// 添加图片尺寸相关的响应式变量
+const imageSize = ref({ width: 0, height: 0 })
+
+// 监听图片加载完成事件
+const handleImageLoad = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  const maxWidth = 800
+  const maxHeight = 600
+  const ratio = Math.min(maxWidth / img.naturalWidth, maxHeight / img.naturalHeight, 1)
+
+  imageSize.value = {
+    width: Math.floor(img.naturalWidth * ratio),
+    height: Math.floor(img.naturalHeight * ratio)
+  }
+
 }
 </script>
 
@@ -85,62 +102,80 @@ const resetImage = () => {
       </template>
       <template v-else>
         <div class="preview-area">
-          <div class="toolbar">
-            <div class="tool-group">
-              <a-button class="tool-button">
-                <template #icon><icon-plus /></template>
-                背景
-                <a-tag size="small" class="tag">新的</a-tag>
-              </a-button>
-              <a-button class="tool-button">
-                <template #icon><icon-refresh /></template>
-                擦除/恢复
-              </a-button>
-              <a-button class="tool-button">
-                <template #icon><icon-image /></template>
-                效果
-              </a-button>
-              <a-button class="tool-button">
-                <template #icon><icon-palette /></template>
-                创建设计
-              </a-button>
+          <div class="preview-content">
+            <div
+              class="image-wrapper"
+              :class="{ processing: currentImage?.processing }"
+              :style="{
+                width: imageSize.width ? `${imageSize.width}px` : '500px',
+                height: imageSize.height ? `${imageSize.height}px` : '375px'
+              }"
+            >
+              <div
+                v-if="currentImage?.processedUrl && !currentImage?.processing"
+                class="checkerboard-background"
+              ></div>
+              <div
+                class="image-layer preview-layer"
+                :class="{ hidden: currentImage?.processedUrl && !currentImage?.processing }"
+              >
+                <img
+                  :src="currentImage?.previewUrl"
+                  class="preview-image"
+                  @load="handleImageLoad"
+                />
+              </div>
+              <div class="image-layer processed-layer">
+                <img
+                  :src="currentImage?.processedUrl"
+                  class="processed-image"
+                  :style="{
+                    opacity: currentImage?.processedUrl && !currentImage?.processing ? 1 : 0
+                  }"
+                />
+              </div>
+              <div v-if="currentImage?.processing" class="processing-mask">
+                <a-spin dot size="large" />
+              </div>
             </div>
-            <div class="actions">
-              <a-button-group>
+            <div class="preview-footer">
+              <div class="image-actions">
+                <a-button-group class="zoom-actions">
+                  <a-button>
+                    <template #icon><icon-minus /></template>
+                  </a-button>
+                  <a-button>
+                    <template #icon><icon-plus /></template>
+                  </a-button>
+                </a-button-group>
+                <a-button>
+                  <template #icon><icon-copy /></template>
+                </a-button>
                 <a-button>
                   <template #icon><icon-undo /></template>
                 </a-button>
                 <a-button>
                   <template #icon><icon-redo /></template>
                 </a-button>
-              </a-button-group>
-              <a-button type="primary">
-                下载
-                <template #icon><icon-down /></template>
-              </a-button>
+              </div>
             </div>
           </div>
-          <div class="image-wrapper" :class="{ processing: currentImage?.processing }">
-            <div class="checkerboard-background"></div>
-            <div class="image-layer preview-layer" :class="{ hidden: currentImage?.processedUrl }">
-              <img :src="currentImage?.previewUrl" class="preview-image" />
-            </div>
-            <div class="image-layer processed-layer">
-              <img
-                v-if="currentImage?.processedUrl"
-                :src="currentImage?.processedUrl"
-                class="processed-image"
-                :class="{ 'fade-in': !currentImage?.processing }"
-              />
-            </div>
-            <div v-if="currentImage?.processing" class="processing-mask">
-              <a-spin dot size="large" />
-            </div>
+          <div class="side-tools">
+            <a-button class="tool-button">
+              <template #icon><icon-plus /></template>
+              背景
+              <a-tag size="small" class="tag">新的</a-tag>
+            </a-button>
+
+            <a-button class="tool-button" @click.stop="removeImage(currentImage?.id || '')">
+              <template #icon><icon-delete /></template>
+              删除
+            </a-button>
           </div>
         </div>
       </template>
     </div>
-    <div class="image-list" v-if="imageList.length">
+    <div v-if="imageList.length" class="image-list">
       <div class="add-button" @click="handleSelectFile">
         <icon-plus />
       </div>
@@ -156,11 +191,11 @@ const resetImage = () => {
           <div v-if="item.processing" class="processing-indicator">
             <a-spin dot />
           </div>
-          <div class="hover-mask">
+          <!-- <div class="hover-mask">
             <a-button type="text" class="delete-btn" @click.stop="removeImage(item.id)">
               <template #icon><icon-delete /></template>
             </a-button>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -201,98 +236,155 @@ const resetImage = () => {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 0 24px;
-  
-  .toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    
-    .tool-group {
-      display: flex;
-      gap: 8px;
+  gap: 24px;
+  padding: 24px;
 
-      .tag {
-        margin-left: 4px;
-        background: var(--color-primary-light-1);
-        border: none;
-        color: #fff;
-      }
-    }
-
-    .actions {
-      display: flex;
-      gap: 8px;
-    }
-  }
-
-  .image-wrapper {
+  .preview-content {
     flex: 1;
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #fff;
-    min-height: 0;
-    width: 600px;
-    height: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
 
-    .checkerboard-background {
-      position: absolute;
-      inset: 0;
-      background-image: linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
-        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
-        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
-      background-size: 16px 16px;
-      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
-      z-index: 1;
-    }
+    .image-wrapper {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      transition:
+        width 0.3s,
+        height 0.3s;
+      // 移除固定宽高
+      // width: 500px;
+      // height: 375px;
 
-    .image-layer {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2;
+      .processing-mask {
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-      &.preview-layer {
-        &.hidden {
-          opacity: 0;
+        :deep(.arco-spin) {
+          .arco-spin-dot {
+            width: 24px;
+            height: 24px;
+          }
         }
       }
 
-      &.processed-layer {
-        z-index: 3;
+      .checkerboard-background {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(45deg, #f5f5f5 25%, transparent 25%),
+          linear-gradient(-45deg, #f5f5f5 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #f5f5f5 75%),
+          linear-gradient(-45deg, transparent 75%, #f5f5f5 75%);
+        background-size: calc(100% / 25) calc(100% / 25);
+        background-position:
+          0 0,
+          0 calc(100% / 50),
+          calc(100% / 50) calc(100% / -50),
+          calc(100% / -50) 0;
+        z-index: 1;
       }
 
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        transition: opacity 0.8s ease;
+      .image-layer {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.preview-layer {
+          z-index: 2;
+        }
+        &.hidden {
+          width: 0;
+        }
+
+        &.processed-layer {
+          z-index: 3;
+        }
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          transition: opacity 0.3s ease;
+        }
+      }
+
+      .image-actions {
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        z-index: 5;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 4px;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+        .arco-btn {
+          padding: 0 8px;
+          height: 32px;
+          color: var(--color-text-2);
+
+          &:hover {
+            color: rgb(var(--primary-6));
+            background: var(--color-fill-2);
+          }
+        }
       }
     }
 
-    .processed-image {
-      opacity: 0;
-      
-      &.fade-in {
-        opacity: 1;
+    .preview-footer {
+      .download-btn {
+        min-width: 120px;
+        height: 36px;
+        border-radius: 18px;
       }
     }
+  }
 
-    .processing-mask {
-      position: absolute;
-      inset: 0;
-      z-index: 4;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(2px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+  .side-tools {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .tool-button {
+      width: 100%;
+      justify-content: flex-start;
+      padding: 8px 16px;
+      border-radius: 20px;
+      height: 40px;
+      background: var(--color-bg-2);
+      border: none;
+
+      :deep(.arco-icon) {
+        font-size: 18px;
+      }
+
+      .tag {
+        margin-left: 4px;
+        background: rgb(var(--primary-6));
+        border: none;
+        color: #fff;
+        border-radius: 10px;
+        padding: 0 6px;
+        font-size: 12px;
+        line-height: 16px;
+      }
+
+      &:hover {
+        background: var(--color-fill-2);
+      }
     }
   }
 }
@@ -301,8 +393,9 @@ const resetImage = () => {
   height: 60px;
   min-height: 60px;
   border-top: 1px solid var(--color-border);
-  padding: 8px 12px;
+  padding: 0 12px;
   display: flex;
+  align-items: center;
   gap: 8px;
   overflow-x: auto;
 
@@ -339,7 +432,7 @@ const resetImage = () => {
     width: 44px;
     flex-shrink: 0;
     cursor: pointer;
-    
+
     .thumbnail {
       width: 44px;
       height: 44px;
@@ -376,7 +469,7 @@ const resetImage = () => {
 
         .delete-btn {
           color: #fff;
-          
+
           &:hover {
             color: var(--color-primary-light-4);
           }
