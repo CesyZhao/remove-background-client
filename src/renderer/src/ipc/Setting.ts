@@ -34,15 +34,7 @@ class Setting {
   }
 
   async writeSetting(key: string, value: string | number | boolean): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const func = electron[`on${BridgeEvent.WriteSettingReply}`]
-
-      func(({ code, error }) => {
-        code === EventCode.Success ? resolve() : reject(error)
-      })
-
-      ipcRenderer.send(BridgeEvent.WriteSetting, key, value)
-    })
+    ipcRenderer.send(BridgeEvent.WriteSetting, key, value)
   }
 
   getSetting() {

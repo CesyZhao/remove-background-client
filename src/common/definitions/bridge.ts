@@ -8,7 +8,11 @@ export enum BridgeEvent {
   GetSetting = 'GetSetting',
   GetSettingReply = 'GetSettingReply',
   WriteSetting = 'WriteSetting',
-  WriteSettingReply = 'WriteSettingReply'
+  WriteSettingReply = 'WriteSettingReply',
+  RemoveBackground = 'RemoveBackground',
+  RemoveBackgroundReply = 'RemoveBackgroundReply',
+  GetImagePreview = 'GetImagePreview',
+  GetImagePreviewReply = 'GetImagePreviewReply'
 }
 
 export enum FileSelectorType {
