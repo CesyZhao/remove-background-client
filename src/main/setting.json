@@ -6,11 +6,16 @@
       {
         "key": "output_directory",
         "title": "输出目录",
+        "type": "path",
+        "description": "处理后的图片将保存在此目录下，请确保有足够的存储空间",
         "value": ""
       },
       {
         "key": "output_format",
         "title": "输出格式",
+        "type": "select",
+        "description": "导出图片的格式，PNG 格式支持透明背景，JPG 格式文件较小，WebP 格式兼具较小的体积和透明支持",
+        "options": ["png", "jpg", "webp"],
         "value": "png"
       }
     ]
@@ -22,26 +27,43 @@
       {
         "key": "model_name",
         "title": "模型名称",
+        "type": "select",
+        "description": "u2net: 通用模型；u2net_human_seg: 人像专用；u2netp: 轻量级模型；silueta: 轮廓提取",
+        "options": ["u2net", "u2net_human_seg", "u2netp", "silueta"],
         "value": "u2net"
       },
       {
         "key": "alpha_matting",
         "title": "Alpha 抠图",
+        "type": "boolean",
+        "description": "启用 Alpha matting 算法，可以获得更精细的边缘效果，但会降低处理速度",
         "value": false
       },
       {
         "key": "alpha_matting_foreground_threshold",
         "title": "前景阈值",
+        "type": "number",
+        "description": "前景检测的阈值，值越大，判定为前景的区域越少",
+        "min": 0,
+        "max": 255,
         "value": 240
       },
       {
         "key": "alpha_matting_background_threshold",
         "title": "背景阈值",
+        "type": "number",
+        "description": "背景检测的阈值，值越小，判定为背景的区域越少",
+        "min": 0,
+        "max": 255,
         "value": 10
       },
       {
         "key": "alpha_matting_erode_size",
         "title": "边缘侵蚀大小",
+        "type": "number",
+        "description": "边缘侵蚀的像素大小，值越大，过渡区域越宽",
+        "min": 0,
+        "max": 100,
         "value": 10
       }
     ]
@@ -53,11 +75,15 @@
       {
         "key": "post_process_mask",
         "title": "蒙版后处理",
+        "type": "boolean",
+        "description": "对生成的蒙版进行后处理，可以减少噪点，但可能会损失一些细节",
         "value": false
       },
       {
         "key": "background_color",
         "title": "背景颜色",
+        "type": "color",
+        "description": "设置替换后的背景颜色，仅在不需要透明背景时使用",
         "value": "#ffffff"
       }
     ]

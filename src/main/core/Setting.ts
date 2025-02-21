@@ -43,7 +43,6 @@ class SettingModule extends BaseModule {
   private async handleGetSetting(event: IpcMainEvent): Promise<void> {
     try {
       const settings = await this.getSetting()
-      console.log(settings, '================')
       event.reply(BridgeEvent.GetSettingReply, {
         data: settings,
         code: EventCode.Success
@@ -98,6 +97,7 @@ class SettingModule extends BaseModule {
   }
 
   private async saveSettings() {
+    console.log(this.setting)
     await writeJson(this.settingPath, JSON.stringify(this.setting))
   }
 

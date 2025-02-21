@@ -3,9 +3,9 @@ import File from '@ipc/File'
 import Setting from '@ipc/Setting'
 
 export interface ModuleMap {
-  env: Env
-  file: File
-  setting: Setting
+  envModule: Env
+  fileModule: File
+  settingModule: Setting
 }
 
 class Bridge {
@@ -13,9 +13,9 @@ class Bridge {
 
   constructor() {
     this.modules = {
-      env: new Env(),
-      file: new File(),
-      setting: new Setting()
+      envModule: new Env(),
+      fileModule: new File(),
+      settingModule: new Setting()
     }
   }
 }
