@@ -20,15 +20,15 @@ const handleSelectFile = async () => {
       const preview = await fileModule.getImagePreview(imagePath)
       previewUrl.value = preview
       await nextTick()
-      
+
       processing.value = true
       const processed = await fileModule.removeBackground(imagePath)
       processedUrl.value = processed
-      
+
       // 延迟移除 loading 状态，确保动画顺序正确
       setTimeout(() => {
         processing.value = false
-      }, 800)
+      }, 100)
     }
   } catch (error) {
     console.error('处理图片失败:', error)
@@ -56,12 +56,16 @@ const resetImage = () => {
       <div class="image-container">
         <div class="image-wrapper" :class="{ processing }">
           <div class="checkerboard-background"></div>
-          <div class="image-layer preview-layer">
+          <div class="image-layer preview-layer" :class="{ hidden: processedUrl }">
             <img :src="previewUrl" class="preview-image" />
-            <div class="background-overlay" :class="{ 'slide-out': processedUrl && !processing }"></div>
           </div>
           <div class="image-layer processed-layer">
-            <img v-if="processedUrl" :src="processedUrl" class="processed-image" :class="{ 'fade-in': !processing }" />
+            <img
+              v-if="processedUrl"
+              :src="processedUrl"
+              class="processed-image"
+              :class="{ 'fade-in': !processing }"
+            />
           </div>
           <div v-if="processing" class="processing-mask">
             <a-spin dot size="large" />
@@ -80,6 +84,7 @@ const resetImage = () => {
 
 <style scoped lang="less">
 .content {
+  width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
@@ -99,8 +104,8 @@ const resetImage = () => {
 }
 
 .image-container {
-  max-width: 80%;
-  max-height: 80vh;
+  width: 60%;
+  height: 60%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -111,8 +116,6 @@ const resetImage = () => {
   position: relative;
   border-radius: 8px;
   overflow: hidden;
-  width: 600px;
-  height: 400px;
   background: #fff;
 
   .checkerboard-background {
@@ -123,7 +126,11 @@ const resetImage = () => {
       linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
       linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
     background-size: 16px 16px;
-    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    background-position:
+      0 0,
+      0 8px,
+      8px -8px,
+      -8px 0px;
     z-index: 1;
   }
 
@@ -133,11 +140,16 @@ const resetImage = () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     &.preview-layer {
       z-index: 2;
+      transition: width 0.8s ease;
+      will-change: width;
     }
-    
+    &.hidden {
+      width: 0;
+    }
+
     &.processed-layer {
       z-index: 3;
     }
@@ -145,8 +157,8 @@ const resetImage = () => {
 
   .preview-image,
   .processed-image {
-    max-width: 100%;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
   }
 

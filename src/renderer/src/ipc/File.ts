@@ -20,7 +20,7 @@ class File {
     })
   }
 
-  private async getImagePreview(imagePath: string): Promise<string> {
+  async getImagePreview(imagePath: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const func = electron[`on${BridgeEvent.GetImagePreviewReply}`]
 

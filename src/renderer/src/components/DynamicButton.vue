@@ -63,7 +63,6 @@ onBeforeUnmount(() => {
   );
   background-position: 0% 50%;
   color: #ffffff;
-  margin-right: 24px;
   box-shadow: 0 10px 20px -10px #35a2fd;
 }
 </style>
