@@ -93,6 +93,16 @@ const handleDelete = async () => {
     Message.error('删除失败')
   }
 }
+
+const handleOpenInFinder = async () => {
+  if (!currentImage.value?.processedUrl) return
+  try {
+    await fileModule.revealInFinder(currentImage.value.path)
+  } catch (error) {
+    console.error('在文件夹中显示失败:', error)
+    Message.error('打开失败')
+  }
+}
 </script>
 
 <template>
@@ -182,7 +192,7 @@ const handleDelete = async () => {
                   <a-tag size="small" class="tag">新的</a-tag>
                 </a-button>
 
-                <a-button v-if="currentImage.processedUrl" size="mini" class="tool-button">
+                <a-button v-if="currentImage.processedUrl" @click="handleOpenInFinder" size="mini" class="tool-button">
                   <template #icon><icon-folder /></template>
                   在文件夹中显示
                 </a-button>
