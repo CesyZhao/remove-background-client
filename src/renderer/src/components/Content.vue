@@ -15,7 +15,8 @@ interface ImageItem {
   previewUrl: string
   processedUrl: string
   processing: boolean
-  name: string
+  name: string,
+  path: string
 }
 
 const imageList = ref<ImageItem[]>([])
@@ -39,15 +40,17 @@ const handleSelectFile = async () => {
         previewUrl: preview,
         processedUrl: '',
         processing: true,
+        path: '',
         name: imagePath.split('/').pop() || '未命名'
       }
       imageList.value.push(newImage)
       currentImage.value = newImage
 
-      const processed = await fileModule.removeBackground(imagePath)
+      const { base64, path } = await fileModule.removeBackground(imagePath)
       const index = imageList.value.findIndex((item) => item.id === newImage.id)
       if (index !== -1) {
-        imageList.value[index].processedUrl = processed
+        imageList.value[index].processedUrl = base64
+        imageList.value[index].path = path
         setTimeout(() => {
           imageList.value[index].processing = false
         }, 100)
@@ -189,7 +192,7 @@ const handleImageLoad = (event: Event) => {
         <div class="thumbnail">
           <img :src="item.processedUrl || item.previewUrl" />
           <div v-if="item.processing" class="processing-indicator">
-            <a-spin dot />
+            <a-spin :size="12" />
           </div>
           <!-- <div class="hover-mask">
             <a-button type="text" class="delete-btn" @click.stop="removeImage(item.id)">

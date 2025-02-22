@@ -49,6 +49,7 @@ class FileModule extends BaseModule {
 
       this.sendReply(event, BridgeEvent.RemoveBackgroundReply, {
         result: dataUrl,
+        outputPath,
         code: EventCode.Success
       })
     } catch (error) {

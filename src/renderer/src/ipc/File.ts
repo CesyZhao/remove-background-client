@@ -2,9 +2,9 @@ import { BridgeEvent, EventCode, FileSelectorType } from '@common/definitions/br
 const { electron } = window
 const { ipcRenderer } = electron
 
-interface ImageResult {
-  preview: string
-  processed?: string
+interface ProcessedImage {
+  base64: string
+  path: string
 }
 
 class File {
@@ -36,13 +36,16 @@ class File {
     })
   }
 
-  async removeBackground(imagePath: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
+  async removeBackground(imagePath: string): Promise<ProcessedImage> {
+    return new Promise<ProcessedImage>((resolve, reject) => {
       const func = electron[`on${BridgeEvent.RemoveBackgroundReply}`]
 
-      func(({ result, code, error }) => {
+      func(({ result, outputPath, code, error }) => {
         if (code === EventCode.Success) {
-          resolve(result)
+          resolve({
+            base64: result,
+            path: outputPath
+          })
         } else {
           reject(error || '图片处理失败')
         }
