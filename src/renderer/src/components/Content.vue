@@ -192,7 +192,12 @@ const handleOpenInFinder = async () => {
                   <a-tag size="small" class="tag">新的</a-tag>
                 </a-button>
 
-                <a-button v-if="currentImage.processedUrl" @click="handleOpenInFinder" size="mini" class="tool-button">
+                <a-button
+                  v-if="currentImage.processedUrl"
+                  size="mini"
+                  class="tool-button"
+                  @click="handleOpenInFinder"
+                >
                   <template #icon><icon-folder /></template>
                   在文件夹中显示
                 </a-button>
@@ -203,7 +208,12 @@ const handleOpenInFinder = async () => {
                   position="left"
                   @ok="handleDelete"
                 >
-                  <a-button v-if="currentImage.processedUrl" size="mini" class="tool-button" status="danger">
+                  <a-button
+                    v-if="currentImage.processedUrl"
+                    size="mini"
+                    class="tool-button"
+                    status="danger"
+                  >
                     <template #icon><icon-delete /></template>
                     删除图片
                   </a-button>
@@ -339,9 +349,11 @@ const handleOpenInFinder = async () => {
 
         &.preview-layer {
           z-index: 2;
+          transition: all 1s ease;
         }
+
         &.hidden {
-          width: 0;
+          clip-path: inset(0 100% 0 0);
         }
 
         &.processed-layer {
