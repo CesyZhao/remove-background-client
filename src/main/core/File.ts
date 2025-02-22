@@ -29,9 +29,66 @@ class FileModule extends BaseModule {
     )
     this.registerHandler<[string]>(BridgeEvent.GetImagePreview, this.handleGetImagePreview)
     this.registerHandler<[string]>(BridgeEvent.RemoveBackground, this.handleRemoveBackground)
+    this.registerHandler<[string]>(
+      BridgeEvent.RemoveBackgroundBatch,
+      this.handleRemoveBackgroundBatch
+    )
     this.registerHandler<[string]>(BridgeEvent.DeleteImage, this.deleteImage)
     this.registerHandler<[string]>(BridgeEvent.RevealInFinder, this.revealInFinder)
+  }
 
+  private async processDirectory(
+    dirPath: string,
+    baseDir: string,
+    settings: ISetting[]
+  ): Promise<Array<{ base64: string; path: string }>> {
+    const results: Array<{ base64: string; path: string }> = []
+    const entries = await fs.promises.readdir(dirPath, { withFileTypes: true })
+
+    for (const entry of entries) {
+      const fullPath = path.join(dirPath, entry.name)
+
+      if (entry.isDirectory()) {
+        const subResults = await this.processDirectory(fullPath, baseDir, settings)
+        results.push(...subResults)
+      } else {
+        const ext = path.extname(entry.name).toLowerCase()
+        if (['.jpg', '.jpeg', '.png'].includes(ext)) {
+          const outputPath = this.getOutputPath(fullPath, settings)
+          const command = this.buildRembgCommand(fullPath, outputPath, settings)
+
+          await this.executeRembgCommand(command)
+          const imageBuffer = await fs.promises.readFile(outputPath)
+          const base64Image = imageBuffer.toString('base64')
+          const mimeType = outputPath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'
+          const dataUrl = `data:${mimeType};base64,${base64Image}`
+
+          results.push({
+            base64: dataUrl,
+            path: outputPath
+          })
+        }
+      }
+    }
+
+    return results
+  }
+
+  private async handleRemoveBackgroundBatch(event: IpcMainEvent, dirPath: string): Promise<void> {
+    try {
+      const settings = await this.settingModule.getSetting()
+      const results = await this.processDirectory(dirPath, dirPath, settings)
+
+      this.sendReply(event, BridgeEvent.RemoveBackgroundBatchReply, {
+        result: results,
+        code: EventCode.Success
+      })
+    } catch (error) {
+      this.sendReply(event, BridgeEvent.RemoveBackgroundBatchReply, {
+        code: EventCode.Error,
+        error: error.message
+      })
+    }
   }
 
   private async handleRemoveBackground(event: IpcMainEvent, imagePath: string): Promise<void> {
@@ -74,8 +131,22 @@ class FileModule extends BaseModule {
         properties: commandList
       })
 
+      if (result.canceled || !result.filePaths[0]) {
+        this.sendReply(event, BridgeEvent.PickFileOrDirectoryReply, {
+          result: undefined,
+          code: EventCode.Success
+        })
+        return
+      }
+
+      const filePath = result.filePaths[0]
+      const stats = await fs.promises.stat(filePath)
+
       this.sendReply(event, BridgeEvent.PickFileOrDirectoryReply, {
-        result: result.canceled ? undefined : result.filePaths[0],
+        result: {
+          path: filePath,
+          isDirectory: stats.isDirectory()
+        },
         code: EventCode.Success
       })
     } catch (e) {

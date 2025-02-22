@@ -7,8 +7,13 @@ interface ProcessedImage {
   path: string
 }
 
+interface IPickResult {
+  path: string,
+  isDirectory: boolean
+}
+
 class File {
-  async pickFileOrDirectory(types: FileSelectorType[]): Promise<string | undefined> {
+  async pickFileOrDirectory(types: FileSelectorType[]): Promise<IPickResult> {
     return new Promise((resolve, reject) => {
       const func = electron[`on${BridgeEvent.PickFileOrDirectoryReply}`]
 
@@ -52,6 +57,22 @@ class File {
       })
 
       ipcRenderer.send(BridgeEvent.RemoveBackground, imagePath)
+    })
+  }
+
+  async removeBackgroundBatch(dirPath: string): Promise<ProcessedImage[]> {
+    return new Promise<ProcessedImage[]>((resolve, reject) => {
+      const func = electron[`on${BridgeEvent.RemoveBackgroundBatchReply}`]
+
+      func(({ result, code, error }) => {
+        if (code === EventCode.Success) {
+          resolve(result)
+        } else {
+          reject(error || '批量处理图片失败')
+        }
+      })
+
+      ipcRenderer.send(BridgeEvent.RemoveBackgroundBatch, dirPath)
     })
   }
 

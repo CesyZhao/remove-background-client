@@ -32,9 +32,32 @@ const selectImage = (image: ImageItem) => {
 const handleSelectFile = async () => {
   try {
     loading.value = true
-    const imagePath = await fileModule.pickFileOrDirectory([FileSelectorType.SingleFile])
+    const { path, isDirectory } = await fileModule.pickFileOrDirectory([
+      FileSelectorType.SingleFile,
+      FileSelectorType.Folder
+    ])
 
-    if (imagePath) {
+    if (!path) return
+
+    if (isDirectory) {
+      // 处理文件夹
+      const results = await fileModule.removeBackgroundBatch(path)
+      for (const result of results) {
+        const newImage: ImageItem = {
+          id: Date.now().toString() + Math.random(),
+          previewUrl: result.base64,
+          processedUrl: result.base64,
+          processing: false,
+          path: result.path,
+          name: result.path.split('/').pop() || '未命名'
+        }
+        imageList.value.push(newImage)
+      }
+      if (results.length > 0) {
+        currentImage.value = imageList.value[imageList.value.length - 1]
+      }
+    } else {
+      // 处理单个文件
       const preview = await fileModule.getImagePreview(imagePath)
       const newImage: ImageItem = {
         id: Date.now().toString(),
@@ -42,12 +65,12 @@ const handleSelectFile = async () => {
         processedUrl: '',
         processing: true,
         path: '',
-        name: imagePath.split('/').pop() || '未命名'
+        name: path.split('/').pop() || '未命名'
       }
       imageList.value.push(newImage)
       currentImage.value = newImage
 
-      const { base64, path } = await fileModule.removeBackground(imagePath)
+      const { base64, path } = await fileModule.removeBackground(path)
       const index = imageList.value.findIndex((item) => item.id === newImage.id)
       if (index !== -1) {
         imageList.value[index].processedUrl = base64
@@ -59,6 +82,7 @@ const handleSelectFile = async () => {
     }
   } catch (error) {
     console.error('处理图片失败:', error)
+    Message.error('处理失败')
   } finally {
     loading.value = false
   }
