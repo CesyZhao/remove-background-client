@@ -12,7 +12,11 @@ export enum BridgeEvent {
   RemoveBackground = 'RemoveBackground',
   RemoveBackgroundReply = 'RemoveBackgroundReply',
   GetImagePreview = 'GetImagePreview',
-  GetImagePreviewReply = 'GetImagePreviewReply'
+  GetImagePreviewReply = 'GetImagePreviewReply',
+  DeleteImage = 'DeleteImage',
+  DeleteImageReply = 'DeleteImageReply',
+  RevealInFinder = 'RevealInFinder',
+  RevealInFinderReply = 'RevealInFinderReply'
 }
 
 export enum FileSelectorType {

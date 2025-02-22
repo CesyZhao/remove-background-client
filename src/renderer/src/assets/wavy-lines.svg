@@ -1,25 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1422 800" opacity="0.3">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1422 800" opacity="0.35">
   <defs>
-    <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="oooscillate-grad">
-      <stop stop-color="hsl(206, 75%, 49%)" stop-opacity="1" offset="0%"></stop>
-      <stop stop-color="hsl(331, 90%, 56%)" stop-opacity="1" offset="100%"></stop>
+    <linearGradient id="tech-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="50%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#0EA5E9"/>
     </linearGradient>
+    
+    <!-- 基础网格 -->
+    <pattern id="base-grid" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="url(#tech-grad)" stroke-width="0.5" opacity="0.2"/>
+    </pattern>
+    
+    <!-- 电路图案 -->
+    <pattern id="circuit" width="200" height="200" patternUnits="userSpaceOnUse">
+      <rect width="200" height="200" fill="url(#base-grid)"/>
+      <path d="M50,100 h30 a20,20 0 0 1 20,-20 v-30" fill="none" stroke="url(#tech-grad)" stroke-width="1" opacity="0.3"/>
+      <path d="M150,100 h-30 a20,20 0 0 0 -20,20 v30" fill="none" stroke="url(#tech-grad)" stroke-width="1" opacity="0.3"/>
+      <circle cx="100" cy="100" r="5" fill="url(#tech-grad)" opacity="0.4"/>
+      <circle cx="100" cy="100" r="10" fill="none" stroke="url(#tech-grad)" stroke-width="1" opacity="0.3"/>
+    </pattern>
   </defs>
-  <g stroke-width="1" stroke="url(#oooscillate-grad)" fill="none" stroke-linecap="round">
-    <path d="M 0 448 Q 355.5 -100 711 400 Q 1066.5 900 1422 448" opacity="0.05"></path>
-    <path d="M 0 420 Q 355.5 -100 711 400 Q 1066.5 900 1422 420" opacity="0.11"></path>
-    <path d="M 0 392 Q 355.5 -100 711 400 Q 1066.5 900 1422 392" opacity="0.18"></path>
-    <path d="M 0 364 Q 355.5 -100 711 400 Q 1066.5 900 1422 364" opacity="0.24"></path>
-    <path d="M 0 336 Q 355.5 -100 711 400 Q 1066.5 900 1422 336" opacity="0.30"></path>
-    <path d="M 0 308 Q 355.5 -100 711 400 Q 1066.5 900 1422 308" opacity="0.37"></path>
-    <path d="M 0 280 Q 355.5 -100 711 400 Q 1066.5 900 1422 280" opacity="0.43"></path>
-    <path d="M 0 252 Q 355.5 -100 711 400 Q 1066.5 900 1422 252" opacity="0.49"></path>
-    <path d="M 0 224 Q 355.5 -100 711 400 Q 1066.5 900 1422 224" opacity="0.56"></path>
-    <path d="M 0 196 Q 355.5 -100 711 400 Q 1066.5 900 1422 196" opacity="0.62"></path>
-    <path d="M 0 168 Q 355.5 -100 711 400 Q 1066.5 900 1422 168" opacity="0.68"></path>
-    <path d="M 0 140 Q 355.5 -100 711 400 Q 1066.5 900 1422 140" opacity="0.75"></path>
-    <path d="M 0 112 Q 355.5 -100 711 400 Q 1066.5 900 1422 112" opacity="0.81"></path>
-    <path d="M 0 84 Q 355.5 -100 711 400 Q 1066.5 900 1422 84" opacity="0.87"></path>
-    <path d="M 0 56 Q 355.5 -100 711 400 Q 1066.5 900 1422 56" opacity="0.94"></path>
+
+  <!-- 背景层 -->
+  <rect width="100%" height="100%" fill="url(#circuit)"/>
+
+  <!-- 主要结构线 -->
+  <path d="M0,0 L1422,800" stroke="url(#tech-grad)" stroke-width="0.5" opacity="0.2"/>
+  <path d="M1422,0 L0,800" stroke="url(#tech-grad)" stroke-width="0.5" opacity="0.2"/>
+  <path d="M711,0 L711,800" stroke="url(#tech-grad)" stroke-width="0.5" opacity="0.3"/>
+  <path d="M0,400 L1422,400" stroke="url(#tech-grad)" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- 装饰性电路节点 -->
+  <g stroke="url(#tech-grad)" fill="none">
+    <circle cx="711" cy="400" r="100" stroke-width="0.5" opacity="0.2"/>
+    <circle cx="711" cy="400" r="50" stroke-width="0.5" opacity="0.3"/>
+    <path d="M611,400 h-50 M861,400 h-50" stroke-width="1" opacity="0.3"/>
+    <path d="M711,300 v-50 M711,550 v-50" stroke-width="1" opacity="0.3"/>
   </g>
+
+  <!-- 角落装饰 -->
+  <path d="M0,0 h100 v4 h-96 v96 h-4 Z" fill="url(#tech-grad)" opacity="0.3"/>
+  <path d="M1422,0 h-100 v4 h96 v96 h4 Z" fill="url(#tech-grad)" opacity="0.3"/>
+  <path d="M0,800 h100 v-4 h-96 v-96 h-4 Z" fill="url(#tech-grad)" opacity="0.3"/>
+  <path d="M1422,800 h-100 v-4 h96 v-96 h4 Z" fill="url(#tech-grad)" opacity="0.3"/>
 </svg>

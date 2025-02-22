@@ -3,6 +3,7 @@ import { ref, nextTick } from 'vue'
 import bridge from '@ipc/Bridge'
 import { FileSelectorType } from '@common/definitions/bridge'
 import DynamicButton from './DynamicButton.vue'
+import { Message, Modal } from '@arco-design/web-vue'
 
 const { fileModule } = bridge.modules
 
@@ -15,7 +16,7 @@ interface ImageItem {
   previewUrl: string
   processedUrl: string
   processing: boolean
-  name: string,
+  name: string
   path: string
 }
 
@@ -63,34 +64,34 @@ const handleSelectFile = async () => {
   }
 }
 
-const removeImage = (id: string) => {
-  const index = imageList.value.findIndex((item) => item.id === id)
-  if (index !== -1) {
-    imageList.value.splice(index, 1)
-  }
-}
-
-const resetImage = () => {
-  previewUrl.value = ''
-  processedUrl.value = ''
-  processing.value = false
-}
-
 // 添加图片尺寸相关的响应式变量
 const imageSize = ref({ width: 0, height: 0 })
 
 // 监听图片加载完成事件
 const handleImageLoad = (event: Event) => {
   const img = event.target as HTMLImageElement
-  const maxWidth = 800
-  const maxHeight = 600
-  const ratio = Math.min(maxWidth / img.naturalWidth, maxHeight / img.naturalHeight, 1)
+  const ratio = Math.min(img.width / img.naturalWidth, img.height / img.naturalHeight, 1)
 
   imageSize.value = {
     width: Math.floor(img.naturalWidth * ratio),
     height: Math.floor(img.naturalHeight * ratio)
   }
+}
 
+const handleDelete = async () => {
+  if (!currentImage.value?.processedUrl) return
+  try {
+    await fileModule.deleteImage(currentImage.value.path)
+    const index = imageList.value.findIndex((item) => item.id === currentImage.value?.id)
+    if (index !== -1) {
+      imageList.value.splice(index, 1)
+      currentImage.value = imageList.value[Math.min(index, imageList.value.length - 1)] || null
+    }
+    Message.success('删除成功')
+  } catch (error) {
+    console.error('删除图片失败:', error)
+    Message.error('删除失败')
+  }
 }
 </script>
 
@@ -163,17 +164,42 @@ const handleImageLoad = (event: Event) => {
               </div>
             </div>
           </div>
-          <div class="side-tools">
-            <a-button class="tool-button">
-              <template #icon><icon-plus /></template>
-              背景
-              <a-tag size="small" class="tag">新的</a-tag>
-            </a-button>
+          <div class="side-tools" :class="{ processing: currentImage?.processing }">
+            <template v-if="currentImage">
+              <template v-if="currentImage.processing">
+                <a-skeleton animation>
+                  <a-space direction="vertical" :style="{ width: '100%' }" :size="12">
+                    <a-skeleton-line :rows="1" :line-height="40" :line-radius="20" />
+                    <a-skeleton-line :rows="1" :line-height="40" :line-radius="20" />
+                    <a-skeleton-line :rows="1" :line-height="40" :line-radius="20" />
+                  </a-space>
+                </a-skeleton>
+              </template>
+              <template v-else>
+                <a-button class="tool-button" size="mini">
+                  <template #icon><icon-plus /></template>
+                  背景
+                  <a-tag size="small" class="tag">新的</a-tag>
+                </a-button>
 
-            <a-button class="tool-button" @click.stop="removeImage(currentImage?.id || '')">
-              <template #icon><icon-delete /></template>
-              删除
-            </a-button>
+                <a-button v-if="currentImage.processedUrl" size="mini" class="tool-button">
+                  <template #icon><icon-folder /></template>
+                  在文件夹中显示
+                </a-button>
+
+                <a-popconfirm
+                  content="确定要删除这张图片吗？"
+                  type="warning"
+                  position="left"
+                  @ok="handleDelete"
+                >
+                  <a-button v-if="currentImage.processedUrl" size="mini" class="tool-button" status="danger">
+                    <template #icon><icon-delete /></template>
+                    删除图片
+                  </a-button>
+                </a-popconfirm>
+              </template>
+            </template>
           </div>
         </div>
       </template>
@@ -241,13 +267,13 @@ const handleImageLoad = (event: Event) => {
   display: flex;
   gap: 24px;
   padding: 24px;
+  justify-content: center;
 
   .preview-content {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: 48px;
 
     .image-wrapper {
       position: relative;
@@ -356,22 +382,44 @@ const handleImageLoad = (event: Event) => {
   }
 
   .side-tools {
-    width: 200px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    padding: 12px;
+    background: var(--color-bg-2);
+    border-radius: 12px;
+
+    &.processing {
+      width: 180px;
+    }
+
+    :deep(.arco-skeleton-line) {
+      .arco-skeleton-line-row {
+        height: 40px;
+        border-radius: 20px;
+        background: var(--color-fill-2);
+        margin-top: 12px;
+
+        &:first-child {
+          margin-top: 0;
+        }
+      }
+    }
 
     .tool-button {
-      width: 100%;
       justify-content: flex-start;
-      padding: 8px 16px;
+      padding: 16px 20px;
       border-radius: 20px;
-      height: 40px;
       background: var(--color-bg-2);
-      border: none;
+      border: 1px solid var(--color-border-2);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
 
       :deep(.arco-icon) {
-        font-size: 18px;
+        font-size: 16px;
+        vertical-align: -3px;
       }
 
       .tag {
@@ -387,6 +435,16 @@ const handleImageLoad = (event: Event) => {
 
       &:hover {
         background: var(--color-fill-2);
+        border-color: var(--color-border-3);
+      }
+
+      &[status='danger'] {
+        color: rgb(var(--danger-6));
+        border-color: rgb(var(--danger-6));
+
+        &:hover {
+          background: var(--color-danger-light-1);
+        }
       }
     }
   }

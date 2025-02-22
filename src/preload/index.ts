@@ -17,7 +17,9 @@ const additionalAPIKeys = [
   BridgeEvent.PickFileOrDirectoryReply,
   BridgeEvent.GetSettingReply,
   BridgeEvent.RemoveBackgroundReply,
-  BridgeEvent.GetImagePreviewReply
+  BridgeEvent.GetImagePreviewReply,
+  BridgeEvent.DeleteImageReply,
+  BridgeEvent.RevealInFinderReply
 ]
 
 additionalAPIKeys.forEach(k => {

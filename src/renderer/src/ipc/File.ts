@@ -54,6 +54,38 @@ class File {
       ipcRenderer.send(BridgeEvent.RemoveBackground, imagePath)
     })
   }
+
+  async deleteImage(imagePath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const func = electron[`on${BridgeEvent.DeleteImageReply}`]
+
+      func(({ code, error }) => {
+        if (code === EventCode.Success) {
+          resolve()
+        } else {
+          reject(error || '删除图片失败')
+        }
+      })
+
+      ipcRenderer.send(BridgeEvent.DeleteImage, imagePath)
+    })
+  }
+
+  async revealInFinder(imagePath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const func = electron[`on${BridgeEvent.RevealInFinderReply}`]
+
+      func(({ code, error }) => {
+        if (code === EventCode.Success) {
+          resolve()
+        } else {
+          reject(error || '在文件夹中显示失败')
+        }
+      })
+
+      ipcRenderer.send(BridgeEvent.RevealInFinder, imagePath)
+    })
+  }
 }
 
 export default File

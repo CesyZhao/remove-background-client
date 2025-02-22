@@ -11,6 +11,7 @@ import { exec } from 'child_process'
 import path from 'path'
 import { ISetting } from '@common/definitions/setting'
 import SettingModule from './Setting'
+import { shell } from 'electron'
 import fs from 'fs'
 
 class FileModule extends BaseModule {
@@ -26,11 +27,11 @@ class FileModule extends BaseModule {
       BridgeEvent.PickFileOrDirectory,
       this.handlePickFileOrDirectory
     )
-    this.registerHandler<[string]>(
-      BridgeEvent.GetImagePreview,
-      this.handleGetImagePreview
-    )
+    this.registerHandler<[string]>(BridgeEvent.GetImagePreview, this.handleGetImagePreview)
     this.registerHandler<[string]>(BridgeEvent.RemoveBackground, this.handleRemoveBackground)
+    this.registerHandler<[string]>(BridgeEvent.DeleteImage, this.deleteImage)
+    this.registerHandler<[string]>(BridgeEvent.RevealInFinder, this.revealInFinder)
+
   }
 
   private async handleRemoveBackground(event: IpcMainEvent, imagePath: string): Promise<void> {
@@ -40,7 +41,7 @@ class FileModule extends BaseModule {
       const command = this.buildRembgCommand(imagePath, outputPath, settings)
 
       await this.executeRembgCommand(command)
-      
+
       // 读取处理后的图片并转换为 base64
       const imageBuffer = fs.readFileSync(outputPath)
       const base64Image = imageBuffer.toString('base64')
@@ -165,6 +166,32 @@ class FileModule extends BaseModule {
       this.sendReply(event, BridgeEvent.GetImagePreviewReply, {
         code: EventCode.Error,
         error: error.message
+      })
+    }
+  }
+
+  async deleteImage(event: IpcMainEvent, imagePath: string): Promise<void> {
+    try {
+      await fs.unlinkSync(imagePath)
+      this.sendReply(event, BridgeEvent.DeleteImageReply, {
+        code: EventCode.Success
+      })
+    } catch (error) {
+      this.sendReply(event, BridgeEvent.DeleteImageReply, {
+        code: EventCode.Error
+      })
+    }
+  }
+
+  async revealInFinder(event: IpcMainEvent, imagePath: string): Promise<void> {
+    try {
+      await shell.showItemInFolder(imagePath)
+      this.sendReply(event, BridgeEvent.RevealInFinderReply, {
+        code: EventCode.Success
+      })
+    } catch (error) {
+      this.sendReply(event, BridgeEvent.RevealInFinderReply, {
+        code: EventCode.Error
       })
     }
   }
