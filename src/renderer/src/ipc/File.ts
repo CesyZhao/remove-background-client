@@ -107,6 +107,22 @@ class File {
       ipcRenderer.send(BridgeEvent.RevealInFinder, imagePath)
     })
   }
+
+  async getDirectoryImages(dirPath: string): Promise<{ path: string }[]> {
+    return new Promise((resolve, reject) => {
+      const func = electron[`on${BridgeEvent.GetDirectoryImagesReply}`]
+
+      func(({ result, code, error }) => {
+        if (code === EventCode.Success) {
+          resolve(result)
+        } else {
+          reject(error || '获取文件夹图片失败')
+        }
+      })
+
+      ipcRenderer.send(BridgeEvent.GetDirectoryImages, dirPath)
+    })
+  }
 }
 
 export default File

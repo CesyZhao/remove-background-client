@@ -24,7 +24,8 @@
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
     "electron-updater": "^6.1.7",
-    "less": "^4.2.0"
+    "less": "^4.2.0",
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@arco-design/web-vue": "^2.55.1",

@@ -40,21 +40,40 @@ const handleSelectFile = async () => {
     if (!targetPath) return
 
     if (isDirectory) {
-      // 处理文件夹
-      const results = await fileModule.removeBackgroundBatch(targetPath)
-      for (const result of results) {
+      // 先获取文件夹中的所有图片预览
+      const images = await fileModule.getDirectoryImages(targetPath)
+      
+      // 添加所有图片到列表，设置为处理中状态
+      for (const image of images) {
+        const preview = await fileModule.getImagePreview(image.path)
         const newImage: ImageItem = {
           id: Date.now().toString() + Math.random(),
-          previewUrl: result.base64,
-          processedUrl: result.base64,
-          processing: false,
-          path: result.path,
-          name: result.path.split('/').pop() || '未命名'
+          previewUrl: preview,
+          processedUrl: '',
+          processing: true,
+          path: '',
+          name: image.path.split('/').pop() || '未命名'
         }
         imageList.value.push(newImage)
       }
-      if (results.length > 0) {
-        currentImage.value = imageList.value[imageList.value.length - 1]
+      
+      // 设置第一张图片为当前显示
+      if (images.length > 0) {
+        currentImage.value = imageList.value[imageList.value.length - images.length]
+      }
+      
+      // 开始批量处理
+      const results = await fileModule.removeBackgroundBatch(targetPath)
+      
+      // 更新处理结果
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i]
+        const index = imageList.value.length - results.length + i
+        if (index >= 0) {
+          imageList.value[index].processedUrl = result.base64
+          imageList.value[index].path = result.path
+          imageList.value[index].processing = false
+        }
       }
     } else {
       // 处理单个文件

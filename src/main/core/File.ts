@@ -13,6 +13,7 @@ import { ISetting } from '@common/definitions/setting'
 import SettingModule from './Setting'
 import { shell } from 'electron'
 import fs from 'fs'
+import sharp from 'sharp'
 
 class FileModule extends BaseModule {
   private settingModule: SettingModule
@@ -33,6 +34,7 @@ class FileModule extends BaseModule {
       BridgeEvent.RemoveBackgroundBatch,
       this.handleRemoveBackgroundBatch
     )
+    this.registerHandler<[string]>(BridgeEvent.GetDirectoryImages, this.handleGetDirectoryImages)
     this.registerHandler<[string]>(BridgeEvent.DeleteImage, this.deleteImage)
     this.registerHandler<[string]>(BridgeEvent.RevealInFinder, this.revealInFinder)
   }
@@ -54,19 +56,19 @@ class FileModule extends BaseModule {
       } else {
         const ext = path.extname(entry.name).toLowerCase()
         if (['.jpg', '.jpeg', '.png'].includes(ext)) {
-          const outputPath = this.getOutputPath(fullPath, settings, baseDir)  // 传入 baseDir
-    
+          const outputPath = this.getOutputPath(fullPath, settings, baseDir) // 传入 baseDir
+
           // 确保输出目录存在
           await fs.promises.mkdir(path.dirname(outputPath), { recursive: true })
-    
+
           const command = this.buildRembgCommand(fullPath, outputPath, settings)
           await this.executeRembgCommand(command)
-    
+
           const imageBuffer = await fs.promises.readFile(outputPath)
           const base64Image = imageBuffer.toString('base64')
           const mimeType = outputPath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'
           const dataUrl = `data:${mimeType};base64,${base64Image}`
-    
+
           results.push({
             base64: dataUrl,
             path: outputPath
@@ -74,7 +76,7 @@ class FileModule extends BaseModule {
         }
       }
     }
-  
+
     return results
   }
 
@@ -163,11 +165,12 @@ class FileModule extends BaseModule {
 
   private getOutputPath(imagePath: string, settings: ISetting[], baseDir?: string): string {
     const basicSettings = settings.find((s) => s.category === 'basic_setting')
-    const outputDir = basicSettings?.settings.find((s) => s.key === 'output_directory')?.value as string
+    const outputDir = basicSettings?.settings.find((s) => s.key === 'output_directory')
+      ?.value as string
     const format = basicSettings?.settings.find((s) => s.key === 'output_format')?.value as string
-  
+
     const fileName = path.basename(imagePath, path.extname(imagePath))
-  
+
     if (baseDir) {
       // 获取选择的文件夹名称
       const folderName = path.basename(baseDir)
@@ -176,7 +179,7 @@ class FileModule extends BaseModule {
       // 组合路径：输出目录/文件夹名称/相对路径/文件名
       return path.join(outputDir, folderName, relativePath, `${fileName}_nobg.${format}`)
     }
-  
+
     return path.join(outputDir, `${fileName}_nobg.${format}`)
   }
 
@@ -225,20 +228,35 @@ class FileModule extends BaseModule {
 
   private executeRembgCommand(command: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      exec(command, (error, stdout, stderr) => {
+      const childProcess = exec(command, {
+        timeout: 30000, // 30 秒超时
+        maxBuffer: 1024 * 1024 * 10 // 增加缓冲区大小到 10MB
+      }, (error, stdout, stderr) => {
         if (error) {
           reject(new Error(`执行失败: ${stderr}`))
           return
         }
         resolve()
       })
+  
+      // 设置更高的进程优先级
+      if (process.platform === 'darwin') {
+        exec(`renice -n -10 -p ${childProcess.pid}`)
+      }
     })
   }
 
   private async handleGetImagePreview(event: IpcMainEvent, imagePath: string): Promise<void> {
     try {
-      const imageBuffer = fs.readFileSync(imagePath)
-      const base64Image = imageBuffer.toString('base64')
+      // 使用 sharp 压缩图片后再转换为 base64
+      const thumbnail = await sharp(imagePath)
+        .resize(500, 500, {
+          fit: 'inside',
+          withoutEnlargement: true
+        })
+        .toBuffer()
+
+      const base64Image = thumbnail.toString('base64')
       const mimeType = imagePath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'
       const dataUrl = `data:${mimeType};base64,${base64Image}`
 
@@ -248,6 +266,37 @@ class FileModule extends BaseModule {
       })
     } catch (error) {
       this.sendReply(event, BridgeEvent.GetImagePreviewReply, {
+        code: EventCode.Error,
+        error: error.message
+      })
+    }
+  }
+
+  private async handleGetDirectoryImages(event: IpcMainEvent, dirPath: string): Promise<void> {
+    try {
+      const images: { path: string }[] = []
+      const processDir = async (dir: string) => {
+        const entries = await fs.promises.readdir(dir, { withFileTypes: true })
+        for (const entry of entries) {
+          const fullPath = path.join(dir, entry.name)
+          if (entry.isDirectory()) {
+            await processDir(fullPath)
+          } else {
+            const ext = path.extname(entry.name).toLowerCase()
+            if (['.jpg', '.jpeg', '.png'].includes(ext)) {
+              images.push({ path: fullPath })
+            }
+          }
+        }
+      }
+
+      await processDir(dirPath)
+      this.sendReply(event, BridgeEvent.GetDirectoryImagesReply, {
+        result: images,
+        code: EventCode.Success
+      })
+    } catch (error) {
+      this.sendReply(event, BridgeEvent.GetDirectoryImagesReply, {
         code: EventCode.Error,
         error: error.message
       })

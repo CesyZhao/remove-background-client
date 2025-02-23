@@ -18,7 +18,9 @@ export enum BridgeEvent {
   RevealInFinder = 'RevealInFinder',
   RevealInFinderReply = 'RevealInFinderReply',
   RemoveBackgroundBatch = 'RemoveBackgroundBatch',
-  RemoveBackgroundBatchReply = 'RemoveBackgroundBatchReply'
+  RemoveBackgroundBatchReply = 'RemoveBackgroundBatchReply',
+  GetDirectoryImages = 'GetDirectoryImages',
+  GetDirectoryImagesReply = 'GetDirectoryImagesReply'
 }
 
 export enum FileSelectorType {
