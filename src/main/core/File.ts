@@ -54,15 +54,19 @@ class FileModule extends BaseModule {
       } else {
         const ext = path.extname(entry.name).toLowerCase()
         if (['.jpg', '.jpeg', '.png'].includes(ext)) {
-          const outputPath = this.getOutputPath(fullPath, settings)
+          const outputPath = this.getOutputPath(fullPath, settings, baseDir)  // 传入 baseDir
+    
+          // 确保输出目录存在
+          await fs.promises.mkdir(path.dirname(outputPath), { recursive: true })
+    
           const command = this.buildRembgCommand(fullPath, outputPath, settings)
-
           await this.executeRembgCommand(command)
+    
           const imageBuffer = await fs.promises.readFile(outputPath)
           const base64Image = imageBuffer.toString('base64')
           const mimeType = outputPath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'
           const dataUrl = `data:${mimeType};base64,${base64Image}`
-
+    
           results.push({
             base64: dataUrl,
             path: outputPath
@@ -70,7 +74,7 @@ class FileModule extends BaseModule {
         }
       }
     }
-
+  
     return results
   }
 
@@ -157,13 +161,22 @@ class FileModule extends BaseModule {
     }
   }
 
-  private getOutputPath(imagePath: string, settings: ISetting[]): string {
+  private getOutputPath(imagePath: string, settings: ISetting[], baseDir?: string): string {
     const basicSettings = settings.find((s) => s.category === 'basic_setting')
-    const outputDir = basicSettings?.settings.find((s) => s.key === 'output_directory')
-      ?.value as string
+    const outputDir = basicSettings?.settings.find((s) => s.key === 'output_directory')?.value as string
     const format = basicSettings?.settings.find((s) => s.key === 'output_format')?.value as string
-
+  
     const fileName = path.basename(imagePath, path.extname(imagePath))
+  
+    if (baseDir) {
+      // 获取选择的文件夹名称
+      const folderName = path.basename(baseDir)
+      // 获取文件相对于基础目录的路径
+      const relativePath = path.relative(baseDir, path.dirname(imagePath))
+      // 组合路径：输出目录/文件夹名称/相对路径/文件名
+      return path.join(outputDir, folderName, relativePath, `${fileName}_nobg.${format}`)
+    }
+  
     return path.join(outputDir, `${fileName}_nobg.${format}`)
   }
 

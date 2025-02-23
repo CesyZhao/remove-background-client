@@ -32,16 +32,16 @@ const selectImage = (image: ImageItem) => {
 const handleSelectFile = async () => {
   try {
     loading.value = true
-    const { path, isDirectory } = await fileModule.pickFileOrDirectory([
+    const { path: targetPath, isDirectory } = await fileModule.pickFileOrDirectory([
       FileSelectorType.SingleFile,
       FileSelectorType.Folder
     ])
 
-    if (!path) return
+    if (!targetPath) return
 
     if (isDirectory) {
       // 处理文件夹
-      const results = await fileModule.removeBackgroundBatch(path)
+      const results = await fileModule.removeBackgroundBatch(targetPath)
       for (const result of results) {
         const newImage: ImageItem = {
           id: Date.now().toString() + Math.random(),
@@ -58,19 +58,19 @@ const handleSelectFile = async () => {
       }
     } else {
       // 处理单个文件
-      const preview = await fileModule.getImagePreview(imagePath)
+      const preview = await fileModule.getImagePreview(targetPath)
       const newImage: ImageItem = {
         id: Date.now().toString(),
         previewUrl: preview,
         processedUrl: '',
         processing: true,
         path: '',
-        name: path.split('/').pop() || '未命名'
+        name: targetPath.split('/').pop() || '未命名'
       }
       imageList.value.push(newImage)
       currentImage.value = newImage
 
-      const { base64, path } = await fileModule.removeBackground(path)
+      const { base64, path } = await fileModule.removeBackground(targetPath)
       const index = imageList.value.findIndex((item) => item.id === newImage.id)
       if (index !== -1) {
         imageList.value[index].processedUrl = base64
