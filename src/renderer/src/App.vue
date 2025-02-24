@@ -8,6 +8,6 @@ const envReady = ref(false)
 </script>
 
 <template>
-  <EnvChecker v-if="!envReady" @env-ready="envReady = true" />
-  <Entry v-else />
+  <EnvChecker @env-ready="envReady = true" />
+  <!-- <Entry v-else /> -->
 </template>

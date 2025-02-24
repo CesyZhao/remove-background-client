@@ -82,3 +82,33 @@ export const installRemBG = (type: string) => {
       })
   })
 }
+
+export const checkCarveKitInstallStatus = () => {
+  return new Promise((resolve, reject) => {
+    exec('carvekit --help', (error) => {
+      error ? reject(EnvStatus.CarveKitNotInstalled) : resolve(EnvStatus.CarveKitInstalled)
+    })
+  })
+}
+
+export const installCarveKit = (type: string) => {
+  return new Promise((resolve, reject) => {
+    checkCarveKitInstallStatus()
+      .then((res) => {
+        resolve(res)
+      })
+      .catch(() => {
+        const command = exec(
+          `pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple "${type}"`,
+          (error) => {
+            if (error) {
+              reject(EnvStatus.CarveKitNotInstalled)
+            }
+          }
+        )
+        command.on('close', (code) => {
+          code === 0 ? resolve(EnvStatus.CarveKitInstalled) : reject(EnvStatus.CarveKitNotInstalled)
+        })
+      })
+  })
+}

@@ -1,6 +1,8 @@
 export enum BridgeEvent {
   InstallRemBG = 'InstallRemBG',
   InstallRemBGReply = 'InstallRemBGReply',
+  InstallCarvekit = 'InstallCarvekit',
+  InstallCarvekitReply = 'InstallCarvekitReply',
   InstallPython = 'InstallPython',
   InstallPythonReply = 'InstallPythonReply',
   PickFileOrDirectory = 'PickFileOrDirectory',
@@ -38,8 +40,10 @@ export enum FileSelectorCommand {
 export enum EnvStatus {
   PythonNotInstalled = 'PythonNotInstalled',
   RemBGNotInstalled = 'RemBGNotInstalled',
+  CarveKitNotInstalled = 'CarveKitNotInstalled',
   PythonInstalled = 'PythonInstalled',
   RemBGInstalled = 'RemBgInstalled',
+  CarveKitInstalled = 'CarveKitInstalled',
   Checking = 'Checking'
 }
 
