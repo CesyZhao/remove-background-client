@@ -3,12 +3,16 @@ const { electron } = window
 const { ipcRenderer } = electron
 
 class Env {
-  installRemBG(): Promise<EnvStatus> {
+  installRemBG(progressCallback): Promise<EnvStatus> {
     const func = electron[`on${BridgeEvent.InstallRemBGReply}`]
 
     return new Promise((resolve, reject) => {
       func(({ status, code }) => {
-        code === EventCode.Success ? resolve(status) : reject(status)
+        if (code === EventCode.Pending) {
+          progressCallback?.()
+        } else {
+          code === EventCode.Success ? resolve(status) : reject(status)
+        }
       })
 
       ipcRenderer.send(BridgeEvent.InstallRemBG)

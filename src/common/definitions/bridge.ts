@@ -40,10 +40,12 @@ export enum EnvStatus {
   RemBGNotInstalled = 'RemBGNotInstalled',
   PythonInstalled = 'PythonInstalled',
   RemBGInstalled = 'RemBgInstalled',
+  RemBGInstalling = 'RemBGInstalling',
   Checking = 'Checking'
 }
 
 export enum EventCode {
+  Pending = 'Pending',
   Success = 'Success',
   Error = 'Error'
 }

@@ -62,6 +62,7 @@ class FileModule extends BaseModule {
           await fs.promises.mkdir(path.dirname(outputPath), { recursive: true })
 
           const command = this.buildRembgCommand(fullPath, outputPath, settings)
+          console.log(command, '------------')
           await this.executeRembgCommand(command)
 
           const imageBuffer = await fs.promises.readFile(outputPath)
@@ -102,6 +103,8 @@ class FileModule extends BaseModule {
       const settings = await this.settingModule.getSetting()
       const outputPath = this.getOutputPath(imagePath, settings)
       const command = this.buildRembgCommand(imagePath, outputPath, settings)
+
+      console.log(command, '------------')
 
       await this.executeRembgCommand(command)
 
@@ -189,11 +192,11 @@ class FileModule extends BaseModule {
 
     const command = ['rembg', 'i']
 
-    // 添加模型参数
-    const modelName = modelSettings.find((s) => s.key === 'model_name')?.value
-    if (modelName) {
-      command.push('-m', modelName as string)
-    }
+    command.push('-m', 'u2net_custom')
+
+    // 指定自定义模型路径和输入尺寸
+    const modelPath = path.join(__dirname, '../../resources/u2net.onnx')
+    command.push('-x', `'{ "model_path": "${modelPath}" }'`)
 
     // Alpha matting 参数
     if (modelSettings.find((s) => s.key === 'alpha_matting')?.value) {
@@ -228,17 +231,21 @@ class FileModule extends BaseModule {
 
   private executeRembgCommand(command: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const childProcess = exec(command, {
-        timeout: 30000, // 30 秒超时
-        maxBuffer: 1024 * 1024 * 10 // 增加缓冲区大小到 10MB
-      }, (error, stdout, stderr) => {
-        if (error) {
-          reject(new Error(`执行失败: ${stderr}`))
-          return
+      const childProcess = exec(
+        command,
+        {
+          timeout: 30000, // 30 秒超时
+          maxBuffer: 1024 * 1024 * 10 // 增加缓冲区大小到 10MB
+        },
+        (error, stdout, stderr) => {
+          if (error) {
+            reject(new Error(`执行失败: ${stderr}`))
+            return
+          }
+          resolve()
         }
-        resolve()
-      })
-  
+      )
+
       // 设置更高的进程优先级
       if (process.platform === 'darwin') {
         exec(`renice -n -10 -p ${childProcess.pid}`)

@@ -26,7 +26,11 @@ class EnvModule extends BaseModule {
 
   private async handleInstallRemBG(event: IpcMainEvent): Promise<void> {
     try {
-      const status = await installRemBG('rembg[cli]')
+      const status = await installRemBG(() => {
+        this.sendReply(event, BridgeEvent.InstallRemBGReply, {
+          code: EventCode.Pending
+        })
+      })
       this.sendReply(event, BridgeEvent.InstallRemBGReply, {
         status,
         code: EventCode.Success
