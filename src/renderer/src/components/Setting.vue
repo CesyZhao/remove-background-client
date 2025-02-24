@@ -148,6 +148,7 @@ onMounted(() => {
   border-radius: 8px;
   background: var(--color-background);
   box-shadow: 0 0 2px 0 var(--theme-color-3);
+  z-index: 99;
 }
 
 .setting-category {
