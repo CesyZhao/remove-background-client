@@ -54,70 +54,75 @@ onMounted(() => {
 <template>
   <div v-click-outside="closePopover">
     <span class="iconfont icon-setting" @click="handlePopoverVisibleChange"></span>
-    <Transition>
-      <div v-show="visible" class="setting-popper">
-        <div v-for="category in appSetting" :key="category.category" class="setting-category">
-          <h3 class="category-title">{{ category.title }}</h3>
-          <div v-for="setting in category.settings" :key="setting.key" class="setting-item">
-            <div class="setting-item-label">
-              <a-tooltip position="top">
-                <template #content>
-                  {{ setting.description }}
-                </template>
-                {{ setting.title }}
-                <icon-question-circle-fill class="tip-icon" />
-              </a-tooltip>
-            </div>
-            <div class="setting-item-content">
-              <!-- 路径选择 -->
-              <template v-if="setting.type === 'path'">
-                <a-input v-model="setting.value" readonly size="small">
-                  <template #append>
-                    <span class="clickable" @click="handlePathSelect(setting)">选择</span>
+    <Transition name="modal">
+      <div v-show="visible" class="setting-mask">
+        <div class="setting-popper">
+          <div class="setting-header">
+            <h2>设置</h2>
+            <a-button type="text" @click="closePopover">
+              <template #icon><icon-close /></template>
+            </a-button>
+          </div>
+          <div class="setting-content">
+            <div v-for="category in appSetting" :key="category.category" class="setting-category">
+              <h3 class="category-title">{{ category.title }}</h3>
+              <div v-for="setting in category.settings" :key="setting.key" class="setting-item">
+                <div class="setting-item-label">
+                  <a-tooltip position="top">
+                    <template #content>
+                      {{ setting.description }}
+                    </template>
+                    {{ setting.title }}
+                    <icon-question-circle-fill class="tip-icon" />
+                  </a-tooltip>
+                </div>
+                <div class="setting-item-content">
+                  <template v-if="setting.type === 'path'">
+                    <a-input v-model="setting.value" readonly size="small">
+                      <template #append>
+                        <span class="clickable" @click="handlePathSelect(setting)">选择</span>
+                      </template>
+                    </a-input>
                   </template>
-                </a-input>
-              </template>
 
-              <!-- 下拉选择 -->
-              <a-select
-                v-else-if="setting.type === 'select'"
-                v-model="setting.value"
-                size="small"
-                @change="(value) => handleValueChange(setting.key, value)"
-              >
-                <a-option v-for="option in setting.options" :key="option" :value="option">
-                  {{ option }}
-                </a-option>
-              </a-select>
+                  <a-select
+                    v-else-if="setting.type === 'select'"
+                    v-model="setting.value"
+                    size="small"
+                    @change="(value) => handleValueChange(setting.key, value)"
+                  >
+                    <a-option v-for="option in setting.options" :key="option" :value="option">
+                      {{ option }}
+                    </a-option>
+                  </a-select>
 
-              <!-- 布尔值 -->
-              <a-switch
-                v-else-if="setting.type === 'boolean'"
-                v-model="setting.value"
-                size="small"
-                @change="(value) => handleValueChange(setting.key, value)"
-              />
+                  <a-switch
+                    v-else-if="setting.type === 'boolean'"
+                    v-model="setting.value"
+                    size="small"
+                    @change="(value) => handleValueChange(setting.key, value)"
+                  />
 
-              <!-- 数字输入 -->
-              <div v-else-if="setting.type === 'number'" class="slider-wrapper">
-                <a-slider
-                  v-model="setting.value"
-                  :min="setting.min"
-                  :max="setting.max"
-                  :step="1"
-                  size="small"
-                  @change="(value) => handleValueChange(setting.key, value)"
-                />
+                  <div v-else-if="setting.type === 'number'" class="slider-wrapper">
+                    <a-slider
+                      v-model="setting.value"
+                      :min="setting.min"
+                      :max="setting.max"
+                      :step="1"
+                      size="small"
+                      @change="(value) => handleValueChange(setting.key, value)"
+                    />
+                  </div>
+
+                  <a-input
+                    v-else-if="setting.type === 'color'"
+                    v-model="setting.value"
+                    type="color"
+                    size="small"
+                    @change="(value) => handleValueChange(setting.key, value)"
+                  />
+                </div>
               </div>
-
-              <!-- 颜色选择 -->
-              <a-input
-                v-else-if="setting.type === 'color'"
-                v-model="setting.value"
-                type="color"
-                size="small"
-                @change="(value) => handleValueChange(setting.key, value)"
-              />
             </div>
           </div>
         </div>
@@ -131,24 +136,58 @@ onMounted(() => {
   font-size: 24px;
   position: fixed;
   top: 16px;
-  right: 16px;
+  right: 24px;
   cursor: pointer;
+  color: var(--color-text-2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: rotate(30deg);
+    color: rgb(var(--primary-6));
+  }
+}
+
+.setting-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
 }
 
 .setting-popper {
-  width: 400px;
-  max-height: 80vh;
+  position: relative;
+  width: 480px;
+  max-height: 90vh;
+  background: var(--color-bg-1);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+}
+
+.setting-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text-1);
+  }
+}
+
+.setting-content {
+  flex: 1;
   overflow-y: auto;
-  background-color: #fff;
   padding: 24px;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 8px;
-  background: var(--color-background);
-  box-shadow: 0 0 2px 0 var(--theme-color-3);
-  z-index: 99;
 }
 
 .setting-category {
@@ -201,13 +240,45 @@ onMounted(() => {
     margin-left: 24px;
   }
 }
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.5s ease;
+
+.clickable {
+  cursor: pointer;
+  color: rgb(var(--primary-6));
+  
+  &:hover {
+    color: rgb(var(--primary-5));
+  }
 }
 
-.v-enter-from,
-.v-leave-to {
+.slider-wrapper {
+  padding: 6px 0;
+}
+
+// 弹窗动画
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.3s ease;
+  
+  .setting-popper {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+.modal-enter-from,
+.modal-leave-to {
   opacity: 0;
+  
+  .setting-popper {
+    transform: scale(0.95) translateY(20px);
+  }
+}
+
+.modal-enter-to,
+.modal-leave-from {
+  opacity: 1;
+  
+  .setting-popper {
+    transform: scale(1) translateY(0);
+  }
 }
 </style>

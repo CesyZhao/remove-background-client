@@ -42,7 +42,7 @@ const handleSelectFile = async () => {
     if (isDirectory) {
       // 先获取文件夹中的所有图片预览
       const images = await fileModule.getDirectoryImages(targetPath)
-      
+
       // 添加所有图片到列表，设置为处理中状态
       for (const image of images) {
         const preview = await fileModule.getImagePreview(image.path)
@@ -56,15 +56,15 @@ const handleSelectFile = async () => {
         }
         imageList.value.push(newImage)
       }
-      
+
       // 设置第一张图片为当前显示
       if (images.length > 0) {
         currentImage.value = imageList.value[imageList.value.length - images.length]
       }
-      
+
       // 开始批量处理
       const results = await fileModule.removeBackgroundBatch(targetPath)
-      
+
       // 更新处理结果
       for (let i = 0; i < results.length; i++) {
         const result = results[i]
@@ -113,7 +113,9 @@ const imageSize = ref({ width: 0, height: 0 })
 // 监听图片加载完成事件
 const handleImageLoad = (event: Event) => {
   const img = event.target as HTMLImageElement
-  const ratio = Math.min(img.width / img.naturalWidth, img.height / img.naturalHeight, 1)
+  const maxHeight = window.innerHeight * 0.7
+  const maxWidth = window.innerWidth * 0.8
+  const ratio = Math.min(maxWidth / img.naturalWidth, maxHeight / img.naturalHeight, 1)
 
   imageSize.value = {
     width: Math.floor(img.naturalWidth * ratio),
@@ -153,8 +155,12 @@ const handleOpenInFinder = async () => {
     <div class="main-content">
       <template v-if="imageList.length === 0">
         <div class="empty-state">
-          <DynamicButton :loading="loading" @click="handleSelectFile">选择图片</DynamicButton>
-          <p class="tip">支持 jpg、png 格式的图片</p>
+          <h2>选择图片或者文件夹以消除背景</h2>
+          <DynamicButton class="dynamic-button" :loading="loading" @click="handleSelectFile">开始</DynamicButton>
+          <div>
+            <p class="tip">拖入文件、文件夹</p>
+            <p class="tip">粘贴图片或者 URL</p>
+          </div>
         </div>
       </template>
       <template v-else>
@@ -316,11 +322,35 @@ const handleOpenInFinder = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+  padding: 48px;
+  h2 {
+    font-size: 32px;
+    font-weight: 500;
+    margin: 0;
+    background: linear-gradient(90deg, rgb(var(--primary-6)), rgb(var(--success-6)));
+    -webkit-background-clip: text;
+    color: transparent;
+  }
 
   .tip {
     color: var(--color-text-3);
     font-size: 14px;
+    margin: 0;
+    padding: 8px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+
+    &:nth-of-type(1) {
+      color: var(--color-text-1);
+      font-size: 20px;
+    }
+  }
+
+  :deep(.dynamic-button) {
+    font-size: 20px;
+    margin: 8px 0;
+    padding: 12px 48px;
   }
 }
 

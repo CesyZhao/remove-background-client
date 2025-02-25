@@ -150,7 +150,7 @@ class FileModule extends BaseModule {
 
       if (result.canceled || !result.filePaths[0]) {
         this.sendReply(event, BridgeEvent.PickFileOrDirectoryReply, {
-          result: undefined,
+          result: { },
           code: EventCode.Success
         })
         return
