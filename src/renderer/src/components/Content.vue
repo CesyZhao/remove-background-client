@@ -329,11 +329,12 @@ const handleOpenInFinder = async () => {
   height: 100%;
   display: flex;
   gap: 24px;
-  padding: 24px;
   justify-content: center;
+  padding-top: 48px;
 
   .preview-content {
     display: flex;
+    height: 100%;
     flex-direction: column;
     align-items: center;
     gap: 48px;
@@ -406,7 +407,6 @@ const handleOpenInFinder = async () => {
         img {
           width: 100%;
           height: 100%;
-          object-fit: contain;
           transition: opacity 0.3s ease;
         }
       }
@@ -450,7 +450,7 @@ const handleOpenInFinder = async () => {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 12px;
+    padding: 48px 12px 12px;
     background: var(--color-bg-2);
     border-radius: 12px;
 

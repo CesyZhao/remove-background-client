@@ -8,8 +8,10 @@ let bridge: Bridge | null = null
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
-    width: 864,
-    height: 508,
+    width: 1024,
+    height: 680,
+    minWidth: 1024,
+    minHeight: 680,
     show: false,
     autoHideMenuBar: true,
     titleBarStyle: 'hidden',

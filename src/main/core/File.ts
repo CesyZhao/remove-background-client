@@ -39,7 +39,7 @@ class FileModule extends BaseModule {
     this.registerHandler<[string]>(BridgeEvent.RevealInFinder, this.revealInFinder)
   }
 
-  private async processDirectory(
+  private async processDirectoryFlat(
     dirPath: string,
     baseDir: string,
     settings: ISetting[]
@@ -51,7 +51,7 @@ class FileModule extends BaseModule {
       const fullPath = path.join(dirPath, entry.name)
 
       if (entry.isDirectory()) {
-        const subResults = await this.processDirectory(fullPath, baseDir, settings)
+        const subResults = await this.processDirectoryFlat(fullPath, baseDir, settings)
         results.push(...subResults)
       } else {
         const ext = path.extname(entry.name).toLowerCase()
@@ -81,10 +81,18 @@ class FileModule extends BaseModule {
     return results
   }
 
+  private async processDirectory(
+    dirPath: string,
+    baseDir: string,
+    settings: ISetting[]
+  ): Promise<Array<{ base64: string; path: string }>> {
+    
+  }
+
   private async handleRemoveBackgroundBatch(event: IpcMainEvent, dirPath: string): Promise<void> {
     try {
       const settings = await this.settingModule.getSetting()
-      const results = await this.processDirectory(dirPath, dirPath, settings)
+      const results = await this.processDirectoryFlat(dirPath, dirPath, settings)
 
       this.sendReply(event, BridgeEvent.RemoveBackgroundBatchReply, {
         result: results,
