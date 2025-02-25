@@ -151,16 +151,14 @@ const handleOpenInFinder = async () => {
 </script>
 
 <template>
-  <div class="content">
+  <div class="content" @dragover="handleDragOver" @drop="handleDrop">
     <div class="main-content">
       <template v-if="imageList.length === 0">
         <div class="empty-state">
           <h2>选择图片或者文件夹以消除背景</h2>
-          <DynamicButton class="dynamic-button" :loading="loading" @click="handleSelectFile">开始</DynamicButton>
-          <div>
-            <p class="tip">拖入文件、文件夹</p>
-            <p class="tip">粘贴图片或者 URL</p>
-          </div>
+          <div class="dynamic-button" :loading="loading" @click="handleSelectFile"></div>
+          <p class="tip">拖入图片、文件夹</p>
+          <p class="tip">粘贴图片或者 URL</p>
         </div>
       </template>
       <template v-else>
@@ -328,7 +326,7 @@ const handleOpenInFinder = async () => {
     font-size: 32px;
     font-weight: 500;
     margin: 0;
-    background: linear-gradient(90deg, rgb(var(--primary-6)), rgb(var(--success-6)));
+    background: linear-gradient(90deg, #201c44, #3d339b);
     -webkit-background-clip: text;
     color: transparent;
   }
@@ -347,10 +345,12 @@ const handleOpenInFinder = async () => {
     }
   }
 
-  :deep(.dynamic-button) {
-    font-size: 20px;
-    margin: 8px 0;
-    padding: 12px 48px;
+  .dynamic-button {
+    background-image: url('@assets/button-bg.jpg');
+    background-size: cover;
+    width: 200px;
+    height: 86px;
+    cursor: pointer;
   }
 }
 
