@@ -29,21 +29,14 @@ const selectImage = (image: ImageItem) => {
   currentImage.value = image
 }
 
-const handleSelectFile = async () => {
+// 添加处理文件的公共方法
+const processFile = async (targetPath: string, isDirectory: boolean) => {
   try {
     loading.value = true
-    const { path: targetPath, isDirectory } = await fileModule.pickFileOrDirectory([
-      FileSelectorType.SingleFile,
-      FileSelectorType.Folder
-    ])
-
-    if (!targetPath) return
 
     if (isDirectory) {
-      // 先获取文件夹中的所有图片预览
       const images = await fileModule.getDirectoryImages(targetPath)
 
-      // 添加所有图片到列表，设置为处理中状态
       for (const image of images) {
         const preview = await fileModule.getImagePreview(image.path)
         const newImage: ImageItem = {
@@ -57,15 +50,12 @@ const handleSelectFile = async () => {
         imageList.value.push(newImage)
       }
 
-      // 设置第一张图片为当前显示
       if (images.length > 0) {
         currentImage.value = imageList.value[imageList.value.length - images.length]
       }
 
-      // 开始批量处理
       const results = await fileModule.removeBackgroundBatch(targetPath)
 
-      // 更新处理结果
       for (let i = 0; i < results.length; i++) {
         const result = results[i]
         const index = imageList.value.length - results.length + i
@@ -76,7 +66,6 @@ const handleSelectFile = async () => {
         }
       }
     } else {
-      // 处理单个文件
       const preview = await fileModule.getImagePreview(targetPath)
       const newImage: ImageItem = {
         id: Date.now().toString(),
@@ -100,10 +89,54 @@ const handleSelectFile = async () => {
       }
     }
   } catch (error) {
-    console.error('处理图片失败:', error)
+    console.error('处理文件失败:', error)
     Message.error('处理失败')
+    throw error
   } finally {
     loading.value = false
+  }
+}
+
+// 简化后的文件选择处理
+const handleSelectFile = async () => {
+  try {
+    const { path: targetPath, isDirectory } = await fileModule.pickFileOrDirectory([
+      FileSelectorType.SingleFile,
+      FileSelectorType.Folder
+    ])
+
+    if (!targetPath) return
+    await processFile(targetPath, isDirectory)
+  } catch (error) {
+    console.error('选择文件失败:', error)
+  }
+}
+
+// 简化后的拖放处理
+const handleDrop = async (e: DragEvent) => {
+  e.preventDefault()
+  e.stopPropagation()
+  isDragging.value = false
+
+  if (!e.dataTransfer?.files.length) return
+
+  try {
+    const file = e.dataTransfer.files[0]
+    const { path: targetPath, name: fileName } = file
+
+    if (!targetPath) return
+
+    if (!fileName.includes('.')) {
+      await processFile(targetPath, true)
+    } else {
+      if (!file.type.startsWith('image/')) {
+        Message.error('请拖入图片文件或文件夹')
+        return
+      }
+      await processFile(targetPath, false)
+    }
+  } catch (error) {
+    console.error('处理拖入文件失败:', error)
   }
 }
 
@@ -148,13 +181,41 @@ const handleOpenInFinder = async () => {
     Message.error('打开失败')
   }
 }
+
+const isDragging = ref(false)
+
+const handleDragEnter = (e: DragEvent) => {
+  e.preventDefault()
+  e.stopPropagation()
+  isDragging.value = true
+}
+
+const handleDragLeave = (e: DragEvent) => {
+  e.preventDefault()
+  e.stopPropagation()
+  if (e.target === e.currentTarget) {
+    isDragging.value = false
+  }
+}
+
+const handleDragOver = (e: DragEvent) => {
+  e.preventDefault()
+  e.stopPropagation()
+}
+
 </script>
 
 <template>
-  <div class="content" @dragover="handleDragOver" @drop="handleDrop">
+  <div
+    class="content"
+    @dragenter="handleDragEnter"
+    @dragleave="handleDragLeave"
+    @dragover="handleDragOver"
+    @drop="handleDrop"
+  >
     <div class="main-content">
       <template v-if="imageList.length === 0">
-        <div class="empty-state">
+        <div class="empty-state" :class="{ 'is-dragging': isDragging }">
           <h2>选择图片或者文件夹以消除背景</h2>
           <div class="dynamic-button" :loading="loading" @click="handleSelectFile"></div>
           <p class="tip">拖入图片、文件夹</p>
