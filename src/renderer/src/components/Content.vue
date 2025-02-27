@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
 import bridge from '@ipc/Bridge'
 import { FileSelectorType } from '@common/definitions/bridge'
-import DynamicButton from './DynamicButton.vue'
-import { Message, Modal } from '@arco-design/web-vue'
+import { Message } from '@arco-design/web-vue'
 
 const { fileModule } = bridge.modules
-
-const previewUrl = ref('')
-const processedUrl = ref('')
-const processing = ref(false)
 
 interface ImageItem {
   id: string
@@ -203,11 +198,66 @@ const handleDragOver = (e: DragEvent) => {
   e.stopPropagation()
 }
 
+// 添加处理粘贴图片的方法
+const handlePaste = async (e: ClipboardEvent) => {
+  const items = e.clipboardData?.items
+  console.log(items, '----------')
+  if (!items) return
+
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      const file = item.getAsFile()
+      if (!file) continue
+
+      try {
+        loading.value = true
+        // 将粘贴的图片转换为 base64
+        const reader = new FileReader()
+        const base64Promise = new Promise<string>((resolve) => {
+          reader.onload = (e) => resolve(e.target?.result as string)
+          reader.readAsDataURL(file)
+        })
+
+        const preview = await base64Promise
+        const newImage: ImageItem = {
+          id: Date.now().toString(),
+          previewUrl: preview,
+          processedUrl: '',
+          processing: true,
+          path: '',
+          name: '粘贴的图片'
+        }
+
+        imageList.value.push(newImage)
+        currentImage.value = newImage
+
+        const { base64, path } = await fileModule.removeBackgroundFromBase64(preview)
+        const index = imageList.value.findIndex((item) => item.id === newImage.id)
+        if (index !== -1) {
+          imageList.value[index].processedUrl = base64
+          imageList.value[index].path = path
+          imageList.value[index].processing = false
+        }
+      } catch (error) {
+        console.error('处理粘贴图片失败:', error)
+        Message.error('处理失败')
+      } finally {
+        loading.value = false
+      }
+      break
+    }
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('paste', handlePaste)
+})
 </script>
 
 <template>
   <div
     class="content"
+    tabindex="0"
     @dragenter="handleDragEnter"
     @dragleave="handleDragLeave"
     @dragover="handleDragOver"
