@@ -76,6 +76,22 @@ class File {
     })
   }
 
+  async removeBackgroundFromBase64(base64Data: string): Promise<ProcessedImage> {
+    return new Promise<ProcessedImage>((resolve, reject) => {
+      const func = electron[`on${BridgeEvent.RemoveBackgroundFromBase64Reply}`]
+
+      func(({ result, code, error }) => {
+        if (code === EventCode.Success) {
+          resolve(result)
+        } else {
+          reject(error || '处理粘贴图片失败')
+        }
+      })
+
+      ipcRenderer.send(BridgeEvent.RemoveBackgroundFromBase64, base64Data)
+    })
+  }
+
   async deleteImage(imagePath: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const func = electron[`on${BridgeEvent.DeleteImageReply}`]

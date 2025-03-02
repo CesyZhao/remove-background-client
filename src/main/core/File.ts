@@ -14,6 +14,7 @@ import SettingModule from './Setting'
 import { shell } from 'electron'
 import fs from 'fs'
 import sharp from 'sharp'
+import { tmpdir } from 'os'
 
 class FileModule extends BaseModule {
   private settingModule: SettingModule
@@ -30,6 +31,10 @@ class FileModule extends BaseModule {
     )
     this.registerHandler<[string]>(BridgeEvent.GetImagePreview, this.handleGetImagePreview)
     this.registerHandler<[string]>(BridgeEvent.RemoveBackground, this.handleRemoveBackground)
+    this.registerHandler<[string]>(
+      BridgeEvent.RemoveBackgroundFromBase64,
+      this.handleRemoveBackgroundFromBase64
+    )
     this.registerHandler<[string]>(
       BridgeEvent.RemoveBackgroundBatch,
       this.handleRemoveBackgroundBatch
@@ -85,9 +90,7 @@ class FileModule extends BaseModule {
     dirPath: string,
     baseDir: string,
     settings: ISetting[]
-  ): Promise<Array<{ base64: string; path: string }>> {
-    
-  }
+  ): Promise<Array<{ base64: string; path: string }>> {}
 
   private async handleRemoveBackgroundBatch(event: IpcMainEvent, dirPath: string): Promise<void> {
     try {
@@ -135,6 +138,58 @@ class FileModule extends BaseModule {
     }
   }
 
+  private async handleRemoveBackgroundFromBase64(
+    event: IpcMainEvent,
+    base64Data: string
+  ): Promise<void> {
+    try {
+      // 从 base64 中提取实际的图片数据
+      const base64Image = base64Data.replace(/^data:image\/\w+;base64,/, '')
+      const imageBuffer = Buffer.from(base64Image, 'base64')
+
+      // 创建临时文件路径
+      const tempPath = path.join(tmpdir(), `temp-${Date.now()}.png`)
+
+      try {
+        // 将 base64 数据写入临时文件
+        await fs.promises.writeFile(tempPath, imageBuffer)
+
+        // 获取设置并处理图片
+        const settings = await this.settingModule.getSetting()
+        const outputPath = this.getOutputPath(tempPath, settings)
+        const command = this.buildRembgCommand(tempPath, outputPath, settings)
+
+        await this.executeRembgCommand(command)
+
+        // 读取处理后的图片并转换为 base64
+        const processedBuffer = await fs.promises.readFile(outputPath)
+        const processedBase64 = processedBuffer.toString('base64')
+        const mimeType = outputPath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'
+        const dataUrl = `data:${mimeType};base64,${processedBase64}`
+
+        this.sendReply(event, BridgeEvent.RemoveBackgroundFromBase64Reply, {
+          result: {
+            base64: dataUrl,
+            path: outputPath
+          },
+          code: EventCode.Success
+        })
+      } finally {
+        // 清理临时文件
+        try {
+          await fs.promises.unlink(tempPath)
+        } catch (error) {
+          console.error('清理临时文件失败:', error)
+        }
+      }
+    } catch (error) {
+      this.sendReply(event, BridgeEvent.RemoveBackgroundFromBase64Reply, {
+        code: EventCode.Error,
+        error: error.message
+      })
+    }
+  }
+
   private async handlePickFileOrDirectory(
     event: IpcMainEvent,
     commands: Array<FileSelectorType>
@@ -150,7 +205,7 @@ class FileModule extends BaseModule {
 
       if (result.canceled || !result.filePaths[0]) {
         this.sendReply(event, BridgeEvent.PickFileOrDirectoryReply, {
-          result: { },
+          result: {},
           code: EventCode.Success
         })
         return

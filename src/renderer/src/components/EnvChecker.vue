@@ -2,14 +2,12 @@
 import { defineEmits, onMounted, ref } from 'vue'
 import bridge from '../ipc/Bridge'
 import { EnvStatus } from '@common/definitions/bridge'
-import { Message } from '@arco-design/web-vue'
 
 const { envModule } = bridge.modules
 const emit = defineEmits(['env-ready'])
 
 const envStatus = ref(EnvStatus.Checking)
 const currentStep = ref(0)
-const installProgress = ref(0)
 const steps = ref([
   {
     title: '基础环境',

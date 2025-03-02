@@ -20,7 +20,9 @@ export enum BridgeEvent {
   RemoveBackgroundBatch = 'RemoveBackgroundBatch',
   RemoveBackgroundBatchReply = 'RemoveBackgroundBatchReply',
   GetDirectoryImages = 'GetDirectoryImages',
-  GetDirectoryImagesReply = 'GetDirectoryImagesReply'
+  GetDirectoryImagesReply = 'GetDirectoryImagesReply',
+  RemoveBackgroundFromBase64 = 'RemoveBackgroundFromBase64',
+  RemoveBackgroundFromBase64Reply = 'RemoveBackgroundFromBase64Reply'
 }
 
 export enum FileSelectorType {

@@ -21,7 +21,8 @@ const additionalAPIKeys = [
   BridgeEvent.GetImagePreviewReply,
   BridgeEvent.DeleteImageReply,
   BridgeEvent.RevealInFinderReply,
-  BridgeEvent.GetDirectoryImagesReply
+  BridgeEvent.GetDirectoryImagesReply,
+  BridgeEvent.RemoveBackgroundFromBase64Reply
 ]
 
 additionalAPIKeys.forEach(k => {

@@ -201,7 +201,7 @@ const handleDragOver = (e: DragEvent) => {
 // 添加处理粘贴图片的方法
 const handlePaste = async (e: ClipboardEvent) => {
   const items = e.clipboardData?.items
-  console.log(items, '----------')
+
   if (!items) return
 
   for (const item of items) {
