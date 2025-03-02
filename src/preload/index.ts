@@ -1,39 +1,40 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { BridgeEvent } from '@common/definitions/bridge'
-import { upperFirst } from 'lodash'
+import { lowerFirst } from 'lodash'
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
 
-const api = {
-  ...electronAPI
+const apiGroup = {
+  env: [BridgeEvent.InstallPython, BridgeEvent.InstallRemBG],
+  file: [
+    BridgeEvent.PickFileOrDirectory,
+    BridgeEvent.GetSetting,
+    BridgeEvent.RemoveBackground,
+    BridgeEvent.RemoveBackgroundBatch,
+    BridgeEvent.GetImagePreview,
+    BridgeEvent.DeleteImage,
+    BridgeEvent.RevealInFinder,
+    BridgeEvent.GetDirectoryImages,
+    BridgeEvent.RemoveBackgroundFromBase64
+  ]
 }
 
-const additionalAPIKeys = [
-  BridgeEvent.InstallPythonReply,
-  BridgeEvent.InstallRemBGReply,
-  BridgeEvent.PickFileOrDirectoryReply,
-  BridgeEvent.GetSettingReply,
-  BridgeEvent.RemoveBackgroundReply,
-  BridgeEvent.RemoveBackgroundBatchReply,
-  BridgeEvent.GetImagePreviewReply,
-  BridgeEvent.DeleteImageReply,
-  BridgeEvent.RevealInFinderReply,
-  BridgeEvent.GetDirectoryImagesReply,
-  BridgeEvent.RemoveBackgroundFromBase64Reply
-]
+const additionalApi = {}
 
-additionalAPIKeys.forEach(k => {
-  api[`on${upperFirst(k)}`] = (callback) => {
-    ipcRenderer.on(k, (_event, value) => callback(value))
-  }
+Object.entries(apiGroup).forEach(([prefix, apiList]) => {
+  apiList.forEach((api) => {
+    additionalApi[lowerFirst(api)] = (...args) => {
+      return ipcRenderer.invoke(`${prefix}:${api}`, ...args)
+    }
+  })
 })
 
 if (process.contextIsolated) {
   try {
-    contextBridge.exposeInMainWorld('electron', api)
+    contextBridge.exposeInMainWorld('electron', additionalApi)
   } catch (error) {
     console.error(error)
   }

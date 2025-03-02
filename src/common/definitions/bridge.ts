@@ -3,39 +3,31 @@ export enum BridgeEvent {
   InstallRemBGReply = 'InstallRemBGReply',
   InstallPython = 'InstallPython',
   InstallPythonReply = 'InstallPythonReply',
-  PickFileOrDirectory = 'PickFileOrDirectory',
-  PickFileOrDirectoryReply = 'PickFileOrDirectoryReply',
-  GetSetting = 'GetSetting',
-  GetSettingReply = 'GetSettingReply',
-  WriteSetting = 'WriteSetting',
-  WriteSettingReply = 'WriteSettingReply',
-  RemoveBackground = 'RemoveBackground',
-  RemoveBackgroundReply = 'RemoveBackgroundReply',
-  GetImagePreview = 'GetImagePreview',
-  GetImagePreviewReply = 'GetImagePreviewReply',
-  DeleteImage = 'DeleteImage',
-  DeleteImageReply = 'DeleteImageReply',
-  RevealInFinder = 'RevealInFinder',
-  RevealInFinderReply = 'RevealInFinderReply',
-  RemoveBackgroundBatch = 'RemoveBackgroundBatch',
-  RemoveBackgroundBatchReply = 'RemoveBackgroundBatchReply',
-  GetDirectoryImages = 'GetDirectoryImages',
-  GetDirectoryImagesReply = 'GetDirectoryImagesReply',
-  RemoveBackgroundFromBase64 = 'RemoveBackgroundFromBase64',
-  RemoveBackgroundFromBase64Reply = 'RemoveBackgroundFromBase64Reply'
-}
-
-export enum FileSelectorType {
-  SingleFile = 'SingleFile',
-  Multiple = 'Multiple',
-  Folder = 'Folder'
+  PickFileOrDirectory = 'pickFileOrDirectory',
+  GetImagePreview = 'getImagePreview',
+  RemoveBackground = 'removeBackground',
+  RemoveBackgroundFromBase64 = 'removeBackgroundFromBase64',
+  RemoveBackgroundBatch = 'removeBackgroundBatch',
+  GetDirectoryImages = 'getDirectoryImages',
+  DeleteImage = 'deleteImage',
+  RevealInFinder = 'revealInFinder'
 }
 
 export enum FileSelectorCommand {
   openFile = 'openFile',
-  multiSelections = 'multiSelections',
-  openDirectory = 'openDirectory'
+  openDirectory = 'openDirectory',
+  multiSelections = 'multiSelections'
 }
+
+export enum FileSelectorType {
+  File = 'file',
+  Directory = 'directory'
+}
+
+export const fileSelectorCommandMap = new Map<FileSelectorType, FileSelectorCommand>([
+  [FileSelectorType.File, FileSelectorCommand.openFile],
+  [FileSelectorType.Directory, FileSelectorCommand.openDirectory]
+])
 
 export enum EnvStatus {
   PythonNotInstalled = 'PythonNotInstalled',
@@ -51,3 +43,21 @@ export enum EventCode {
   Success = 'Success',
   Error = 'Error'
 }
+
+export interface IpcResponse<T> {
+  code: EventCode
+  result?: T
+  error?: string
+}
+
+export interface FileOperationResult {
+  base64?: string
+  outputPath?: string
+}
+
+export interface IPickFileResult {
+  path?: string
+  isDirectory?: boolean
+}
+
+export type IGetImagePreviewResult = Array<{ path: string }>

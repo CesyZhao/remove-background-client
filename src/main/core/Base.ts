@@ -1,4 +1,3 @@
-import { IpcMainEvent } from 'electron'
 import { ipcMain } from 'electron'
 import { BridgeEvent, EventCode } from '@common/definitions/bridge'
 
@@ -7,13 +6,10 @@ export interface BridgeResponse {
   [key: string]: unknown
 }
 
-export type EventHandler<T extends unknown[] = unknown[]> = (
-  event: IpcMainEvent,
-  ...args: T
-) => Promise<void>
+export type EventHandler<T extends unknown[], S> = (...args: T) => Promise<S>
 
 abstract class BaseModule {
-  protected eventHandlers: Map<BridgeEvent, EventHandler>
+  protected eventHandlers: Map<BridgeEvent, EventHandler<unknown[], unknown>>
 
   constructor() {
     this.eventHandlers = new Map()
@@ -25,26 +21,16 @@ abstract class BaseModule {
 
   private bindEvents(): void {
     this.eventHandlers.forEach((handler, event) => {
-      ipcMain.on(event, handler.bind(this))
+      ipcMain.handle(event, handler.bind(this))
     })
   }
 
-  public destroy(): void {
-    this.eventHandlers.forEach((handler, event) => {
-      ipcMain.removeListener(event, handler)
-    })
-    this.eventHandlers.clear()
-  }
-
-  protected registerHandler<T extends unknown[]>(
+  protected registerHandler<T extends unknown[], S>(
     event: BridgeEvent,
-    handler: EventHandler<T>
+    handler: EventHandler<T, S>
   ): void {
-    this.eventHandlers.set(event, handler)
-  }
-
-  protected sendReply(event: IpcMainEvent, replyEvent: BridgeEvent, response: BridgeResponse): void {
-    event.reply(replyEvent, response)
+    // 使用类型断言来确保类型安全
+    this.eventHandlers.set(event, handler as EventHandler<unknown[], unknown>)
   }
 }
 
