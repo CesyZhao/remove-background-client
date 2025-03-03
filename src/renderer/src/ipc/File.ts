@@ -1,8 +1,8 @@
-import { FileSelectorType } from '@common/definitions/bridge'
+import { FileSelectorType, IPickFileResult } from '@common/definitions/bridge'
 const { electron } = window
 
 class File {
-  async pickFileOrDirectory(types: FileSelectorType[]) {
+  async pickFileOrDirectory(types: FileSelectorType[]): Promise<IPickFileResult> {
     return electron.pickFileOrDirectory(types)
   }
 

@@ -9,8 +9,8 @@ class SettingModule extends BaseModule {
   private settingPath: string
   private setting!: ISetting[]
 
-  constructor() {
-    super('setting')
+  constructor(ignoreEvents?: boolean) {
+    super('setting', ignoreEvents)
     // 修改路径获取方式
     this.settingPath = path.join(app.getAppPath(), 'src', 'main', 'setting.json')
     this.init()
@@ -53,7 +53,7 @@ class SettingModule extends BaseModule {
     }
   }
 
-  private async handleWriteSetting(key: string, value: never): Promise<void> {
+  private async handleWriteSetting(_, key: string, value: never): Promise<void> {
     try {
       await this.writeSetting(key, value)
     } catch (e) {

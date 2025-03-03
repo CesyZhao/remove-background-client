@@ -24,7 +24,7 @@ class FileModule extends BaseModule {
 
   constructor() {
     super('file')
-    this.settingModule = new SettingModule()
+    this.settingModule = new SettingModule(true)
   }
 
   protected registerEvents(): void {
@@ -42,6 +42,7 @@ class FileModule extends BaseModule {
   }
 
   private async handlePickFileOrDirectory(
+    _,
     commands: Array<FileSelectorType>
   ): Promise<IpcResponse<IPickFileResult>> {
     try {
@@ -74,7 +75,7 @@ class FileModule extends BaseModule {
     }
   }
 
-  private async handleGetImagePreview(imagePath: string): Promise<IpcResponse<string>> {
+  private async handleGetImagePreview(_, imagePath: string): Promise<IpcResponse<string>> {
     try {
       const thumbnail = await sharp(imagePath)
         .resize(500, 500, {
@@ -99,6 +100,7 @@ class FileModule extends BaseModule {
   }
 
   private async handleRemoveBackground(
+    _,
     imagePath: string
   ): Promise<IpcResponse<FileOperationResult>> {
     try {
@@ -128,6 +130,7 @@ class FileModule extends BaseModule {
   }
 
   private async handleRemoveBackgroundFromBase64(
+    _,
     base64Data: string
   ): Promise<IpcResponse<FileOperationResult>> {
     const tempPath = path.join(tmpdir(), `temp-${Date.now()}.png`)
@@ -164,6 +167,7 @@ class FileModule extends BaseModule {
   }
 
   private async handleGetDirectoryImages(
+    _,
     dirPath: string
   ): Promise<IpcResponse<IGetImagePreviewResult>> {
     try {
@@ -195,7 +199,7 @@ class FileModule extends BaseModule {
     }
   }
 
-  private async deleteImage(imagePath: string): Promise<IpcResponse<void>> {
+  private async deleteImage(_, imagePath: string): Promise<IpcResponse<void>> {
     try {
       await fs.promises.unlink(imagePath)
       return {
@@ -208,7 +212,7 @@ class FileModule extends BaseModule {
     }
   }
 
-  private async revealInFinder(imagePath: string): Promise<IpcResponse<void>> {
+  private async revealInFinder(_, imagePath: string): Promise<IpcResponse<void>> {
     try {
       await shell.showItemInFolder(imagePath)
       return {
@@ -270,6 +274,7 @@ class FileModule extends BaseModule {
   ): Promise<Array<{ base64: string; path: string }>> {}
 
   private async handleRemoveBackgroundBatch(
+    _,
     dirPath: string
   ): Promise<IpcResponse<FileOperationResult[]>> {
     try {

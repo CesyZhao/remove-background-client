@@ -9,24 +9,26 @@ export interface BridgeResponse {
 export type EventHandler<T extends unknown[], S> = (...args: T) => Promise<S>
 
 abstract class BaseModule {
-  protected eventHandlers: Map<BridgeEvent, EventHandler<unknown[], unknown>>
+  protected eventHandlers: Map<string, EventHandler<unknown[], unknown>>
 
   private eventPrefix = ''
 
-  constructor(eventPrefix?: string) {
+  constructor(eventPrefix?: string, ignoreEvents?: boolean) {
     this.eventPrefix = eventPrefix || ''
     this.eventHandlers = new Map()
     this.registerEvents()
-    this.bindEvents()
+    ignoreEvents !== false && this.bindEvents()
   }
 
   protected abstract registerEvents(): void
 
   private bindEvents(): void {
     this.eventHandlers.forEach((handler, event) => {
-      console.log(handler, event)
-      const eventName = `${this.eventPrefix}:${event}`
-      ipcMain.handle(eventName, handler.bind(this))
+      try {
+        ipcMain.handle(event, handler.bind(this))
+      } catch (e) {
+        console.error(`Failed to bind event ${event}:`)
+      }
     })
   }
 
@@ -34,8 +36,11 @@ abstract class BaseModule {
     event: BridgeEvent,
     handler: EventHandler<T, S>
   ): void {
+     const eventName = `${this.eventPrefix}:${event}`
     // 使用类型断言来确保类型安全
-    this.eventHandlers.set(event, handler as EventHandler<unknown[], unknown>)
+    if (!this.eventHandlers.has(eventName)) {
+      this.eventHandlers.set(eventName, handler as EventHandler<unknown[], unknown>)
+    }
   }
 }
 

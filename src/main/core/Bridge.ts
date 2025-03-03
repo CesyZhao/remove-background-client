@@ -24,9 +24,9 @@ class Bridge {
   }
 
   public destroy(): void {
-    Object.values(this.modules).forEach((module) => {
-      module.destroy()
-    })
+    // Object.values(this.modules).forEach((module) => {
+    //   module.destroy()
+    // })
   }
 }
 

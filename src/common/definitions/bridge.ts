@@ -20,13 +20,14 @@ export enum FileSelectorCommand {
 }
 
 export enum FileSelectorType {
-  File = 'file',
-  Directory = 'directory'
+  SingleFile = 'SingleFile',
+  Multiple = 'Multiple',
+  Folder = 'Folder'
 }
 
 export const fileSelectorCommandMap = new Map<FileSelectorType, FileSelectorCommand>([
-  [FileSelectorType.File, FileSelectorCommand.openFile],
-  [FileSelectorType.Directory, FileSelectorCommand.openDirectory]
+  [FileSelectorType.SingleFile, FileSelectorCommand.openFile],
+  [FileSelectorType.Folder, FileSelectorCommand.openDirectory]
 ])
 
 export enum EnvStatus {
