@@ -1,16 +1,16 @@
-import { FileSelectorType, IPickFileResult } from '@common/definitions/bridge'
+import { FileOperationResult, FileSelectorType, IpcResponse, IPickFileResult } from '@common/definitions/bridge'
 const { electron } = window
 
 class File {
-  async pickFileOrDirectory(types: FileSelectorType[]): Promise<IPickFileResult> {
+  async pickFileOrDirectory(types: FileSelectorType[]): Promise<IpcResponse<IPickFileResult>> {
     return electron.pickFileOrDirectory(types)
   }
 
-  async getImagePreview(imagePath: string) {
+  async getImagePreview(imagePath: string): Promise<IpcResponse<string>> {
     return electron.getImagePreview(imagePath)
   }
 
-  async removeBackground(imagePath: string) {
+  async removeBackground(imagePath: string): Promise<IpcResponse<FileOperationResult>> {
     return electron.removeBackground(imagePath)
   }
 

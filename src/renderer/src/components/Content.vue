@@ -61,10 +61,10 @@ const processFile = async (targetPath: string, isDirectory: boolean) => {
         }
       }
     } else {
-      const preview = await fileModule.getImagePreview(targetPath)
+      const { result: preview } = await fileModule.getImagePreview(targetPath)
       const newImage: ImageItem = {
         id: Date.now().toString(),
-        previewUrl: preview,
+        previewUrl: preview || '',
         processedUrl: '',
         processing: true,
         path: '',
@@ -73,7 +73,8 @@ const processFile = async (targetPath: string, isDirectory: boolean) => {
       imageList.value.push(newImage)
       currentImage.value = newImage
 
-      const { base64, path } = await fileModule.removeBackground(targetPath)
+      const { result = {} } = await fileModule.removeBackground(targetPath)
+      const { base64, path } = result
       const index = imageList.value.findIndex((item) => item.id === newImage.id)
       if (index !== -1) {
         imageList.value[index].processedUrl = base64
@@ -95,11 +96,11 @@ const processFile = async (targetPath: string, isDirectory: boolean) => {
 // 简化后的文件选择处理
 const handleSelectFile = async () => {
   try {
-    const { path: targetPath, isDirectory } = await fileModule.pickFileOrDirectory([
+    const { result = {} } = await fileModule.pickFileOrDirectory([
       FileSelectorType.SingleFile,
       FileSelectorType.Folder
     ])
-
+    const { path: targetPath, isDirectory = false } = result
     if (!targetPath) return
     await processFile(targetPath, isDirectory)
   } catch (error) {
