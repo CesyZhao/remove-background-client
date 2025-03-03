@@ -11,7 +11,6 @@ const apiGroup = {
   env: [BridgeEvent.InstallPython, BridgeEvent.InstallRemBG],
   file: [
     BridgeEvent.PickFileOrDirectory,
-    BridgeEvent.GetSetting,
     BridgeEvent.RemoveBackground,
     BridgeEvent.RemoveBackgroundBatch,
     BridgeEvent.GetImagePreview,
@@ -19,7 +18,8 @@ const apiGroup = {
     BridgeEvent.RevealInFinder,
     BridgeEvent.GetDirectoryImages,
     BridgeEvent.RemoveBackgroundFromBase64
-  ]
+  ],
+  setting: [BridgeEvent.GetSetting, BridgeEvent.SetSetting]
 }
 
 const additionalApi = {}

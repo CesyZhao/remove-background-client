@@ -11,7 +11,10 @@ export type EventHandler<T extends unknown[], S> = (...args: T) => Promise<S>
 abstract class BaseModule {
   protected eventHandlers: Map<BridgeEvent, EventHandler<unknown[], unknown>>
 
-  constructor() {
+  private eventPrefix = ''
+
+  constructor(eventPrefix?: string) {
+    this.eventPrefix = eventPrefix || ''
     this.eventHandlers = new Map()
     this.registerEvents()
     this.bindEvents()
@@ -21,7 +24,9 @@ abstract class BaseModule {
 
   private bindEvents(): void {
     this.eventHandlers.forEach((handler, event) => {
-      ipcMain.handle(event, handler.bind(this))
+      console.log(handler, event)
+      const eventName = `${this.eventPrefix}:${event}`
+      ipcMain.handle(eventName, handler.bind(this))
     })
   }
 

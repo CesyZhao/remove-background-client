@@ -1,17 +1,16 @@
-import { IpcMainEvent } from 'electron'
-import { getFileByPath, isSettingCategory, readJson, writeJson } from '@util/file'
-import { ISetting } from '@common/definitions/setting'
-import { BridgeEvent, EventCode } from '@common/definitions/bridge'
-import BaseModule from './Base'
 import { app } from 'electron'
+import { BridgeEvent, EventCode, IpcResponse } from '@common/definitions/bridge'
+import { ISetting } from '@common/definitions/setting'
+import BaseModule from './Base'
 import path from 'path'
+import { isSettingCategory, readJson, writeJson } from '@util/file'
 
 class SettingModule extends BaseModule {
   private settingPath: string
   private setting!: ISetting[]
 
   constructor() {
-    super()
+    super('setting')
     // 修改路径获取方式
     this.settingPath = path.join(app.getAppPath(), 'src', 'main', 'setting.json')
     this.init()
@@ -33,39 +32,34 @@ class SettingModule extends BaseModule {
 
   protected registerEvents(): void {
     this.registerHandler(BridgeEvent.GetSetting, this.handleGetSetting)
-    this.registerHandler(BridgeEvent.WriteSetting, this.handleWriteSetting)
+    this.registerHandler(BridgeEvent.SetSetting, this.handleWriteSetting)
   }
 
   private async init() {
     await this.loadSettings()
   }
 
-  private async handleGetSetting(event: IpcMainEvent): Promise<void> {
+  private async handleGetSetting(): Promise<IpcResponse<ISetting[]>> {
     try {
       const settings = await this.getSetting()
-      event.reply(BridgeEvent.GetSettingReply, {
-        data: settings,
+      return {
+        result: settings,
         code: EventCode.Success
-      })
-    } catch (e) {
-      event.reply(BridgeEvent.GetSettingReply, {
-        code: EventCode.Error,
-        error: e
-      })
+      }
+    } catch (error) {
+      throw {
+        code: EventCode.Error
+      }
     }
   }
 
-  private async handleWriteSetting(event: IpcMainEvent, key: string, value: never): Promise<void> {
+  private async handleWriteSetting(key: string, value: never): Promise<void> {
     try {
       await this.writeSetting(key, value)
-      event.reply(BridgeEvent.WriteSettingReply, {
-        code: EventCode.Success
-      })
     } catch (e) {
-      event.reply(BridgeEvent.WriteSettingReply, {
-        code: EventCode.Error,
-        error: e
-      })
+      throw {
+        code: EventCode.Error
+      }
     }
   }
 

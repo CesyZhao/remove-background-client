@@ -1,10 +1,8 @@
-import { MaxPythonSubVersion, MinPythonSubVersion, PythonMainVersion } from './definitions/env'
+import { MaxPythonSubVersion, MinPythonSubVersion, PythonMainVersion } from '@definitions/env'
 import childProcess from 'child_process'
 import { shell } from 'electron'
 import { inRange } from 'lodash'
 import path from 'path'
-import https from 'https'
-import fs from 'fs'
 import { EnvStatus } from '@common/definitions/bridge'
 
 const { exec } = childProcess

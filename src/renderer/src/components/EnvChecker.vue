@@ -37,7 +37,7 @@ const checkEnv = async () => {
     steps.value[0].loading = true
     steps.value[0].description = '检查中...'
 
-    const pythonStatus = await envModule.installPython()
+    const { result: pythonStatus } = await envModule.installPython()
 
     if (pythonStatus === EnvStatus.PythonNotInstalled) {
       steps.value[0].status = 'error'
@@ -58,11 +58,7 @@ const checkEnv = async () => {
     steps.value[1].loading = true
     steps.value[1].description = '检查中...'
 
-    const status = await envModule.installRemBG(() => {
-      steps.value[1].status = 'process'
-      steps.value[1].loading = true
-      steps.value[1].description = '依赖安装中'
-    })
+    const { result: status } = await envModule.installRemBG()
     envStatus.value = status
 
     if (status === EnvStatus.RemBGNotInstalled) {

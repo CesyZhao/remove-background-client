@@ -1,8 +1,6 @@
 import { BridgeEvent, EventCode } from '@common/definitions/bridge'
 import { ISetting, ISettingItem } from '@common/definitions/setting'
-
 const { electron } = window
-const { ipcRenderer } = electron
 
 class Setting {
   private setting: ISetting[] = []
@@ -11,33 +9,19 @@ class Setting {
     this.initSettings()
   }
 
-  private async initSettings(): Promise<void> {
-    try {
-      const setting = await this.getSettingFromMain()
-      console.log(setting, '+++++++++++++++++++++')
-      this.setting = setting as ISetting[]
-    } catch (error) {
-      console.error('Failed to initialize settings:', error)
-    }
+  private async initSettings() {
+    return electron.getSetting()
   }
 
-  async getSettingFromMain(): Promise<ISetting[]> {
-    return new Promise((resolve, reject) => {
-      const func = electron[`on${BridgeEvent.GetSettingReply}`]
-
-      func(({ data, code, error }) => {
-        code === EventCode.Success ? resolve(data) : reject(error)
-      })
-
-      ipcRenderer.send(BridgeEvent.GetSetting)
-    })
+  async refreshSettings() {
+    await this.initSettings()
   }
 
-  async writeSetting(key: string, value: string | number | boolean): Promise<void> {
-    ipcRenderer.send(BridgeEvent.WriteSetting, key, value)
+  async writeSetting(key: string, value: string | number | boolean) {
+    await electron.writeSetting({ key, value })
   }
 
-  getSetting() {
+  getSetting(): ISetting[] {
     return this.setting
   }
 

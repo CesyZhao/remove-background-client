@@ -1,34 +1,14 @@
-import { BridgeEvent, EnvStatus, EventCode } from '@common/definitions/bridge'
+import { EnvStatus, IpcResponse } from '@common/definitions/bridge'
 const { electron } = window
 const { ipcRenderer } = electron
 
 class Env {
-  installRemBG(progressCallback): Promise<EnvStatus> {
-    const func = electron[`on${BridgeEvent.InstallRemBGReply}`]
-
-    return new Promise((resolve, reject) => {
-      func(({ status, code }) => {
-        if (code === EventCode.Pending) {
-          progressCallback?.()
-        } else {
-          code === EventCode.Success ? resolve(status) : reject(status)
-        }
-      })
-
-      ipcRenderer.send(BridgeEvent.InstallRemBG)
-    })
+  async installRemBG(): Promise<IpcResponse<EnvStatus>> {
+    return electron.installRemBG()
   }
 
-  installPython(checkStatusOnly = true): Promise<EnvStatus> {
-    const func = electron[`on${BridgeEvent.InstallPythonReply}`]
-
-    return new Promise((resolve, reject) => {
-      func(({ status, code }) => {
-        code === EventCode.Success ? resolve(status) : reject(status)
-      })
-
-      ipcRenderer.send(BridgeEvent.InstallPython, checkStatusOnly)
-    })
+  async installPython(checkStatusOnly = true): Promise<IpcResponse<EnvStatus>> {
+    return electron.installPython(checkStatusOnly)
   }
 }
 

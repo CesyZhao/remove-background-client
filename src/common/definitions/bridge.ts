@@ -1,8 +1,6 @@
 export enum BridgeEvent {
-  InstallRemBG = 'InstallRemBG',
-  InstallRemBGReply = 'InstallRemBGReply',
-  InstallPython = 'InstallPython',
-  InstallPythonReply = 'InstallPythonReply',
+  InstallRemBG = 'installRemBG',
+  InstallPython = 'installPython',
   PickFileOrDirectory = 'pickFileOrDirectory',
   GetImagePreview = 'getImagePreview',
   RemoveBackground = 'removeBackground',
@@ -10,7 +8,9 @@ export enum BridgeEvent {
   RemoveBackgroundBatch = 'removeBackgroundBatch',
   GetDirectoryImages = 'getDirectoryImages',
   DeleteImage = 'deleteImage',
-  RevealInFinder = 'revealInFinder'
+  RevealInFinder = 'revealInFinder',
+  GetSetting = 'getSetting',
+  SetSetting = 'setSetting'
 }
 
 export enum FileSelectorCommand {

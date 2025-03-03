@@ -1,45 +1,43 @@
 import { IpcMainEvent } from 'electron'
-import { BridgeEvent, EnvStatus, EventCode } from '@common/definitions/bridge'
-import { installPython, installRemBG } from '../env'
+import { BridgeEvent, EnvStatus, EventCode, IpcResponse } from '@common/definitions/bridge'
+import { installPython, installRemBG } from '@util/env'
 import BaseModule from './Base'
 
 class EnvModule extends BaseModule {
-  protected registerEvents(): void {
-    this.registerHandler<[boolean]>(BridgeEvent.InstallPython, this.handleInstallPython)
-    this.registerHandler<[]>(BridgeEvent.InstallRemBG, this.handleInstallRemBG)
+  constructor() {
+    super('env')
   }
 
-  private async handleInstallPython(event: IpcMainEvent, checkStatusOnly: boolean): Promise<void> {
+  protected registerEvents(): void {
+    this.registerHandler(BridgeEvent.InstallPython, this.handleInstallPython)
+    this.registerHandler(BridgeEvent.InstallRemBG, this.handleInstallRemBG)
+  }
+
+  private async handleInstallPython(checkStatusOnly: boolean): Promise<IpcResponse<EnvStatus>> {
     try {
       const status = await installPython(checkStatusOnly)
-      this.sendReply(event, BridgeEvent.InstallPythonReply, {
-        status,
+      return {
+        result: status,
         code: EventCode.Success
-      })
-    } catch (e) {
-      this.sendReply(event, BridgeEvent.InstallPythonReply, {
-        status: e as EnvStatus,
+      }
+    } catch (error) {
+      throw {
         code: EventCode.Error
-      })
+      }
     }
   }
 
-  private async handleInstallRemBG(event: IpcMainEvent): Promise<void> {
+  private async handleInstallRemBG(): Promise<IpcResponse<EnvStatus>> {
     try {
-      const status = await installRemBG(() => {
-        this.sendReply(event, BridgeEvent.InstallRemBGReply, {
-          code: EventCode.Pending
-        })
-      })
-      this.sendReply(event, BridgeEvent.InstallRemBGReply, {
-        status,
+      const status = await installRemBG()
+      return {
+        result: status,
         code: EventCode.Success
-      })
-    } catch (e) {
-      this.sendReply(event, BridgeEvent.InstallRemBGReply, {
-        status: e as EnvStatus,
+      }
+    } catch (error) {
+      throw {
         code: EventCode.Error
-      })
+      }
     }
   }
 }

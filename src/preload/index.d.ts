@@ -4,7 +4,7 @@ export type apiCallback<T> = (value: T) => void
 
 
 interface ICustomApi {
-  [func: string]: (callback: apiCallback) => void
+  [func: string]: <T>(...args?) => Promise<T>
 }
 
 declare global {

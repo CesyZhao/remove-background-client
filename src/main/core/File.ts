@@ -23,7 +23,7 @@ class FileModule extends BaseModule {
   private settingModule: SettingModule
 
   constructor() {
-    super()
+    super('file')
     this.settingModule = new SettingModule()
   }
 
