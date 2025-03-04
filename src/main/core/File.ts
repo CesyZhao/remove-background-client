@@ -144,9 +144,9 @@ class FileModule extends BaseModule {
 
       const settings = await this.settingModule.getSetting()
       const outputPath = this.getOutputPath(tempPath, settings)
-      const command = this.buildRembgCommand(tempPath, outputPath, settings)
+      const command = buildRembgCommand(tempPath, outputPath, settings)
 
-      await this.executeRembgCommand(command)
+      await executeRembgCommand(command)
 
       const processedBuffer = await fs.promises.readFile(outputPath)
       const processedBase64 = processedBuffer.toString('base64')
@@ -275,11 +275,11 @@ class FileModule extends BaseModule {
     return results
   }
 
-  private async processDirectory(
-    dirPath: string,
-    baseDir: string,
-    settings: ISetting[]
-  ): Promise<Array<{ base64: string; path: string }>> {}
+  // private async processDirectory(
+  //   dirPath: string,
+  //   baseDir: string,
+  //   settings: ISetting[]
+  // ): Promise<Array<{ base64: string; path: string }>> {}
 
   private async handleRemoveBackgroundBatch(
     _,

@@ -48,7 +48,8 @@ class SettingModule extends BaseModule {
       }
     } catch (error) {
       throw {
-        code: EventCode.Error
+        code: EventCode.Error,
+        result: {}
       }
     }
   }
@@ -91,7 +92,6 @@ class SettingModule extends BaseModule {
   }
 
   private async saveSettings() {
-    console.log(this.setting)
     await writeJson(this.settingPath, JSON.stringify(this.setting))
   }
 
