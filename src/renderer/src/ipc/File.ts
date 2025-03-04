@@ -1,4 +1,4 @@
-import { FileOperationResult, FileSelectorType, IpcResponse, IPickFileResult } from '@common/definitions/bridge'
+import { FileOperationResult, FileSelectorType, IGetImagePreviewResult, IpcResponse, IPickFileResult } from '@common/definitions/bridge'
 const { electron } = window
 
 class File {
@@ -14,11 +14,11 @@ class File {
     return electron.removeBackground(imagePath)
   }
 
-  async removeBackgroundBatch(dirPath: string) {
+  async removeBackgroundBatch(dirPath: string): Promise<IpcResponse<FileOperationResult[]>> {
     return electron.removeBackgroundBatch(dirPath)
   }
 
-  async removeBackgroundFromBase64(base64Data: string) {
+  async removeBackgroundFromBase64(base64Data: string): Promise<IpcResponse<FileOperationResult>> {
     return electron.removeBackgroundFromBase64(base64Data)
   }
 
@@ -30,7 +30,7 @@ class File {
     return electron.revealInFinder(imagePath)
   }
 
-  async getDirectoryImages(dirPath: string) {
+  async getDirectoryImages(dirPath: string): Promise<IpcResponse<IGetImagePreviewResult>> {
     return electron.getDirectoryImages(dirPath)
   }
 }

@@ -9,7 +9,6 @@ import {
 } from '@common/definitions/bridge'
 import { fileSelectorCommandMap } from '@definitions/bridge'
 import BaseModule from './Base'
-import { exec } from 'child_process'
 import path from 'path'
 import { ISetting } from '@common/definitions/setting'
 import SettingModule from './Setting'
@@ -18,6 +17,7 @@ import fs from 'fs'
 import sharp from 'sharp'
 import { tmpdir } from 'os'
 import { IpcResponse, FileOperationResult } from '@common/definitions/bridge'
+import { buildRembgCommand, executeRembgCommand } from '@util/command'
 
 class FileModule extends BaseModule {
   private settingModule: SettingModule
@@ -70,7 +70,8 @@ class FileModule extends BaseModule {
       }
     } catch (error) {
       throw {
-        code: EventCode.Error
+        code: EventCode.Error,
+        result: {}
       }
     }
   }
@@ -94,7 +95,8 @@ class FileModule extends BaseModule {
       }
     } catch (error) {
       throw {
-        code: EventCode.Error
+        code: EventCode.Error,
+        result: ''
       }
     }
   }
@@ -106,9 +108,9 @@ class FileModule extends BaseModule {
     try {
       const settings = await this.settingModule.getSetting()
       const outputPath = this.getOutputPath(imagePath, settings)
-      const command = this.buildRembgCommand(imagePath, outputPath, settings)
+      const command = buildRembgCommand(imagePath, outputPath, settings)
 
-      await this.executeRembgCommand(command)
+      await executeRembgCommand(command)
 
       const imageBuffer = fs.readFileSync(outputPath)
       const base64Image = imageBuffer.toString('base64')
@@ -124,7 +126,8 @@ class FileModule extends BaseModule {
       }
     } catch (error) {
       throw {
-        code: EventCode.Error
+        code: EventCode.Error,
+        result: {}
       }
     }
   }
@@ -159,7 +162,8 @@ class FileModule extends BaseModule {
       }
     } catch (error) {
       throw {
-        code: EventCode.Error
+        code: EventCode.Error,
+        result: {}
       }
     } finally {
       await fs.promises.unlink(tempPath).catch(console.error)
@@ -194,7 +198,8 @@ class FileModule extends BaseModule {
       }
     } catch (error) {
       throw {
-        code: EventCode.Error
+        code: EventCode.Error,
+        result: []
       }
     }
   }
@@ -203,11 +208,13 @@ class FileModule extends BaseModule {
     try {
       await fs.promises.unlink(imagePath)
       return {
-        code: EventCode.Success
+        code: EventCode.Success,
+        result: undefined
       }
     } catch (error) {
       throw {
-        code: EventCode.Error
+        code: EventCode.Error,
+        result: undefined
       }
     }
   }
@@ -216,11 +223,13 @@ class FileModule extends BaseModule {
     try {
       await shell.showItemInFolder(imagePath)
       return {
-        code: EventCode.Success
+        code: EventCode.Success,
+        result: undefined
       }
     } catch (error) {
       throw {
-        code: EventCode.Error
+        code: EventCode.Error,
+        result: undefined
       }
     }
   }
@@ -247,9 +256,8 @@ class FileModule extends BaseModule {
           // 确保输出目录存在
           await fs.promises.mkdir(path.dirname(outputPath), { recursive: true })
 
-          const command = this.buildRembgCommand(fullPath, outputPath, settings)
-          console.log(command, '------------')
-          await this.executeRembgCommand(command)
+          const command = buildRembgCommand(fullPath, outputPath, settings)
+          await executeRembgCommand(command)
 
           const imageBuffer = await fs.promises.readFile(outputPath)
           const base64Image = imageBuffer.toString('base64')
@@ -286,7 +294,8 @@ class FileModule extends BaseModule {
       }
     } catch (error) {
       throw {
-        code: EventCode.Error
+        code: EventCode.Error,
+        result: []
       }
     }
   }
@@ -309,73 +318,6 @@ class FileModule extends BaseModule {
     }
 
     return path.join(outputDir, `${fileName}_nobg.${format}`)
-  }
-
-  private buildRembgCommand(imagePath: string, outputPath: string, settings: ISetting[]): string {
-    const modelSettings = settings.find((s) => s.category === 'model_setting')?.settings || []
-    const postSettings = settings.find((s) => s.category === 'post_process_setting')?.settings || []
-
-    const command = ['rembg', 'i']
-
-    command.push('-m', 'u2net_custom')
-
-    // 指定自定义模型路径和输入尺寸
-    const modelPath = path.join(__dirname, '../../resources/u2net.onnx')
-    command.push('-x', `'{ "model_path": "${modelPath}" }'`)
-
-    // Alpha matting 参数
-    if (modelSettings.find((s) => s.key === 'alpha_matting')?.value) {
-      command.push('-a')
-      command.push(
-        '-af',
-        modelSettings.find((s) => s.key === 'alpha_matting_foreground_threshold')?.value as string
-      )
-      command.push(
-        '-ab',
-        modelSettings.find((s) => s.key === 'alpha_matting_background_threshold')?.value as string
-      )
-      command.push(
-        '-ae',
-        modelSettings.find((s) => s.key === 'alpha_matting_erode_size')?.value as string
-      )
-    }
-
-    // 后处理参数
-    if (postSettings.find((s) => s.key === 'post_process_mask')?.value) {
-      command.push('-p')
-    }
-
-    const bgcolor = postSettings.find((s) => s.key === 'background_color')?.value
-    if (bgcolor && bgcolor !== '#ffffff') {
-      command.push('-b', bgcolor)
-    }
-
-    command.push(imagePath, outputPath)
-    return command.join(' ')
-  }
-
-  private executeRembgCommand(command: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const childProcess = exec(
-        command,
-        {
-          timeout: 30000, // 30 秒超时
-          maxBuffer: 1024 * 1024 * 10 // 增加缓冲区大小到 10MB
-        },
-        (error, stdout, stderr) => {
-          if (error) {
-            reject(new Error(`执行失败: ${stderr}`))
-            return
-          }
-          resolve()
-        }
-      )
-
-      // 设置更高的进程优先级
-      if (process.platform === 'darwin') {
-        exec(`renice -n -10 -p ${childProcess.pid}`)
-      }
-    })
   }
 }
 

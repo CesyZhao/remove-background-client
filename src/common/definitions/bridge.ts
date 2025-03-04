@@ -47,7 +47,7 @@ export enum EventCode {
 
 export interface IpcResponse<T> {
   code: EventCode
-  result?: T
+  result: T
   error?: string
 }
 

@@ -1,4 +1,3 @@
-import { IpcMainEvent } from 'electron'
 import { BridgeEvent, EnvStatus, EventCode, IpcResponse } from '@common/definitions/bridge'
 import { installPython, installRemBG } from '@util/env'
 import BaseModule from './Base'
@@ -22,7 +21,8 @@ class EnvModule extends BaseModule {
       }
     } catch (error) {
       throw {
-        code: EventCode.Error
+        code: EventCode.Error,
+        result: EnvStatus.PythonNotInstalled
       }
     }
   }
@@ -36,7 +36,8 @@ class EnvModule extends BaseModule {
       }
     } catch (error) {
       throw {
-        code: EventCode.Error
+        code: EventCode.Error,
+        result: EnvStatus.RemBGNotInstalled
       }
     }
   }

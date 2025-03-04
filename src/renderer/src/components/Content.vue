@@ -30,10 +30,10 @@ const processFile = async (targetPath: string, isDirectory: boolean) => {
     loading.value = true
 
     if (isDirectory) {
-      const images = await fileModule.getDirectoryImages(targetPath)
+      const { result: images } = await fileModule.getDirectoryImages(targetPath)
 
       for (const image of images) {
-        const preview = await fileModule.getImagePreview(image.path)
+        const { result: preview } = await fileModule.getImagePreview(image.path)
         const newImage: ImageItem = {
           id: Date.now().toString() + Math.random(),
           previewUrl: preview,
@@ -49,7 +49,7 @@ const processFile = async (targetPath: string, isDirectory: boolean) => {
         currentImage.value = imageList.value[imageList.value.length - images.length]
       }
 
-      const results = await fileModule.removeBackgroundBatch(targetPath)
+      const { result: results } = await fileModule.removeBackgroundBatch(targetPath)
 
       for (let i = 0; i < results.length; i++) {
         const result = results[i]
@@ -64,7 +64,7 @@ const processFile = async (targetPath: string, isDirectory: boolean) => {
       const { result: preview } = await fileModule.getImagePreview(targetPath)
       const newImage: ImageItem = {
         id: Date.now().toString(),
-        previewUrl: preview || '',
+        previewUrl: preview,
         processedUrl: '',
         processing: true,
         path: '',
@@ -73,8 +73,9 @@ const processFile = async (targetPath: string, isDirectory: boolean) => {
       imageList.value.push(newImage)
       currentImage.value = newImage
 
-      const { result = {} } = await fileModule.removeBackground(targetPath)
-      const { base64, path } = result
+      const {
+        result: { base64, outputPath: path }
+      } = await fileModule.removeBackground(targetPath)
       const index = imageList.value.findIndex((item) => item.id === newImage.id)
       if (index !== -1) {
         imageList.value[index].processedUrl = base64
@@ -205,14 +206,13 @@ const handlePaste = async (e: ClipboardEvent) => {
 
   if (!items) return
 
-  for (const item of items) {
+  for (const item of Array.from(items)) {
     if (item.type.startsWith('image/')) {
       const file = item.getAsFile()
       if (!file) continue
 
       try {
         loading.value = true
-        // 将粘贴的图片转换为 base64
         const reader = new FileReader()
         const base64Promise = new Promise<string>((resolve) => {
           reader.onload = (e) => resolve(e.target?.result as string)
@@ -232,7 +232,9 @@ const handlePaste = async (e: ClipboardEvent) => {
         imageList.value.push(newImage)
         currentImage.value = newImage
 
-        const { base64, path } = await fileModule.removeBackgroundFromBase64(preview)
+        const {
+          result: { base64, path }
+        } = await fileModule.removeBackgroundFromBase64(preview)
         const index = imageList.value.findIndex((item) => item.id === newImage.id)
         if (index !== -1) {
           imageList.value[index].processedUrl = base64

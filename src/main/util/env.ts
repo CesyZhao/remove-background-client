@@ -7,7 +7,7 @@ import { EnvStatus } from '@common/definitions/bridge'
 
 const { exec } = childProcess
 
-export const checkPythonInstallStatus = () => {
+export const checkPythonInstallStatus = (): Promise<EnvStatus> => {
   return new Promise((resolve, reject) => {
     exec('python3 --version', (error, stdout) => {
       const version = stdout?.replace('Python', '')?.trim()
@@ -22,7 +22,7 @@ export const checkPythonInstallStatus = () => {
   })
 }
 
-export const installPython = (checkStatusOnly = true) => {
+export const installPython = (checkStatusOnly = true): Promise<EnvStatus> => {
   return new Promise((resolve, reject) => {
     checkPythonInstallStatus()
       .then((res) => {
@@ -53,7 +53,7 @@ export const installPython = (checkStatusOnly = true) => {
   })
 }
 
-export const checkRembgInstallStatus = () => {
+export const checkRembgInstallStatus = (): Promise<EnvStatus> => {
   return new Promise((resolve, reject) => {
     exec('rembg --help', (error) => {
       error ? reject(EnvStatus.RemBGNotInstalled) : resolve(EnvStatus.RemBGInstalled)
@@ -61,7 +61,7 @@ export const checkRembgInstallStatus = () => {
   })
 }
 
-export const installRemBG = (processCallback?: () => void) => {
+export const installRemBG = (processCallback?: () => void): Promise<EnvStatus> => {
   return new Promise((resolve, reject) => {
     checkRembgInstallStatus()
       .then((res) => {
