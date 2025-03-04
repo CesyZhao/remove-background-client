@@ -36,7 +36,7 @@ abstract class BaseModule {
     event: BridgeEvent,
     handler: EventHandler<T, S>
   ): void {
-     const eventName = `${this.eventPrefix}:${event}`
+    const eventName = `${this.eventPrefix}:${event}`
     // 使用类型断言来确保类型安全
     if (!this.eventHandlers.has(eventName)) {
       this.eventHandlers.set(eventName, handler as EventHandler<unknown[], unknown>)

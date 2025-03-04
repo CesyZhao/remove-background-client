@@ -1,6 +1,5 @@
 import { EnvStatus, IpcResponse } from '@common/definitions/bridge'
 const { electron } = window
-const { ipcRenderer } = electron
 
 class Env {
   async installRemBG(): Promise<IpcResponse<EnvStatus>> {
