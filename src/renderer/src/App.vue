@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import EnvChecker from '@components/EnvChecker.vue'
-import Entry from '@components/Entry.vue'
+import Index from '@components/environment-checker/index.vue'
+import Index from '@components/entry/index.vue'
 import { ref } from 'vue'
 
 const envReady = ref(false)
@@ -8,6 +8,6 @@ const envReady = ref(false)
 </script>
 
 <template>
-  <EnvChecker v-if="!envReady" @env-ready="envReady = true" />
-  <Entry v-else />
+  <Index v-if="!envReady" @env-ready="envReady = true" />
+  <Index v-else />
 </template>

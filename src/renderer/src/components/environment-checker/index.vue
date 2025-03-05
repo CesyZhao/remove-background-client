@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineEmits, onMounted, ref } from 'vue'
-import bridge from '../ipc/Bridge'
+import bridge from '@ipc/Bridge'
 import { EnvStatus } from '@common/definitions/bridge'
 
 const { envModule } = bridge.modules
