@@ -4,7 +4,6 @@ import Settings from '@components/Setting.vue'
 import Content from '@components/Content.vue'
 
 const settingVisible = ref(false)
-
 </script>
 
 <template>

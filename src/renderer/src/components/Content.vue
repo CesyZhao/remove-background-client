@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import bridge from '@ipc/Bridge'
 import { FileSelectorType } from '@common/definitions/bridge'
 import { Message } from '@arco-design/web-vue'
