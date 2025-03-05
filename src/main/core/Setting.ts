@@ -55,6 +55,8 @@ class SettingModule extends BaseModule {
   }
 
   private async handleWriteSetting(_, key: string, value: never): Promise<void> {
+    console.log(key, '---------')
+    console.log(value, '++++++++')
     try {
       await this.writeSetting(key, value)
     } catch (e) {

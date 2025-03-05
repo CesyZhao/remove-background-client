@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IconQuestionCircleFill } from '@arco-design/web-vue/es/icon'
-import { Ref, ref, watch, onMounted } from 'vue'
+import { Ref, ref, onMounted } from 'vue'
 import { ISetting, ISettingItem } from '@common/definitions/setting'
 import bridge from '@ipc/Bridge'
 import vClickOutside from '@directives/click-outside'
@@ -22,25 +22,25 @@ const closePopover = () => {
 
 // 修改类型定义
 const handlePathSelect = async (setting: ISettingItem) => {
-  const result = await fileModule.pickFileOrDirectory([FileSelectorType.Folder])
-  if (result) {
-    setting.value = result
-    await handleValueChange(setting.key, result)
+  const { result: path } = await fileModule.pickFileOrDirectory([FileSelectorType.Folder])
+  if (path) {
+    await handleValueChange(setting.key, path)
   }
 }
 
 const initSettings = async () => {
   try {
-    const settingsData = await settingModule.getSetting()
+    const settingsData = settingModule.getSetting()
     appSetting.value = settingsData
   } catch (error) {
     console.error('Failed to load settings:', error)
   }
 }
 
-const handleValueChange = async (key: string, value: any) => {
+const handleValueChange = async (key: string, value) => {
   try {
     await settingModule.writeSetting(key, value)
+    await initSettings()
   } catch (error) {
     console.error('Failed to save setting:', error)
   }

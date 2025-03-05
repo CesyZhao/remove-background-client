@@ -1,4 +1,4 @@
-import { BridgeEvent, EventCode } from '@common/definitions/bridge'
+import { IpcResponse } from '@common/definitions/bridge'
 import { ISetting, ISettingItem } from '@common/definitions/setting'
 const { electron } = window
 
@@ -10,7 +10,13 @@ class Setting {
   }
 
   private async initSettings() {
-    return electron.getSetting()
+    try {
+      const { result: setting } = await electron.getSetting<IpcResponse<ISetting[]>>()
+      this.setting = setting
+    } catch (error) {
+      console.error('Error initializing settings:', error)
+      this.setting = []
+    }
   }
 
   async refreshSettings() {
@@ -18,7 +24,8 @@ class Setting {
   }
 
   async writeSetting(key: string, value: string | number | boolean) {
-    await electron.writeSetting({ key, value })
+    await electron.setSetting(key, value)
+    await this.initSettings()
   }
 
   getSetting(): ISetting[] {
