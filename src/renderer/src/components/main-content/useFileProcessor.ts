@@ -1,4 +1,4 @@
-import { Ref, ref } from 'vue'
+import { ref } from 'vue'
 import { IImageItem } from '@definitions/content'
 import { Message } from '@arco-design/web-vue'
 import bridge from '@ipc/Bridge'
@@ -20,15 +20,11 @@ const getFilenameByPath = (filePath: string) => {
 
 const { fileModule } = bridge.modules
 
-const useFileProcessor = (
-  filePath: string,
-  isDirectory: boolean,
-  currentList: Ref<IImageItem[]>
-) => {
-  const processResult = currentList || ref<IImageItem[]>([])
+const useFileProcessor = () => {
+  const processResult = ref<IImageItem[]>([])
   const current = ref<IImageItem | null>(null)
 
-  const processFile = async () => {
+  const processFile = async (filePath: string, isDirectory: boolean) => {
     try {
       if (isDirectory) {
         const { result: images } = await fileModule.getDirectoryImages(filePath)
@@ -84,11 +80,10 @@ const useFileProcessor = (
     }
   }
 
-  processFile()
-
   return {
     current,
-    processResult
+    processResult,
+    processFile
   }
 }
 

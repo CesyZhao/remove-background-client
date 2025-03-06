@@ -8,20 +8,12 @@ import { IImageItem } from '@definitions/content'
 
 const { fileModule } = bridge.modules
 
-const imageList = ref<IImageItem[]>([])
 const loading = ref(false)
 
-const currentImage = ref<IImageItem | null>(null)
+const { processResult: imageList, current: currentImage, processFile } = useFileProcessor()
 
 const selectImage = (image: IImageItem) => {
   currentImage.value = image
-}
-
-const process = (targetPath: string, isDirectory: boolean) => {
-  const { processResult, current } = useFileProcessor(targetPath, isDirectory, imageList)
-  imageList.value = processResult.value
-  console.log(current)
-  currentImage.value = processResult.value[processResult.value.length - 1] || null
 }
 
 // 简化后的文件选择处理
@@ -33,7 +25,7 @@ const handleSelectFile = async () => {
     ])
     const { path: targetPath, isDirectory = false } = result
     if (!targetPath) return
-    process(targetPath, isDirectory)
+    processFile(targetPath, isDirectory)
   } catch (error) {
     console.error('选择文件失败:', error)
   }
@@ -54,13 +46,13 @@ const handleDrop = async (e: DragEvent) => {
     if (!targetPath) return
 
     if (!fileName.includes('.')) {
-      await process(targetPath, true)
+      processFile(targetPath, true)
     } else {
       if (!file.type.startsWith('image/')) {
         Message.error('请拖入图片文件或文件夹')
         return
       }
-      await process(targetPath, false)
+      processFile(targetPath, false)
     }
   } catch (error) {
     console.error('处理拖入文件失败:', error)
@@ -253,15 +245,6 @@ onMounted(() => {
                     <template #icon><icon-plus /></template>
                   </a-button>
                 </a-button-group>
-                <a-button>
-                  <template #icon><icon-copy /></template>
-                </a-button>
-                <a-button>
-                  <template #icon><icon-undo /></template>
-                </a-button>
-                <a-button>
-                  <template #icon><icon-redo /></template>
-                </a-button>
               </div>
             </div>
           </div>
