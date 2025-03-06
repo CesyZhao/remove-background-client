@@ -10,10 +10,10 @@ declare module 'vue' {
     AButton: typeof import('@arco-design/web-vue')['Button']
     AInput: typeof import('@arco-design/web-vue')['Input']
     ARadio: typeof import('@arco-design/web-vue')['Radio']
-    Index: typeof import('./src/components/dynamic-button/index.vue')['default']
-    Index: typeof import('./src/components/environment-checker/index.vue')['default']
+    DynamicButton: typeof import('./src/components/dynamic-button/index.vue')['default']
+    EnvironmentChecker: typeof import('./src/components/environment-checker/index.vue')['default']
     FileUploader: typeof import('./src/components/FileUploader.vue')['default']
-    Index: typeof import('./src/components/loading/index.vue')['default']
+    Loading: typeof import('./src/components/loading/index.vue')['default']
     Settings: typeof import('./src/components/Settings.vue')['default']
   }
 }

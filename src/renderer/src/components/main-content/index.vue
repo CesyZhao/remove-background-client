@@ -3,95 +3,25 @@ import { ref, onMounted } from 'vue'
 import bridge from '@ipc/Bridge'
 import { FileSelectorType } from '@common/definitions/bridge'
 import { Message } from '@arco-design/web-vue'
+import useFileProcessor from './useFileProcessor'
+import { IImageItem } from '@definitions/content'
 
 const { fileModule } = bridge.modules
 
-interface ImageItem {
-  id: string
-  previewUrl: string
-  processedUrl: string
-  processing: boolean
-  name: string
-  path: string
-}
-
-const imageList = ref<ImageItem[]>([])
+const imageList = ref<IImageItem[]>([])
 const loading = ref(false)
 
-const currentImage = ref<ImageItem | null>(null)
+const currentImage = ref<IImageItem | null>(null)
 
-const selectImage = (image: ImageItem) => {
+const selectImage = (image: IImageItem) => {
   currentImage.value = image
 }
 
-// 添加处理文件的公共方法
-const processFile = async (targetPath: string, isDirectory: boolean) => {
-  try {
-    loading.value = true
-
-    if (isDirectory) {
-      const { result: images } = await fileModule.getDirectoryImages(targetPath)
-
-      for (const image of images) {
-        const { result: preview } = await fileModule.getImagePreview(image.path)
-        const newImage: ImageItem = {
-          id: Date.now().toString() + Math.random(),
-          previewUrl: preview,
-          processedUrl: '',
-          processing: true,
-          path: '',
-          name: image.path.split('/').pop() || '未命名'
-        }
-        imageList.value.push(newImage)
-      }
-
-      if (images.length > 0) {
-        currentImage.value = imageList.value[imageList.value.length - images.length]
-      }
-
-      const { result: results } = await fileModule.removeBackgroundBatch(targetPath)
-
-      for (let i = 0; i < results.length; i++) {
-        const result = results[i]
-        const index = imageList.value.length - results.length + i
-        if (index >= 0) {
-          imageList.value[index].processedUrl = result.base64
-          imageList.value[index].path = result.path
-          imageList.value[index].processing = false
-        }
-      }
-    } else {
-      const { result: preview } = await fileModule.getImagePreview(targetPath)
-      const newImage: ImageItem = {
-        id: Date.now().toString(),
-        previewUrl: preview,
-        processedUrl: '',
-        processing: true,
-        path: '',
-        name: targetPath.split('/').pop() || '未命名'
-      }
-      imageList.value.push(newImage)
-      currentImage.value = newImage
-
-      const {
-        result: { base64, outputPath: path }
-      } = await fileModule.removeBackground(targetPath)
-      const index = imageList.value.findIndex((item) => item.id === newImage.id)
-      if (index !== -1) {
-        imageList.value[index].processedUrl = base64
-        imageList.value[index].path = path
-        setTimeout(() => {
-          imageList.value[index].processing = false
-        }, 100)
-      }
-    }
-  } catch (error) {
-    console.error('处理文件失败:', error)
-    Message.error('处理失败')
-    throw error
-  } finally {
-    loading.value = false
-  }
+const process = (targetPath: string, isDirectory: boolean) => {
+  const { processResult, current } = useFileProcessor(targetPath, isDirectory, imageList)
+  imageList.value = processResult.value
+  console.log(current)
+  currentImage.value = processResult.value[processResult.value.length - 1] || null
 }
 
 // 简化后的文件选择处理
@@ -103,7 +33,7 @@ const handleSelectFile = async () => {
     ])
     const { path: targetPath, isDirectory = false } = result
     if (!targetPath) return
-    await processFile(targetPath, isDirectory)
+    process(targetPath, isDirectory)
   } catch (error) {
     console.error('选择文件失败:', error)
   }
@@ -124,13 +54,13 @@ const handleDrop = async (e: DragEvent) => {
     if (!targetPath) return
 
     if (!fileName.includes('.')) {
-      await processFile(targetPath, true)
+      await process(targetPath, true)
     } else {
       if (!file.type.startsWith('image/')) {
         Message.error('请拖入图片文件或文件夹')
         return
       }
-      await processFile(targetPath, false)
+      await process(targetPath, false)
     }
   } catch (error) {
     console.error('处理拖入文件失败:', error)
@@ -220,7 +150,7 @@ const handlePaste = async (e: ClipboardEvent) => {
         })
 
         const preview = await base64Promise
-        const newImage: ImageItem = {
+        const newImage: IImageItem = {
           id: Date.now().toString(),
           previewUrl: preview,
           processedUrl: '',

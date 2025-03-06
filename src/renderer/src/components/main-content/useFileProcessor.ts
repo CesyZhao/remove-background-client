@@ -1,81 +1,80 @@
-import { ref } from 'vue'
+import { Ref, ref } from 'vue'
 import { IImageItem } from '@definitions/content'
 import { Message } from '@arco-design/web-vue'
+import bridge from '@ipc/Bridge'
 
-const getImageItem = (): IImageItem => {
+const getImageItem = (filePath: string, previewUrl: string): IImageItem => {
   return {
-    id: '',
-    previewUrl: '',
+    id: Date.now().toString() + Math.random(),
+    previewUrl,
     processedUrl: '',
-    processing: false,
-    name: '',
+    processing: true,
+    name: getFilenameByPath(filePath),
     path: ''
   }
 }
 
 const getFilenameByPath = (filePath: string) => {
-  return filePath.path.split('/').pop() || '未命名'
+  return filePath.split('/').pop() || '未命名'
 }
 
-const useFileProcessor = (filePath: string, isDirectory: boolean) => {
-  const imageList = ref<IImageItem[]>([])
+const { fileModule } = bridge.modules
+
+const useFileProcessor = (
+  filePath: string,
+  isDirectory: boolean,
+  currentList: Ref<IImageItem[]>
+) => {
+  const processResult = currentList || ref<IImageItem[]>([])
+  const current = ref<IImageItem | null>(null)
 
   const processFile = async () => {
     try {
-
       if (isDirectory) {
         const { result: images } = await fileModule.getDirectoryImages(filePath)
 
         for (const image of images) {
           const { result: preview } = await fileModule.getImagePreview(image.path)
 
-          const newImage = getImageItem()
-          newImage.id = Date.now().toString() + Math.random()
-          newImage.previewUrl = preview
-          newImage.processing = true
-          newImage.name = getFilenameByPath(image.path)
+          const newImage = getImageItem(image.path, preview)
 
-          imageList.value.push(newImage)
+          processResult.value.unshift(newImage)
         }
 
         if (images.length > 0) {
-          currentImage.value = imageList.value[imageList.value.length - images.length]
+          current.value = processResult.value[processResult.value.length - images.length]
         }
 
         const { result: results } = await fileModule.removeBackgroundBatch(filePath)
 
         for (let i = 0; i < results.length; i++) {
           const result = results[i]
-          const index = imageList.value.length - results.length + i
+          const index = processResult.value.length - results.length + i
           if (index >= 0) {
-            imageList.value[index].processedUrl = result.base64
-            imageList.value[index].path = result.path
-            imageList.value[index].processing = false
+            const imageItem = processResult.value[index]
+            const { base64 = '', outputPath: path = '' } = result
+            imageItem.processedUrl = base64
+            imageItem.path = path
+            imageItem.processing = false
           }
         }
       } else {
         const { result: preview } = await fileModule.getImagePreview(filePath)
-        const newImage: ImageItem = {
-          id: Date.now().toString(),
-          previewUrl: preview,
-          processedUrl: '',
-          processing: true,
-          path: '',
-          name: filePath.split('/').pop() || '未命名'
-        }
-        imageList.value.push(newImage)
-        currentImage.value = newImage
+        const newImage = getImageItem(filePath, preview)
+        processResult.value.unshift(newImage)
+        current.value = newImage
 
         const {
-          result: { base64, outputPath: path }
+          result: { base64 = '', outputPath: path = '' }
         } = await fileModule.removeBackground(filePath)
-        const index = imageList.value.findIndex((item) => item.id === newImage.id)
+
+        const index = processResult.value.findIndex((item) => item.id === newImage.id)
+
         if (index !== -1) {
-          imageList.value[index].processedUrl = base64
-          imageList.value[index].path = path
-          setTimeout(() => {
-            imageList.value[index].processing = false
-          }, 100)
+          const imageItem = processResult.value[index]
+          imageItem.processedUrl = base64
+          imageItem.path = path
+          imageItem.processing = false
         }
       }
     } catch (error) {
@@ -85,6 +84,12 @@ const useFileProcessor = (filePath: string, isDirectory: boolean) => {
     }
   }
 
+  processFile()
+
+  return {
+    current,
+    processResult
+  }
 }
 
 export default useFileProcessor
