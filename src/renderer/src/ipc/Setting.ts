@@ -28,6 +28,12 @@ class Setting {
     await this.initSettings()
   }
 
+  async resetSetting() {
+    const result = await electron.resetSetting()
+    await this.initSettings()
+    return result
+  }
+
   getSetting(): ISetting[] {
     return this.setting
   }

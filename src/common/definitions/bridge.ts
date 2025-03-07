@@ -10,7 +10,8 @@ export enum BridgeEvent {
   DeleteImage = 'deleteImage',
   RevealInFinder = 'revealInFinder',
   GetSetting = 'getSetting',
-  SetSetting = 'setSetting'
+  SetSetting = 'setSetting',
+  ResetSetting = 'resetSetting'
 }
 
 export enum FileSelectorCommand {

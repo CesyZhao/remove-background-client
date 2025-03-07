@@ -5,6 +5,7 @@ import { ISetting, ISettingItem } from '@common/definitions/setting'
 import bridge from '@ipc/Bridge'
 import vClickOutside from '@directives/click-outside'
 import { FileSelectorType } from '@common/definitions/bridge'
+import { Message } from '@arco-design/web-vue'
 
 const { settingModule, fileModule } = bridge.modules
 
@@ -46,6 +47,19 @@ const handleValueChange = async (key: string, value) => {
   }
 }
 
+const handleReset = async () => {
+  try {
+    const success = await bridge.modules.settingModule.resetSetting()
+    if (success) {
+      Message.success('重置成功')
+      await initSettings()
+    }
+  } catch (error) {
+    console.error('重置设置失败:', error)
+    Message.error('重置失败')
+  }
+}
+
 onMounted(() => {
   initSettings()
 })
@@ -59,9 +73,15 @@ onMounted(() => {
         <div class="setting-popper">
           <div class="setting-header">
             <h2>设置</h2>
-            <a-button type="text" @click="closePopover">
-              <template #icon><icon-close /></template>
-            </a-button>
+            <div class="header-actions">
+              <a-button type="text" @click="handleReset">
+                <template #icon><icon-refresh /></template>
+                重置
+              </a-button>
+              <a-button type="text" @click="closePopover">
+                <template #icon><icon-close /></template>
+              </a-button>
+            </div>
           </div>
           <div class="setting-content">
             <div v-for="category in appSetting" :key="category.category" class="setting-category">
@@ -175,6 +195,16 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    
+    .arco-btn-text {
+      padding: 4px 8px;
+    }
+  }
 
   h2 {
     margin: 0;

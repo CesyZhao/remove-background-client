@@ -45,3 +45,12 @@ export const isSettingCategory = (obj: unknown): obj is ISetting => {
     (obj as ISetting).settings.every((setting) => setting.value !== undefined)
   )
 }
+
+export const isFileExist = async (path: string): Promise<boolean> => {
+  try {
+    await fs.promises.access(path)
+    return true
+  } catch {
+    return false
+  }
+}

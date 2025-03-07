@@ -143,7 +143,6 @@ const handlePaste = async (e: ClipboardEvent) => {
       const preview = await base64Promise
 
       processFile('粘贴的图片', false, preview)
-
     } catch (error) {
       console.error('处理粘贴图片失败:', error)
       Message.error('处理失败')
@@ -154,6 +153,55 @@ const handlePaste = async (e: ClipboardEvent) => {
 onMounted(() => {
   window.addEventListener('paste', handlePaste)
 })
+// 在 script 部分添加以下响应式变量和方法
+const scale = ref(1)
+const position = ref({ x: 0, y: 0 })
+const isDraggingImage = ref(false)
+const dragStartPos = ref({ x: 0, y: 0 })
+
+// 缩放处理方法
+const handleZoom = (type: 'in' | 'out') => {
+  const ZOOM_FACTOR = 0.2
+  const newScale = type === 'in' ? scale.value * (1 + ZOOM_FACTOR) : scale.value / (1 + ZOOM_FACTOR)
+  scale.value = Math.min(Math.max(newScale, 0.5), 3) // 限制缩放范围 50%-300%
+  console.log(scale.value)
+  position.value = { x: 0, y: 0 } // 缩放后重置位置
+}
+
+// 拖拽处理方法
+const handleMouseDown = (e: MouseEvent) => {
+  isDraggingImage.value = true
+  dragStartPos.value = {
+    x: e.clientX - position.value.x,
+    y: e.clientY - position.value.y
+  }
+}
+
+const handleMouseMove = (e: MouseEvent) => {
+  if (!isDraggingImage.value) return
+
+  const deltaX = e.clientX - dragStartPos.value.x
+  const deltaY = e.clientY - dragStartPos.value.y
+  const maxMove = 100 * scale.value // 根据缩放比例计算最大移动范围
+
+  position.value = {
+    x: Math.min(Math.max(deltaX, -maxMove), maxMove),
+    y: Math.min(Math.max(deltaY, -maxMove), maxMove)
+  }
+}
+
+const handleMouseUp = () => {
+  isDraggingImage.value = false
+}
+
+const handleMouseLeave = () => {
+  isDraggingImage.value = false
+}
+// 在 script 部分添加重置方法
+const handleReset = () => {
+  scale.value = 1
+  position.value = { x: 0, y: 0 }
+}
 </script>
 
 <template>
@@ -201,11 +249,18 @@ onMounted(() => {
               </div>
               <div class="image-layer processed-layer">
                 <img
+                  draggable="false"
                   :src="currentImage?.processedUrl"
                   class="processed-image"
                   :style="{
+                    transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
+                    cursor: isDraggingImage ? 'grabbing' : 'grab',
                     opacity: currentImage?.processedUrl && !currentImage?.processing ? 1 : 0
                   }"
+                  @mousedown="handleMouseDown"
+                  @mousemove="handleMouseMove"
+                  @mouseup="handleMouseUp"
+                  @mouseleave="handleMouseLeave"
                 />
               </div>
               <div v-if="currentImage?.processing" class="processing-mask">
@@ -215,10 +270,13 @@ onMounted(() => {
             <div class="preview-footer">
               <div class="image-actions">
                 <a-button-group class="zoom-actions">
-                  <a-button>
+                  <a-button @click="handleZoom('out')">
                     <template #icon><icon-minus /></template>
                   </a-button>
-                  <a-button>
+                  <a-button @click="handleReset">
+                    <template #icon><icon-sync /></template>
+                  </a-button>
+                  <a-button @click="handleZoom('in')">
                     <template #icon><icon-plus /></template>
                   </a-button>
                 </a-button-group>
@@ -377,6 +435,7 @@ onMounted(() => {
       position: relative;
       border-radius: 12px;
       overflow: hidden;
+      touch-action: none;
       transition:
         width 0.3s,
         height 0.3s;
@@ -418,12 +477,18 @@ onMounted(() => {
         z-index: 1;
       }
 
+      .preview-image {
+        transform-origin: center center;
+      }
+
       .image-layer {
         position: absolute;
         inset: 0;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: transform 0.2s ease-out;
+        will-change: transform;
 
         &.preview-layer {
           z-index: 2;
@@ -441,7 +506,7 @@ onMounted(() => {
         img {
           width: 100%;
           height: 100%;
-          transition: opacity 0.3s ease;
+          transition: all 0.3s ease-out;
         }
       }
 

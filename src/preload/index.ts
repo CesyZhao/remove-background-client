@@ -19,7 +19,7 @@ const apiGroup = {
     BridgeEvent.GetDirectoryImages,
     BridgeEvent.RemoveBackgroundFromBase64
   ],
-  setting: [BridgeEvent.GetSetting, BridgeEvent.SetSetting]
+  setting: [BridgeEvent.GetSetting, BridgeEvent.SetSetting, BridgeEvent.ResetSetting]
 }
 
 const additionalApi = {}
