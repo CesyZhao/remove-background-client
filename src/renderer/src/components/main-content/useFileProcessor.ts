@@ -24,7 +24,7 @@ const useFileProcessor = () => {
   const processResult = ref<IImageItem[]>([])
   const current = ref<IImageItem | null>(null)
 
-  const processFile = async (filePath: string, isDirectory: boolean) => {
+  const processFile = async (filePath: string, isDirectory: boolean, raw?: string) => {
     try {
       if (isDirectory) {
         const { result: images } = await fileModule.getDirectoryImages(filePath)
@@ -55,14 +55,26 @@ const useFileProcessor = () => {
           }
         }
       } else {
-        const { result: preview } = await fileModule.getImagePreview(filePath)
+        let preview
+        if (raw) {
+          preview = raw
+        } else {
+          const { result } = await fileModule.getImagePreview(filePath)
+          preview = result
+        }
         const newImage = getImageItem(filePath, preview)
         processResult.value.unshift(newImage)
         current.value = newImage
 
+        const { removeBackground, removeBackgroundFromBase64 } = fileModule
+
+        const targetFunc = raw ? removeBackgroundFromBase64 : removeBackground
+
+        const targetOrigin = raw || filePath
+
         const {
           result: { base64 = '', outputPath: path = '' }
-        } = await fileModule.removeBackground(filePath)
+        } = await targetFunc(targetOrigin)
 
         const index = processResult.value.findIndex((item) => item.id === newImage.id)
 

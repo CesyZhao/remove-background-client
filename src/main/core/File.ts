@@ -125,6 +125,7 @@ class FileModule extends BaseModule {
         code: EventCode.Success
       }
     } catch (error) {
+      console.log(error)
       throw {
         code: EventCode.Error,
         result: {}

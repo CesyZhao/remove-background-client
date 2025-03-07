@@ -26,7 +26,11 @@ export const executeRembgCommand = (command: string): Promise<void> => {
   })
 }
 
-export const buildRembgCommand = (imagePath: string, outputPath: string, settings: ISetting[]): string => {
+export const buildRembgCommand = (
+  imagePath: string,
+  outputPath: string,
+  settings: ISetting[]
+): string => {
   const modelSettings = settings.find((s) => s.category === 'model_setting')?.settings || []
   const postSettings = settings.find((s) => s.category === 'post_process_setting')?.settings || []
 
@@ -36,7 +40,22 @@ export const buildRembgCommand = (imagePath: string, outputPath: string, setting
 
   // 指定自定义模型路径和输入尺寸
   const modelPath = path.join(__dirname, '../../resources/u2net.onnx')
-  command.push('-x', `'{ "model_path": "${modelPath}" }'`)
+
+  const xCommand: Record<string, any> = {
+    model_path: modelPath
+  }
+
+  // 边缘优化参数
+  if (modelSettings.find((s) => s.key === 'edge_refinement')?.value) {
+    xCommand.edge_feather = modelSettings.find((s) => s.key === 'edge_feather')?.value
+    xCommand.edge_padding = modelSettings.find((s) => s.key === 'edge_padding')?.value
+    xCommand.mask_post_process = modelSettings.find((s) => s.key === 'mask_post_process')?.value // 新增
+    xCommand.edge_smoothing = modelSettings.find((s) => s.key === 'edge_smoothing')?.value // 新增
+  }
+
+  console.log(JSON.stringify(xCommand))
+
+  command.push('-x', `'${JSON.stringify(xCommand)}'`)
 
   // Alpha matting 参数
   if (modelSettings.find((s) => s.key === 'alpha_matting')?.value) {
@@ -66,5 +85,6 @@ export const buildRembgCommand = (imagePath: string, outputPath: string, setting
   }
 
   command.push(imagePath, outputPath)
+  console.log(command.join(' '))
   return command.join(' ')
 }

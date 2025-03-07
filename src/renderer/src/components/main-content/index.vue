@@ -8,8 +8,6 @@ import { IImageItem } from '@definitions/content'
 
 const { fileModule } = bridge.modules
 
-const loading = ref(false)
-
 const { processResult: imageList, current: currentImage, processFile } = useFileProcessor()
 
 const selectImage = (image: IImageItem) => {
@@ -128,48 +126,27 @@ const handlePaste = async (e: ClipboardEvent) => {
 
   if (!items) return
 
-  for (const item of Array.from(items)) {
-    if (item.type.startsWith('image/')) {
-      const file = item.getAsFile()
-      if (!file) continue
+  // 只处理第一个
+  const item = items[0]
 
-      try {
-        loading.value = true
-        const reader = new FileReader()
-        const base64Promise = new Promise<string>((resolve) => {
-          reader.onload = (e) => resolve(e.target?.result as string)
-          reader.readAsDataURL(file)
-        })
+  if (item.type.startsWith('image/')) {
+    const file = item.getAsFile()
+    if (!file) return
 
-        const preview = await base64Promise
-        const newImage: IImageItem = {
-          id: Date.now().toString(),
-          previewUrl: preview,
-          processedUrl: '',
-          processing: true,
-          path: '',
-          name: '粘贴的图片'
-        }
+    try {
+      const reader = new FileReader()
+      const base64Promise = new Promise<string>((resolve) => {
+        reader.onload = (e) => resolve(e.target?.result as string)
+        reader.readAsDataURL(file)
+      })
 
-        imageList.value.push(newImage)
-        currentImage.value = newImage
+      const preview = await base64Promise
 
-        const {
-          result: { base64, path }
-        } = await fileModule.removeBackgroundFromBase64(preview)
-        const index = imageList.value.findIndex((item) => item.id === newImage.id)
-        if (index !== -1) {
-          imageList.value[index].processedUrl = base64
-          imageList.value[index].path = path
-          imageList.value[index].processing = false
-        }
-      } catch (error) {
-        console.error('处理粘贴图片失败:', error)
-        Message.error('处理失败')
-      } finally {
-        loading.value = false
-      }
-      break
+      processFile('粘贴的图片', false, preview)
+
+    } catch (error) {
+      console.error('处理粘贴图片失败:', error)
+      Message.error('处理失败')
     }
   }
 }
@@ -192,9 +169,9 @@ onMounted(() => {
       <template v-if="imageList.length === 0">
         <div class="empty-state" :class="{ 'is-dragging': isDragging }">
           <h2>选择图片或者文件夹以消除背景</h2>
-          <div class="dynamic-button" :loading="loading" @click="handleSelectFile"></div>
+          <div class="dynamic-button" @click="handleSelectFile"></div>
           <p class="tip">拖入图片、文件夹</p>
-          <p class="tip">粘贴图片或者 URL</p>
+          <p class="tip">或者粘贴图片</p>
         </div>
       </template>
       <template v-else>
