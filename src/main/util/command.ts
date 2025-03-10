@@ -36,10 +36,10 @@ export const buildRembgCommand = (
 
   const command = ['rembg', 'i']
 
-  command.push('-m', 'u2net_custom')
+  command.push('-m', 'birefnet-general-lite')
 
   // 指定自定义模型路径和输入尺寸
-  const modelPath = path.join(__dirname, '../../resources/u2net.onnx')
+  const modelPath = path.join(__dirname, '../../resources/birefnet-general-lite.onnx')
 
   const xCommand: Record<string, any> = {
     model_path: modelPath

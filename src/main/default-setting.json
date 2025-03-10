@@ -109,25 +109,5 @@
         "description": "控制边缘平滑程度（推荐 70-90）"
       }
     ]
-  },
-  {
-    "category": "post_process_setting",
-    "title": "后处理设置",
-    "settings": [
-      {
-        "key": "post_process_mask",
-        "title": "蒙版后处理",
-        "type": "boolean",
-        "value": false,
-        "description": "减少噪点但可能损失细节"
-      },
-      {
-        "key": "background_color",
-        "title": "背景颜色",
-        "type": "color",
-        "value": "#ffffff",
-        "description": "替换背景颜色（透明背景时无需设置）"
-      }
-    ]
   }
 ]
