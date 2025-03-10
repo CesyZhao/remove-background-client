@@ -48,6 +48,10 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  // 在 Electron 主进程初始化时添加
+  app.commandLine.appendSwitch('enable-webassembly-tiering')
+  app.commandLine.appendSwitch('enable-webassembly-simd')
+
   createWindow()
 
   app.on('activate', () => {

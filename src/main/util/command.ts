@@ -1,31 +1,28 @@
-import { exec } from 'child_process'
+import fs from 'fs'
 import { ISetting } from '@common/definitions/setting'
 import path from 'path'
+import { ImageProcessor } from '../core/ImageProcessor'
 
-export const executeRembgCommand = (command: string): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const childProcess = exec(
-      command,
-      {
-        timeout: 30000, // 30 秒超时
-        maxBuffer: 1024 * 1024 * 10 // 增加缓冲区大小到 10MB
-      },
-      (error, stdout, stderr) => {
-        if (error) {
-          reject(new Error(`执行失败: ${stderr}`))
-          return
-        }
-        resolve()
-      }
-    )
-
-    // 设置更高的进程优先级
-    if (process.platform === 'darwin') {
-      exec(`renice -n -10 -p ${childProcess.pid}`)
-    }
+// 修改 executeRembgCommand 支持批量输入
+export const executeRembgCommand = async (command: string): Promise<any> => {
+  const processor = await ImageProcessor.init({
+    modelPath: path.join(__dirname, '../../resources/u2net'),
+    inputSize: 1024
   })
+
+  // 解析批量路径参数（示例：rembg batch input_dir output_dir）
+  const [_, inputPath, outputDir] = command.match(/rembg batch (.*?) (.*)/) || []
+
+  // 获取目录下所有图片文件
+  const files = await fs.promises.readdir(inputPath)
+  const imagePaths = files
+    .filter((f) => ['.jpg', '.png', '.webp'].includes(path.extname(f).toLowerCase()))
+    .map((f) => path.join(inputPath, f))
+
+  return processor.batchProcess(imagePaths, outputDir)
 }
 
+// 删除 buildRembgCommand 函数及其相关代码
 export const buildRembgCommand = (
   imagePath: string,
   outputPath: string,

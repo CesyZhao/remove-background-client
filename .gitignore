@@ -7,4 +7,4 @@ out
 *.log*
 resources/*.exe
 resources/*.pkg
-resources/*.onnx
+resources/**/*.onnx

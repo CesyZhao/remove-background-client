@@ -18,27 +18,42 @@ import sharp from 'sharp'
 import { tmpdir } from 'os'
 import { IpcResponse, FileOperationResult } from '@common/definitions/bridge'
 import { buildRembgCommand, executeRembgCommand } from '@util/command'
+import { ImageProcessor } from './ImageProcessor' // 替换旧命令模块
+import { pathToFileURL } from 'url'
 
 class FileModule extends BaseModule {
   private settingModule: SettingModule
+  private imageProcessor: ImageProcessor
 
   constructor() {
     super('file')
     this.settingModule = new SettingModule(true)
+    this.initProcessor()
+  }
+
+  async initProcessor() {
+    try {
+      this.imageProcessor = await ImageProcessor.init({
+        inputSize: 1024
+      })
+    } catch (error) {
+      console.error('初始化处理器失败:', error)
+      throw error
+    }
   }
 
   protected registerEvents(): void {
     this.registerHandler(BridgeEvent.PickFileOrDirectory, this.handlePickFileOrDirectory)
     this.registerHandler(BridgeEvent.GetImagePreview, this.handleGetImagePreview)
     this.registerHandler(BridgeEvent.RemoveBackground, this.handleRemoveBackground)
-    this.registerHandler(
-      BridgeEvent.RemoveBackgroundFromBase64,
-      this.handleRemoveBackgroundFromBase64
-    )
+    // this.registerHandler(
+    //   BridgeEvent.RemoveBackgroundFromBase64,
+    //   this.handleRemoveBackgroundFromBase64
+    // )
     this.registerHandler(BridgeEvent.RemoveBackgroundBatch, this.handleRemoveBackgroundBatch)
-    this.registerHandler(BridgeEvent.GetDirectoryImages, this.handleGetDirectoryImages)
-    this.registerHandler(BridgeEvent.DeleteImage, this.deleteImage)
-    this.registerHandler(BridgeEvent.RevealInFinder, this.revealInFinder)
+    // this.registerHandler(BridgeEvent.GetDirectoryImages, this.handleGetDirectoryImages)
+    // this.registerHandler(BridgeEvent.DeleteImage, this.deleteImage)
+    // this.registerHandler(BridgeEvent.RevealInFinder, this.revealInFinder)
   }
 
   private async handlePickFileOrDirectory(
@@ -108,9 +123,8 @@ class FileModule extends BaseModule {
     try {
       const settings = await this.settingModule.getSetting()
       const outputPath = this.getOutputPath(imagePath, settings)
-      const command = buildRembgCommand(imagePath, outputPath, settings)
-
-      await executeRembgCommand(command)
+      // 使用新处理器处理图片
+      await this.imageProcessor.removeBackground(imagePath, outputPath)
 
       const imageBuffer = fs.readFileSync(outputPath)
       const base64Image = imageBuffer.toString('base64')
@@ -125,162 +139,13 @@ class FileModule extends BaseModule {
         code: EventCode.Success
       }
     } catch (error) {
-      console.log(error)
+      console.error('背景移除失败:', error) // 改进错误日志
       throw {
         code: EventCode.Error,
-        result: {}
+        result: { message: error.message }
       }
     }
   }
-
-  private async handleRemoveBackgroundFromBase64(
-    _,
-    base64Data: string
-  ): Promise<IpcResponse<FileOperationResult>> {
-    const tempPath = path.join(tmpdir(), `temp-${Date.now()}.png`)
-    try {
-      const base64Image = base64Data.replace(/^data:image\/\w+;base64,/, '')
-      const imageBuffer = Buffer.from(base64Image, 'base64')
-      await fs.promises.writeFile(tempPath, imageBuffer)
-
-      const settings = await this.settingModule.getSetting()
-      const outputPath = this.getOutputPath(tempPath, settings)
-      const command = buildRembgCommand(tempPath, outputPath, settings)
-
-      await executeRembgCommand(command)
-
-      const processedBuffer = await fs.promises.readFile(outputPath)
-      const processedBase64 = processedBuffer.toString('base64')
-      const mimeType = outputPath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'
-      const dataUrl = `data:${mimeType};base64,${processedBase64}`
-
-      return {
-        result: {
-          base64: dataUrl,
-          outputPath
-        },
-        code: EventCode.Success
-      }
-    } catch (error) {
-      throw {
-        code: EventCode.Error,
-        result: {}
-      }
-    } finally {
-      await fs.promises.unlink(tempPath).catch(console.error)
-    }
-  }
-
-  private async handleGetDirectoryImages(
-    _,
-    dirPath: string
-  ): Promise<IpcResponse<IGetImagePreviewResult>> {
-    try {
-      const images: { path: string }[] = []
-      const processDir = async (dir: string) => {
-        const entries = await fs.promises.readdir(dir, { withFileTypes: true })
-        for (const entry of entries) {
-          const fullPath = path.join(dir, entry.name)
-          if (entry.isDirectory()) {
-            await processDir(fullPath)
-          } else {
-            const ext = path.extname(entry.name).toLowerCase()
-            if (['.jpg', '.jpeg', '.png'].includes(ext)) {
-              images.push({ path: fullPath })
-            }
-          }
-        }
-      }
-
-      await processDir(dirPath)
-      return {
-        result: images,
-        code: EventCode.Success
-      }
-    } catch (error) {
-      throw {
-        code: EventCode.Error,
-        result: []
-      }
-    }
-  }
-
-  private async deleteImage(_, imagePath: string): Promise<IpcResponse<void>> {
-    try {
-      await fs.promises.unlink(imagePath)
-      return {
-        code: EventCode.Success,
-        result: undefined
-      }
-    } catch (error) {
-      throw {
-        code: EventCode.Error,
-        result: undefined
-      }
-    }
-  }
-
-  private async revealInFinder(_, imagePath: string): Promise<IpcResponse<void>> {
-    try {
-      await shell.showItemInFolder(imagePath)
-      return {
-        code: EventCode.Success,
-        result: undefined
-      }
-    } catch (error) {
-      throw {
-        code: EventCode.Error,
-        result: undefined
-      }
-    }
-  }
-
-  private async processDirectoryFlat(
-    dirPath: string,
-    baseDir: string,
-    settings: ISetting[]
-  ): Promise<Array<FileOperationResult>> {
-    const results: Array<FileOperationResult> = []
-    const entries = await fs.promises.readdir(dirPath, { withFileTypes: true })
-
-    for (const entry of entries) {
-      const fullPath = path.join(dirPath, entry.name)
-
-      if (entry.isDirectory()) {
-        const subResults = await this.processDirectoryFlat(fullPath, baseDir, settings)
-        results.push(...subResults)
-      } else {
-        const ext = path.extname(entry.name).toLowerCase()
-        if (['.jpg', '.jpeg', '.png'].includes(ext)) {
-          const outputPath = this.getOutputPath(fullPath, settings, baseDir) // 传入 baseDir
-
-          // 确保输出目录存在
-          await fs.promises.mkdir(path.dirname(outputPath), { recursive: true })
-
-          const command = buildRembgCommand(fullPath, outputPath, settings)
-          await executeRembgCommand(command)
-
-          const imageBuffer = await fs.promises.readFile(outputPath)
-          const base64Image = imageBuffer.toString('base64')
-          const mimeType = outputPath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'
-          const dataUrl = `data:${mimeType};base64,${base64Image}`
-
-          results.push({
-            base64: dataUrl,
-            outputPath
-          })
-        }
-      }
-    }
-
-    return results
-  }
-
-  // private async processDirectory(
-  //   dirPath: string,
-  //   baseDir: string,
-  //   settings: ISetting[]
-  // ): Promise<Array<{ base64: string; path: string }>> {}
 
   private async handleRemoveBackgroundBatch(
     _,
@@ -288,12 +153,35 @@ class FileModule extends BaseModule {
   ): Promise<IpcResponse<FileOperationResult[]>> {
     try {
       const settings = await this.settingModule.getSetting()
-      const results = await this.processDirectoryFlat(dirPath, dirPath, settings)
+
+      // 获取目录下所有图片文件
+      const files = await fs.promises.readdir(dirPath)
+      const imagePaths = files
+        .filter((f) => ['.jpg', '.png', '.webp'].includes(path.extname(f).toLowerCase()))
+        .map((f) => path.join(dirPath, f))
+
+      // 批量处理
+      const { success } = await this.imageProcessor.batchProcess(imagePaths, dirPath)
+
+      // 生成结果集
+      const results = await Promise.all(
+        success.map(async (outputPath) => {
+          const imageBuffer = await fs.promises.readFile(outputPath)
+          const base64Image = imageBuffer.toString('base64')
+          const mimeType = outputPath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'
+          return {
+            base64: `data:${mimeType};base64,${base64Image}`,
+            outputPath
+          }
+        })
+      )
+
       return {
         result: results,
         code: EventCode.Success
       }
     } catch (error) {
+      console.error('批量处理失败:', error)
       throw {
         code: EventCode.Error,
         result: []
