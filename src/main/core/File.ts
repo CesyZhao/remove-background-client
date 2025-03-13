@@ -238,41 +238,45 @@ class FileModule extends BaseModule {
   private async processDirectoryFlat(
     dirPath: string,
     baseDir: string,
-    settings: ISetting[]
+    settings: ISetting[],
+    progressCallback?: (result: FileOperationResult) => void
   ): Promise<Array<FileOperationResult>> {
     const results: Array<FileOperationResult> = []
     const entries = await fs.promises.readdir(dirPath, { withFileTypes: true })
-
+  
     for (const entry of entries) {
       const fullPath = path.join(dirPath, entry.name)
-
+  
       if (entry.isDirectory()) {
-        const subResults = await this.processDirectoryFlat(fullPath, baseDir, settings)
+        const subResults = await this.processDirectoryFlat(fullPath, baseDir, settings, progressCallback)
         results.push(...subResults)
       } else {
         const ext = path.extname(entry.name).toLowerCase()
         if (['.jpg', '.jpeg', '.png'].includes(ext)) {
-          const outputPath = this.getOutputPath(fullPath, settings, baseDir) // 传入 baseDir
-
-          // 确保输出目录存在
-          await fs.promises.mkdir(path.dirname(outputPath), { recursive: true })
-
-          const command = buildRembgCommand(fullPath, outputPath, settings)
-          await executeRembgCommand(command)
-
-          const imageBuffer = await fs.promises.readFile(outputPath)
-          const base64Image = imageBuffer.toString('base64')
-          const mimeType = outputPath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'
-          const dataUrl = `data:${mimeType};base64,${base64Image}`
-
-          results.push({
-            base64: dataUrl,
-            outputPath
-          })
+          try {
+            const outputPath = this.getOutputPath(fullPath, settings, baseDir)
+            await fs.promises.mkdir(path.dirname(outputPath), { recursive: true })
+  
+            const command = buildRembgCommand(fullPath, outputPath, settings)
+            await executeRembgCommand(command)
+  
+            const imageBuffer = await fs.promises.readFile(outputPath)
+            const base64Image = imageBuffer.toString('base64')
+            const mimeType = outputPath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'
+            const dataUrl = `data:${mimeType};base64,${base64Image}`
+  
+            const result = { base64: dataUrl, outputPath }
+            results.push(result)
+            
+            // 处理完一张图片立即回调
+            progressCallback?.(result)
+          } catch (error) {
+            console.error(`处理图片失败: ${fullPath}`, error)
+          }
         }
       }
     }
-
+  
     return results
   }
 
@@ -283,12 +287,22 @@ class FileModule extends BaseModule {
   // ): Promise<Array<{ base64: string; path: string }>> {}
 
   private async handleRemoveBackgroundBatch(
-    _,
+    event,
     dirPath: string
   ): Promise<IpcResponse<FileOperationResult[]>> {
     try {
       const settings = await this.settingModule.getSetting()
-      const results = await this.processDirectoryFlat(dirPath, dirPath, settings)
+      const results: FileOperationResult[] = []
+      
+      await this.processDirectoryFlat(dirPath, dirPath, settings, (result) => {
+        // 使用 event.sender 发送进度更新
+        event.sender.send('background-remove-progress', {
+          code: EventCode.Success,
+          result
+        })
+        results.push(result)
+      })
+  
       return {
         result: results,
         code: EventCode.Success

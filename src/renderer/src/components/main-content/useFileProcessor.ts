@@ -1,7 +1,9 @@
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { IImageItem } from '@definitions/content'
 import { Message } from '@arco-design/web-vue'
 import bridge from '@ipc/Bridge'
+import { ipcRenderer } from 'electron'
+import { EventCode } from '@common/definitions/bridge'
 
 const getImageItem = (filePath: string, previewUrl: string): IImageItem => {
   return {
@@ -20,7 +22,7 @@ const getFilenameByPath = (filePath: string) => {
 
 const { fileModule } = bridge.modules
 
-const useFileProcessor = () => {
+const useFileProcessor = (options) => {
   const processResult = ref<IImageItem[]>([])
   const current = ref<IImageItem | null>(null)
 
@@ -91,6 +93,18 @@ const useFileProcessor = () => {
       throw error
     }
   }
+
+  onMounted(() => {
+    ipcRenderer.on('background-remove-progress', (_, response) => {
+      if (response.code === EventCode.Success) {
+        options?.onProgress?.(response.result)
+      }
+    })
+  })
+
+  onUnmounted(() => {
+    ipcRenderer.removeAllListeners('background-remove-progress')
+  })
 
   return {
     current,
