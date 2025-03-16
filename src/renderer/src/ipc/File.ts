@@ -1,5 +1,13 @@
-import { FileOperationResult, FileSelectorType, IGetImagePreviewResult, IpcResponse, IPickFileResult } from '@common/definitions/bridge'
+import {
+  BridgeEvent,
+  FileOperationResult,
+  FileSelectorType,
+  IGetImagePreviewResult,
+  IpcResponse,
+  IPickFileResult
+} from '@common/definitions/bridge'
 const { electron } = window
+import { upperFirst } from 'lodash'
 
 class File {
   async pickFileOrDirectory(types: FileSelectorType[]): Promise<IpcResponse<IPickFileResult>> {
@@ -32,6 +40,16 @@ class File {
 
   async getDirectoryImages(dirPath: string): Promise<IpcResponse<IGetImagePreviewResult>> {
     return electron.getDirectoryImages(dirPath)
+  }
+
+  setProgressCallback(callback: (SingleFile: FileOperationResult) => void) {
+    const funcName = `on${upperFirst(BridgeEvent.ProgressCallback)}`
+    return electron[funcName](callback)
+  }
+
+  cancelProgressCallback() {
+    const funcName = `cancel${upperFirst(BridgeEvent.ProgressCallback)}`
+    return electron[funcName]()
   }
 }
 

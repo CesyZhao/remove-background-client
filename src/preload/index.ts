@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { BridgeEvent } from '@common/definitions/bridge'
-import { lowerFirst } from 'lodash'
+import { lowerFirst, upperFirst } from 'lodash'
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
@@ -30,6 +30,18 @@ Object.entries(apiGroup).forEach(([prefix, apiList]) => {
       return ipcRenderer.invoke(`${prefix}:${api}`, ...args)
     }
   })
+})
+
+const additionalAPIKeys = [BridgeEvent.ProgressCallback]
+
+additionalAPIKeys.forEach(k => {
+  additionalApi[`on${upperFirst(k)}`] = (callback) => {
+    ipcRenderer.on(k, (_event, value) => callback(value))
+  }
+
+  additionalApi[`cancel${upperFirst(k)}`] = () => {
+    ipcRenderer.removeAllListeners(k)
+  }
 })
 
 if (process.contextIsolated) {

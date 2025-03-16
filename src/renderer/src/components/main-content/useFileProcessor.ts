@@ -22,7 +22,7 @@ const getFilenameByPath = (filePath: string) => {
 
 const { fileModule } = bridge.modules
 
-const useFileProcessor = (options) => {
+const useFileProcessor = () => {
   const processResult = ref<IImageItem[]>([])
   const current = ref<IImageItem | null>(null)
 
@@ -95,15 +95,17 @@ const useFileProcessor = (options) => {
   }
 
   onMounted(() => {
-    ipcRenderer.on('background-remove-progress', (_, response) => {
-      if (response.code === EventCode.Success) {
-        options?.onProgress?.(response.result)
+    fileModule.setProgressCallback((file) => {
+      const targetFile = processResult.value.find((item) => item.path === file.path)
+      if (targetFile) {
+        targetFile.processing = false
+        targetFile.processedUrl = file.base64 || ''
       }
     })
   })
 
   onUnmounted(() => {
-    ipcRenderer.removeAllListeners('background-remove-progress')
+    fileModule.cancelProgressCallback()
   })
 
   return {

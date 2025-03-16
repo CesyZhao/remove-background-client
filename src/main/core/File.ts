@@ -243,12 +243,17 @@ class FileModule extends BaseModule {
   ): Promise<Array<FileOperationResult>> {
     const results: Array<FileOperationResult> = []
     const entries = await fs.promises.readdir(dirPath, { withFileTypes: true })
-  
+
     for (const entry of entries) {
       const fullPath = path.join(dirPath, entry.name)
-  
+
       if (entry.isDirectory()) {
-        const subResults = await this.processDirectoryFlat(fullPath, baseDir, settings, progressCallback)
+        const subResults = await this.processDirectoryFlat(
+          fullPath,
+          baseDir,
+          settings,
+          progressCallback
+        )
         results.push(...subResults)
       } else {
         const ext = path.extname(entry.name).toLowerCase()
@@ -256,18 +261,18 @@ class FileModule extends BaseModule {
           try {
             const outputPath = this.getOutputPath(fullPath, settings, baseDir)
             await fs.promises.mkdir(path.dirname(outputPath), { recursive: true })
-  
+
             const command = buildRembgCommand(fullPath, outputPath, settings)
             await executeRembgCommand(command)
-  
+
             const imageBuffer = await fs.promises.readFile(outputPath)
             const base64Image = imageBuffer.toString('base64')
             const mimeType = outputPath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'
             const dataUrl = `data:${mimeType};base64,${base64Image}`
-  
-            const result = { base64: dataUrl, outputPath }
+
+            const result = { base64: dataUrl, path: fullPath, outputPath }
             results.push(result)
-            
+
             // 处理完一张图片立即回调
             progressCallback?.(result)
           } catch (error) {
@@ -276,7 +281,7 @@ class FileModule extends BaseModule {
         }
       }
     }
-  
+
     return results
   }
 
@@ -293,7 +298,7 @@ class FileModule extends BaseModule {
     try {
       const settings = await this.settingModule.getSetting()
       const results: FileOperationResult[] = []
-      
+
       await this.processDirectoryFlat(dirPath, dirPath, settings, (result) => {
         // 使用 event.sender 发送进度更新
         event.sender.send('background-remove-progress', {
@@ -302,7 +307,7 @@ class FileModule extends BaseModule {
         })
         results.push(result)
       })
-  
+
       return {
         result: results,
         code: EventCode.Success

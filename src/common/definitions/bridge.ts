@@ -11,7 +11,8 @@ export enum BridgeEvent {
   RevealInFinder = 'revealInFinder',
   GetSetting = 'getSetting',
   SetSetting = 'setSetting',
-  ResetSetting = 'resetSetting'
+  ResetSetting = 'resetSetting',
+  ProgressCallback = 'progressCallback'
 }
 
 export enum FileSelectorCommand {
@@ -54,6 +55,7 @@ export interface IpcResponse<T> {
 
 export interface FileOperationResult {
   base64?: string
+  path?: string
   outputPath?: string
 }
 
