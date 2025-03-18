@@ -301,7 +301,7 @@ class FileModule extends BaseModule {
 
       await this.processDirectoryFlat(dirPath, dirPath, settings, (result) => {
         // 使用 event.sender 发送进度更新
-        event.sender.send('background-remove-progress', {
+        event.sender.send(BridgeEvent.ProgressCallback, {
           code: EventCode.Success,
           result
         })

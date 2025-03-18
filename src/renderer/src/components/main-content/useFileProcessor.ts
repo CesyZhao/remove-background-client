@@ -2,8 +2,6 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { IImageItem } from '@definitions/content'
 import { Message } from '@arco-design/web-vue'
 import bridge from '@ipc/Bridge'
-import { ipcRenderer } from 'electron'
-import { EventCode } from '@common/definitions/bridge'
 
 const getImageItem = (filePath: string, previewUrl: string): IImageItem => {
   return {
@@ -95,11 +93,12 @@ const useFileProcessor = () => {
   }
 
   onMounted(() => {
-    fileModule.setProgressCallback((file) => {
-      const targetFile = processResult.value.find((item) => item.path === file.path)
+    fileModule.setProgressCallback((response) => {
+      const { result } = response
+      const targetFile = processResult.value.find((item) => item.path === result.path)
       if (targetFile) {
         targetFile.processing = false
-        targetFile.processedUrl = file.base64 || ''
+        targetFile.processedUrl = result.base64 || ''
       }
     })
   })

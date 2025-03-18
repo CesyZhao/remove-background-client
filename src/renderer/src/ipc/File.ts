@@ -42,7 +42,7 @@ class File {
     return electron.getDirectoryImages(dirPath)
   }
 
-  setProgressCallback(callback: (SingleFile: FileOperationResult) => void) {
+  setProgressCallback(callback: (SingleFile: IpcResponse<FileOperationResult>) => void) {
     const funcName = `on${upperFirst(BridgeEvent.ProgressCallback)}`
     return electron[funcName](callback)
   }
